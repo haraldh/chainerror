@@ -46,6 +46,26 @@ macro_rules! chain_error_fn {
 }
 
 #[macro_export]
+macro_rules! into_boxed_chain_error_fn {
+    ( $v:expr $(, $more:expr)* ) => {
+        |e| Box::<Error>::from(e).into_chain_error(line!(), file!(), Some(format!($v, $( $more , )* )))
+    };
+    ( ) => {
+        |e| Box::<Error>::from(e).into_chain_error(line!(), file!(), None)
+    };
+}
+
+#[macro_export]
+macro_rules! chain {
+    ( $v:expr $(, $more:expr)* ) => {
+        |e| Box::<Error>::from(e).into_chain_error(line!(), file!(), Some(format!($v, $( $more , )* )))
+    };
+    ( ) => {
+        |e| Box::<Error>::from(e).into_chain_error(line!(), file!(), None)
+    };
+}
+
+#[macro_export]
 macro_rules! into_chain_error_fn {
     ( $v:expr $(, $more:expr)* ) => {
         |e| e.into_chain_error(line!(), file!(), Some(format!($v, $( $more , )* )))
@@ -167,13 +187,7 @@ macro_rules! derive_chain_error {
 
         impl ::std::fmt::Debug for $e {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                writeln!(
-                    f,
-                    "\n{}:{}: {}",
-                    self.filename,
-                    self.line,
-                    self.description()
-                )?;
+                writeln!(f, "{}:{}: {}", self.filename, self.line, self.description())?;
                 if let Some(e) = self.source() {
                     writeln!(f, "\nCaused by:")?;
                     ::std::fmt::Debug::fmt(&e, f)?;
@@ -200,6 +214,22 @@ mod tests {
     derive_chain_error!(MyError);
     derive_chain_error!(MyMainError);
 
+    impl ChainErrorFrom<Box<Error>> for MyMainError {
+        fn chain_error_from(
+            e: Box<Error>,
+            line: u32,
+            filename: &'static str,
+            description: Option<String>,
+        ) -> Self {
+            MyMainError {
+                line,
+                filename,
+                description,
+                error_cause: Some(e),
+            }
+        }
+    }
+
     fn throw_error() -> Result<(), MyError> {
         let directory = String::from("ldfhgdfkgjdf");
         ::std::fs::remove_dir(&directory).map_err(chain_error_fn!(
@@ -212,8 +242,63 @@ mod tests {
     }
 
     #[test]
-    fn it_works() -> Result<(), MyMainError> {
+    fn test_chain_error_fn() -> Result<(), MyMainError> {
         let res = throw_error().map_err(chain_error_fn!(MyMainError, "I has an error."));
+
+        if let Err(my_err) = res {
+            if let Some(source) = my_err.source() {
+                assert!(source.is::<MyError>());
+            }
+            println!("\nRoot cause is {:#?}\n", my_err.root_cause());
+            assert!(my_err.root_cause().unwrap().is::<::std::io::Error>());
+            assert!(my_err.find_cause::<::std::io::Error>().is_some());
+
+            if my_err.find_cause::<::std::io::Error>().is_some() {
+                println!("Has cause io::Error");
+            }
+            if my_err.find_cause::<MyError>().is_some() {
+                println!("Has cause MyError");
+            }
+            println!("-----------");
+            println!("Display Error:\n{}", my_err);
+            println!("-----------");
+            println!("Debug Error:  \n{:#?}", my_err);
+            println!("-----------");
+        };
+        //res?;
+        Ok(())
+    }
+    #[test]
+    fn test_into_chain_error_fn() -> Result<(), MyMainError> {
+        let res: Result<(), MyMainError> = throw_error().map_err(into_boxed_chain_error_fn!("I has an error."));
+
+        if let Err(my_err) = res {
+            if let Some(source) = my_err.source() {
+                assert!(source.is::<MyError>());
+            }
+            println!("\nRoot cause is {:#?}\n", my_err.root_cause());
+            assert!(my_err.root_cause().unwrap().is::<::std::io::Error>());
+            assert!(my_err.find_cause::<::std::io::Error>().is_some());
+
+            if my_err.find_cause::<::std::io::Error>().is_some() {
+                println!("Has cause io::Error");
+            }
+            if my_err.find_cause::<MyError>().is_some() {
+                println!("Has cause MyError");
+            }
+            println!("-----------");
+            println!("Display Error:\n{}", my_err);
+            println!("-----------");
+            println!("Debug Error:  \n{:#?}", my_err);
+            println!("-----------");
+        };
+        //res?;
+        Ok(())
+    }
+
+    #[test]
+    fn test_map_chain_err() -> Result<(), MyMainError> {
+        let res: Result<(), MyMainError> = throw_error().map_err(chain!());
 
         if let Err(my_err) = res {
             if let Some(source) = my_err.source() {

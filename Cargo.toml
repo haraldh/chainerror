@@ -4,3 +4,8 @@ version = "0.1.0"
 authors = ["Harald Hoyer <harald@redhat.com>"]
 edition = "2018"
 
+[features]
+default = [ "debug-cause", "fileline" ]
+fileline = []
+display-cause = []
+debug-cause = []

@@ -1,326 +1,426 @@
-pub trait ChainError: ::std::error::Error + Sized {
-    fn new(
-        line: u32,
-        filename: &'static str,
-        description: Option<String>,
-        error_cause: Option<Box<dyn std::error::Error + 'static>>,
-    ) -> Self;
+use std::error::Error;
+use std::fmt::{Debug, Display, Formatter, Result};
 
-    fn root_cause(&self) -> Option<&(dyn std::error::Error + 'static)>;
-    fn find_cause<T: ::std::error::Error + 'static>(
-        &self,
-    ) -> Option<&(dyn std::error::Error + 'static)>;
+pub struct ChainError<T> {
+    #[cfg(feature = "fileline")]
+    occurrence: Option<(u32, &'static str)>,
+    kind: T,
+    error_cause: Option<Box<dyn Error + 'static>>,
 }
 
-pub trait ChainErrorFrom<T>: ChainError {
-    fn chain_error_from(_: T, _: u32, _: &'static str, _: Option<String>) -> Self;
+impl<T: 'static + Display + Debug> ChainError<T> {
+    #[cfg(feature = "fileline")]
+    pub fn new(
+        kind: T,
+        error_cause: Option<Box<dyn Error + 'static>>,
+        occurrence: Option<(u32, &'static str)>,
+    ) -> Self {
+        Self {
+            occurrence,
+            kind,
+            error_cause,
+        }
+    }
+
+    #[cfg(not(feature = "fileline"))]
+    pub fn new(
+        kind: T,
+        error_cause: Option<Box<dyn Error + 'static>>,
+        _occurrence: Option<(u32, &'static str)>,
+    ) -> Self {
+        Self { kind, error_cause }
+    }
+
+    pub fn root_cause(&self) -> Option<&(dyn Error + 'static)> {
+        let mut cause = self as &(dyn Error + 'static);
+        while let Some(c) = cause.source() {
+            cause = c;
+        }
+        Some(cause)
+    }
+
+    pub fn find_cause<U: Error + 'static>(&self) -> Option<&(dyn Error + 'static)> {
+        let mut cause = self as &(dyn Error + 'static);
+        loop {
+            if cause.is::<U>() {
+                return Some(cause);
+            }
+
+            match cause.source() {
+                Some(c) => cause = c,
+                None => return None,
+            }
+        }
+    }
+
+    pub fn find_kind<U: 'static + Display + Debug>(&self) -> Option<&ChainError<U>> {
+        let mut cause = self as &(dyn Error + 'static);
+        loop {
+            if cause.is::<ChainError<U>>() {
+                return cause.downcast_ref::<ChainError<U>>();
+            }
+
+            match cause.source() {
+                Some(c) => cause = c,
+                None => return None,
+            }
+        }
+    }
+
+    pub fn kind<'a>(&'a self) -> &'a T {
+        &self.kind
+    }
 }
 
-pub trait IntoChainError<T: ChainError>: Sized {
-    fn into_chain_error(self, line: u32, filename: &'static str, description: Option<String>) -> T;
+pub trait ChainErrorDown {
+    fn is_chain<T: 'static + Display + Debug>(&self) -> bool;
+    fn downcast_chain_ref<T: 'static + Display + Debug>(&self) -> Option<&ChainError<T>>;
+    fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>>;
 }
 
-impl<T, U> IntoChainError<U> for T
-where
-    U: ChainErrorFrom<T> + ChainError,
-{
-    fn into_chain_error(self, line: u32, filename: &'static str, description: Option<String>) -> U {
-        U::chain_error_from(self, line, filename, description)
+use std::any::TypeId;
+
+impl<U: 'static + Display + Debug> ChainErrorDown for ChainError<U> {
+    fn is_chain<T: 'static + Display + Debug>(&self) -> bool {
+        TypeId::of::<T>() == TypeId::of::<U>()
+    }
+
+    fn downcast_chain_ref<T: 'static + Display + Debug>(&self) -> Option<&ChainError<T>> {
+        if self.is_chain::<T>() {
+            unsafe { Some(&*(self as *const dyn Error as *const &ChainError<T>)) }
+        } else {
+            None
+        }
+    }
+
+    fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>> {
+        if self.is_chain::<T>() {
+            unsafe { Some(&mut *(self as *mut dyn Error as *mut &mut ChainError<T>)) }
+        } else {
+            None
+        }
+    }
+}
+
+impl ChainErrorDown for dyn Error + 'static {
+    fn is_chain<T: 'static + Display + Debug>(&self) -> bool {
+        self.is::<ChainError<T>>()
+    }
+
+    fn downcast_chain_ref<T: 'static + Display + Debug>(&self) -> Option<&ChainError<T>> {
+        self.downcast_ref::<ChainError<T>>()
+    }
+
+    fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>> {
+        self.downcast_mut::<ChainError<T>>()
+    }
+}
+
+impl ChainErrorDown for dyn Error + 'static + Send {
+    fn is_chain<T: 'static + Display + Debug>(&self) -> bool {
+        self.is::<ChainError<T>>()
+    }
+
+    fn downcast_chain_ref<T: 'static + Display + Debug>(&self) -> Option<&ChainError<T>> {
+        self.downcast_ref::<ChainError<T>>()
+    }
+
+    fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>> {
+        self.downcast_mut::<ChainError<T>>()
+    }
+}
+
+impl ChainErrorDown for dyn Error + 'static + Send + Sync {
+    fn is_chain<T: 'static + Display + Debug>(&self) -> bool {
+        self.is::<ChainError<T>>()
+    }
+
+    fn downcast_chain_ref<T: 'static + Display + Debug>(&self) -> Option<&ChainError<T>> {
+        self.downcast_ref::<ChainError<T>>()
+    }
+
+    fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>> {
+        self.downcast_mut::<ChainError<T>>()
+    }
+}
+
+impl<T: 'static + Display + Debug> Error for ChainError<T> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        if let Some(ref e) = self.error_cause {
+            Some(e.as_ref())
+        } else {
+            None
+        }
+    }
+}
+
+impl<T: 'static + Display + Debug> Error for &ChainError<T> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        if let Some(ref e) = self.error_cause {
+            Some(e.as_ref())
+        } else {
+            None
+        }
+    }
+}
+
+impl<T: 'static + Display + Debug> Error for &mut ChainError<T> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        if let Some(ref e) = self.error_cause {
+            Some(e.as_ref())
+        } else {
+            None
+        }
+    }
+}
+
+impl<T: 'static + Display + Debug> Display for ChainError<T> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "{}", self.kind)?;
+
+        #[cfg(feature = "display-cause")]
+        {
+            if let Some(e) = self.source() {
+                writeln!(f, "\nCaused by:")?;
+                Display::fmt(&e, f)?;
+            }
+        }
+        Ok(())
+    }
+}
+
+impl<T: 'static + Display + Debug> Debug for ChainError<T> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        #[cfg(feature = "fileline")]
+        {
+            if let Some(o) = self.occurrence {
+                write!(f, "{}:{}: ", o.1, o.0)?;
+            }
+        }
+
+        Debug::fmt(&self.kind, f)?;
+
+        #[cfg(feature = "debug-cause")]
+        {
+            if let Some(e) = self.source() {
+                writeln!(f, "\nCaused by:")?;
+                Debug::fmt(&e, f)?;
+            }
+        }
+        Ok(())
     }
 }
 
 #[macro_export]
-macro_rules! chain_error_fn {
+macro_rules! cherr {
+    ( $k:expr ) => {
+        ChainError::<_>::new($k, None, Some((line!(), file!())))
+    };
+    ( $e:expr, $k:expr ) => {
+        ChainError::<_>::new($k, Some(Box::from($e)), Some((line!(), file!())))
+    };
+}
+
+#[macro_export]
+macro_rules! mstrerr {
     ( $t:ident, $v:expr $(, $more:expr)* ) => {
-        |e| <$t> :: new(line!(), file!(), Some(format!($v, $( $more , )* )), Some(e.into()))
+        |e| cherr!(e, $t (format!($v, $( $more , )* )))
     };
     ( $t:path, $v:expr $(, $more:expr)* ) => {
-        |e| <$t> :: new(line!(), file!(), Some(format!($v, $( $more , )* )), Some(e.into()))
-    };
-    ( $t:ident) => {
-        |e| <$t> :: new(line!(), file!(), None, Some(e.into()))
-    };
-    ( $t:path) => {
-        |e| <$t> :: new(line!(), file!(), None, Some(e.into()))
+        |e| cherr!(e, $t (format!($v, $( $more , )* )))
     };
 }
 
 #[macro_export]
-macro_rules! into_boxed_chain_error_fn {
-    ( $v:expr $(, $more:expr)* ) => {
-        |e| Box::<Error>::from(e).into_chain_error(line!(), file!(), Some(format!($v, $( $more , )* )))
-    };
-    ( ) => {
-        |e| Box::<Error>::from(e).into_chain_error(line!(), file!(), None)
-    };
-}
-
-#[macro_export]
-macro_rules! chain {
-    ( $v:expr $(, $more:expr)* ) => {
-        |e| Box::<Error>::from(e).into_chain_error(line!(), file!(), Some(format!($v, $( $more , )* )))
-    };
-    ( ) => {
-        |e| Box::<Error>::from(e).into_chain_error(line!(), file!(), None)
-    };
-}
-
-#[macro_export]
-macro_rules! into_chain_error_fn {
-    ( $v:expr $(, $more:expr)* ) => {
-        |e| e.into_chain_error(line!(), file!(), Some(format!($v, $( $more , )* )))
-    };
-    ( ) => {
-        |e| e.into_chain_error(line!(), file!(), None)
-    };
-}
-
-#[macro_export]
-macro_rules! chain_error_from_fn {
-    ( $t:expr, $v:expr $(, $more:expr)* ) => {
-        |e| ($t).into().chain_error_from(e, line!(), file!(), Some(format!($v, $( $more , )* )))
-    };
-
-    ( $t:expr ) => {
-        |e| ($t).into().chain_error_from(e, line!(), file!(), None)
-    };
-}
-
-#[macro_export]
-macro_rules! chain_error {
-    ( $t:ident, $v:expr $(, $more:expr)* ) => {
-        <$t> :: new(line!(), file!(), Some(format!($v, $( $more , )*)), None)
-    };
-    ( $t:path, $v:expr $(, $more:expr)* ) => {
-        <$t> :: new(line!(), file!(), Some(format!($v, $( $more , )*)), None)
-    };
-}
-
-#[macro_export]
-macro_rules! into_chain_error {
-    ( $t:expr, $v:expr $(, $more:expr)* ) => {
-        $t . into_chain_error(line!(), file!(), Some(format!($v, $( $more , )*)))
-    };
-    ( $t:expr ) => {
-        $t . into_chain_error(line!(), file!(), None)
-    };
-}
-
-#[macro_export]
-macro_rules! derive_chain_error {
+macro_rules! derive_str_cherr {
     ($e:ident) => {
-        pub struct $e {
-            line: u32,
-            filename: &'static str,
-            description: Option<String>,
-            error_cause: Option<Box<dyn std::error::Error + 'static>>,
-        }
-
-        impl ChainError for $e {
-            fn new(
-                line: u32,
-                filename: &'static str,
-                description: Option<String>,
-                error_cause: Option<Box<dyn std::error::Error + 'static>>,
-            ) -> Self {
-                $e {
-                    line,
-                    filename,
-                    description,
-                    error_cause,
-                }
-            }
-
-            fn root_cause(&self) -> Option<&(dyn std::error::Error + 'static)> {
-                let mut cause = self as &(dyn std::error::Error + 'static);
-                while let Some(c) = cause.source() {
-                    cause = c;
-                }
-                Some(cause)
-            }
-
-            fn find_cause<T: ::std::error::Error + 'static>(
-                &self,
-            ) -> Option<&(dyn std::error::Error + 'static)> {
-                let mut cause = self as &(dyn std::error::Error + 'static);
-                loop {
-                    if cause.is::<T>() {
-                        return Some(cause);
-                    }
-
-                    match cause.source() {
-                        Some(c) => cause = c,
-                        None => return None,
-                    }
-                }
-            }
-        }
-
-        impl ::std::error::Error for $e {
-            fn description(&self) -> &str {
-                if let Some(ref d) = self.description {
-                    d.as_ref()
-                } else {
-                    ""
-                }
-            }
-
-            fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-                if let Some(ref e) = self.error_cause {
-                    Some(e.as_ref())
-                } else {
-                    None
-                }
-            }
-        }
-
+        struct $e(String);
         impl ::std::fmt::Display for $e {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                writeln!(f, "{}", self.description())?;
-                if let Some(e) = self.source() {
-                    writeln!(f, "\nCaused by:")?;
-                    ::std::fmt::Display::fmt(&e, f)?;
-                }
-                Ok(())
+                write!(f, "{}", self.0)
             }
         }
-
         impl ::std::fmt::Debug for $e {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                writeln!(f, "{}:{}: {}", self.filename, self.line, self.description())?;
-                if let Some(e) = self.source() {
-                    writeln!(f, "\nCaused by:")?;
-                    ::std::fmt::Debug::fmt(&e, f)?;
-                }
-                Ok(())
+                write!(f, "{}({})", stringify!($e), self.0)
             }
         }
     };
 }
 
 pub mod prelude {
-    pub use super::{
-        chain_error, chain_error_fn, chain_error_from_fn, derive_chain_error, into_chain_error,
-        into_chain_error_fn, ChainError, ChainErrorFrom, IntoChainError,
-    };
+    pub use super::{cherr, derive_str_cherr, mstrerr, ChainError, ChainErrorDown};
 }
 
 #[cfg(test)]
 mod tests {
     use std::error::Error;
+    use std::io::Error as IoError;
+    use std::io::ErrorKind as IoErrorKind;
+    use std::path::Path;
 
     use crate::prelude::*;
 
-    derive_chain_error!(MyError);
-    derive_chain_error!(MyMainError);
+    #[derive(Clone, PartialEq, Debug)]
+    enum ParseError {
+        InvalidValue(u32),
+        InvalidParameter(String),
+        NoOpen,
+        NoClose,
+    }
 
-    impl ChainErrorFrom<Box<Error>> for MyMainError {
-        fn chain_error_from(
-            e: Box<Error>,
-            line: u32,
-            filename: &'static str,
-            description: Option<String>,
-        ) -> Self {
-            MyMainError {
-                line,
-                filename,
-                description,
-                error_cause: Some(e),
+    impl ::std::fmt::Display for ParseError {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+            match self {
+                ParseError::InvalidValue(a) => write!(f, "InvalidValue: {}", a),
+                ParseError::InvalidParameter(a) => write!(f, "InvalidParameter: '{}'", a),
+                ParseError::NoOpen => write!(f, "No opening '{{' in config file"),
+                ParseError::NoClose => write!(f, "No closing '}}' in config file"),
             }
         }
     }
 
-    fn throw_error() -> Result<(), MyError> {
-        let directory = String::from("ldfhgdfkgjdf");
-        ::std::fs::remove_dir(&directory).map_err(chain_error_fn!(
-            MyError,
-            "Could not remove directory '{}'{}",
-            &directory,
-            "!"
+    fn parse_config(c: String) -> Result<(), Box<Error>> {
+        if !c.starts_with('{') {
+            Err(cherr!(ParseError::NoOpen))?;
+        }
+        if !c.ends_with('}') {
+            Err(cherr!(ParseError::NoClose))?;
+        }
+        let c = &c[1..(c.len() - 1)];
+        let v = c
+            .parse::<u32>()
+            .map_err(|e| cherr!(e, ParseError::InvalidParameter(c.into())))?;
+        if v > 100 {
+            Err(cherr!(ParseError::InvalidValue(v)))?;
+        }
+        Ok(())
+    }
+
+    derive_str_cherr!(ConfigFileError);
+    derive_str_cherr!(SeriousError);
+    derive_str_cherr!(FileError);
+    derive_str_cherr!(AppError);
+
+    fn file_reader(filename: &Path) -> Result<(), Box<Error>> {
+        Err(IoError::from(IoErrorKind::NotFound)).map_err(mstrerr!(
+            FileError,
+            "Can't find {:?}",
+            filename
         ))?;
         Ok(())
     }
 
-    #[test]
-    fn test_chain_error_fn() -> Result<(), MyMainError> {
-        let res = throw_error().map_err(chain_error_fn!(MyMainError, "I has an error."));
+    fn read_config(filename: &Path) -> Result<(), Box<Error>> {
+        if filename.eq(Path::new("global.ini")) {
+            // assume we got an IO error
+            file_reader(filename).map_err(mstrerr!(
+                ConfigFileError,
+                "Can't find {:?}",
+                filename
+            ))?;
+        }
+        // assume we read some buffer
+        if filename.eq(Path::new("local.ini")) {
+            let buf = String::from("{1000}");
+            parse_config(buf)?;
+        }
 
-        if let Err(my_err) = res {
-            if let Some(source) = my_err.source() {
-                assert!(source.is::<MyError>());
-            }
-            println!("\nRoot cause is {:#?}\n", my_err.root_cause());
-            assert!(my_err.root_cause().unwrap().is::<::std::io::Error>());
-            assert!(my_err.find_cause::<::std::io::Error>().is_some());
+        if filename.eq(Path::new("user.ini")) {
+            let buf = String::from("foo");
+            parse_config(buf)?;
+        }
 
-            if my_err.find_cause::<::std::io::Error>().is_some() {
-                println!("Has cause io::Error");
-            }
-            if my_err.find_cause::<MyError>().is_some() {
-                println!("Has cause MyError");
-            }
-            println!("-----------");
-            println!("Display Error:\n{}", my_err);
-            println!("-----------");
-            println!("Debug Error:  \n{:#?}", my_err);
-            println!("-----------");
-        };
-        //res?;
-        Ok(())
-    }
-    #[test]
-    fn test_into_chain_error_fn() -> Result<(), MyMainError> {
-        let res: Result<(), MyMainError> = throw_error().map_err(into_boxed_chain_error_fn!("I has an error."));
+        if filename.eq(Path::new("user2.ini")) {
+            let buf = String::from("{foo");
+            parse_config(buf)?;
+        }
 
-        if let Err(my_err) = res {
-            if let Some(source) = my_err.source() {
-                assert!(source.is::<MyError>());
-            }
-            println!("\nRoot cause is {:#?}\n", my_err.root_cause());
-            assert!(my_err.root_cause().unwrap().is::<::std::io::Error>());
-            assert!(my_err.find_cause::<::std::io::Error>().is_some());
+        if filename.eq(Path::new("user3.ini")) {
+            let buf = String::from("{foo}");
+            parse_config(buf)?;
+        }
 
-            if my_err.find_cause::<::std::io::Error>().is_some() {
-                println!("Has cause io::Error");
-            }
-            if my_err.find_cause::<MyError>().is_some() {
-                println!("Has cause MyError");
-            }
-            println!("-----------");
-            println!("Display Error:\n{}", my_err);
-            println!("-----------");
-            println!("Debug Error:  \n{:#?}", my_err);
-            println!("-----------");
-        };
-        //res?;
+        if filename.eq(Path::new("custom.ini")) {
+            let buf = String::from("{10}");
+            parse_config(buf)?;
+        }
+
+        if filename.eq(Path::new("essential.ini")) {
+            Err(cherr!(SeriousError("Something is really wrong".into())))?;
+        }
+
         Ok(())
     }
 
-    #[test]
-    fn test_map_chain_err() -> Result<(), MyMainError> {
-        let res: Result<(), MyMainError> = throw_error().map_err(chain!());
-
-        if let Err(my_err) = res {
-            if let Some(source) = my_err.source() {
-                assert!(source.is::<MyError>());
-            }
-            println!("\nRoot cause is {:#?}\n", my_err.root_cause());
-            assert!(my_err.root_cause().unwrap().is::<::std::io::Error>());
-            assert!(my_err.find_cause::<::std::io::Error>().is_some());
-
-            if my_err.find_cause::<::std::io::Error>().is_some() {
-                println!("Has cause io::Error");
-            }
-            if my_err.find_cause::<MyError>().is_some() {
-                println!("Has cause MyError");
-            }
-            println!("-----------");
-            println!("Display Error:\n{}", my_err);
-            println!("-----------");
-            println!("Debug Error:  \n{:#?}", my_err);
-            println!("-----------");
-        };
-        //res?;
+    fn read_verbose_config(p: &str) -> Result<(), Box<Error>> {
+        eprintln!("Reading '{}' ... ", p);
+        read_config(Path::new(p)).map_err(mstrerr!(AppError, "{}", p))?;
+        eprintln!("Ok reading {}", p);
         Ok(())
+    }
+
+    fn start_app(debug: bool) -> Result<(), Box<Error>> {
+        for p in &[
+            "global.ini",
+            "local.ini",
+            "user.ini",
+            "user2.ini",
+            "user3.ini",
+            "custom.ini",
+            "essential.ini",
+        ] {
+            if let Err(e) = read_verbose_config(p) {
+                assert!(e.is_chain::<AppError>());
+                let app_err = e.downcast_chain_ref::<AppError>().unwrap();
+
+                if app_err.find_kind::<SeriousError>().is_some() {
+                    // Bail out on SeriousError
+                    eprintln!("---> Serious Error:\n{:?}", e);
+                    Err(cherr!(e, AppError("Seriously".into())))?;
+                } else if let Some(cfg_error) = app_err.find_kind::<ConfigFileError>() {
+                    if debug {
+                        eprintln!("{:?}\n", cfg_error);
+                    } else {
+                        // Deep Error handling
+                        if let Some(chioerror) = cfg_error.find_kind::<IoError>() {
+                            let ioerror = chioerror.kind();
+                            match ioerror.kind() {
+                                IoErrorKind::NotFound => {
+                                    eprint!("Ignoring missing file");
+                                    if let Some(root_cause) = cfg_error.root_cause() {
+                                        eprint!(", because of: {}\n", root_cause);
+                                    }
+                                    eprintln!();
+                                }
+                                _ => Err(cherr!(e, AppError("Unhandled IOError".into())))?,
+                            }
+                        } else {
+                            eprintln!("ConfigFileError for: {}", e);
+                        }
+                    }
+                } else {
+                    if debug {
+                        eprintln!("Error reading:\n{:?}\n", e)
+                    } else {
+                        eprintln!("Error reading: {}\n", e)
+                    }
+                }
+            }
+            eprintln!();
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn test_chain_error() {
+        eprintln!("Display:\n");
+        let e = start_app(false).unwrap_err();
+        assert!(e.is_chain::<AppError>());
+        eprintln!("\n\n==================================");
+        eprintln!("====    Debug output");
+        eprintln!("==================================\n");
+        let r = start_app(true);
+        assert!(r.unwrap_err().is_chain::<AppError>());
     }
 }

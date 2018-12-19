@@ -302,12 +302,9 @@ mod tests {
     derive_str_cherr!(FileError);
     derive_str_cherr!(AppError);
 
-    fn file_reader(filename: &Path) -> Result<(), Box<Error>> {
-        Err(IoError::from(IoErrorKind::NotFound)).map_err(mstrerr!(
-            FileError,
-            "Can't find {:?}",
-            filename
-        ))?;
+    fn file_reader(_filename: &Path) -> Result<(), Box<Error>> {
+        Err(IoError::from(IoErrorKind::NotFound))
+            .map_err(mstrerr!(FileError, "File reader error"))?;
         Ok(())
     }
 
@@ -316,7 +313,7 @@ mod tests {
             // assume we got an IO error
             file_reader(filename).map_err(mstrerr!(
                 ConfigFileError,
-                "Can't find {:?}",
+                "Error reading file {:?}",
                 filename
             ))?;
         }
@@ -353,14 +350,13 @@ mod tests {
         Ok(())
     }
 
-    fn read_verbose_config(p: &str) -> Result<(), Box<Error>> {
-        eprintln!("Reading '{}' ... ", p);
+    fn read_config_pre(p: &str) -> Result<(), Box<Error>> {
         read_config(Path::new(p)).map_err(mstrerr!(AppError, "{}", p))?;
-        eprintln!("Ok reading {}", p);
         Ok(())
     }
 
-    fn start_app(debug: bool) -> Result<(), Box<Error>> {
+    #[test]
+    fn test_chain_error() {
         for p in &[
             "global.ini",
             "local.ini",
@@ -370,57 +366,17 @@ mod tests {
             "custom.ini",
             "essential.ini",
         ] {
-            if let Err(e) = read_verbose_config(p) {
-                assert!(e.is_chain::<AppError>());
+            if let Err(e) = read_config_pre(p) {
                 let app_err = e.downcast_chain_ref::<AppError>().unwrap();
 
-                if app_err.find_kind::<SeriousError>().is_some() {
-                    // Bail out on SeriousError
-                    eprintln!("---> Serious Error:\n{:?}", e);
-                    Err(cherr!(e, AppError("Seriously".into())))?;
-                } else if let Some(cfg_error) = app_err.find_kind::<ConfigFileError>() {
-                    if debug {
-                        eprintln!("{:?}\n", cfg_error);
-                    } else {
-                        // Deep Error handling
-                        if let Some(chioerror) = cfg_error.find_kind::<IoError>() {
-                            let ioerror = chioerror.kind();
-                            match ioerror.kind() {
-                                IoErrorKind::NotFound => {
-                                    eprint!("Ignoring missing file");
-                                    if let Some(root_cause) = cfg_error.root_cause() {
-                                        eprint!(", because of: {}\n", root_cause);
-                                    }
-                                    eprintln!();
-                                }
-                                _ => Err(cherr!(e, AppError("Unhandled IOError".into())))?,
-                            }
-                        } else {
-                            eprintln!("ConfigFileError for: {}", e);
-                        }
-                    }
-                } else {
-                    if debug {
-                        eprintln!("Error reading:\n{:?}\n", e)
-                    } else {
-                        eprintln!("Error reading: {}\n", e)
-                    }
+                match p {
+                    &"global.ini" => {
+                        assert!(app_err.find_kind::<ConfigFileError>().is_some());
+                        assert!(app_err.root_cause().unwrap().is::<IoError>());
+                    },
+                    _ => {}
                 }
             }
-            eprintln!();
         }
-        Ok(())
-    }
-
-    #[test]
-    fn test_chain_error() {
-        eprintln!("Display:\n");
-        let e = start_app(false).unwrap_err();
-        assert!(e.is_chain::<AppError>());
-        eprintln!("\n\n==================================");
-        eprintln!("====    Debug output");
-        eprintln!("==================================\n");
-        let r = start_app(true);
-        assert!(r.unwrap_err().is_chain::<AppError>());
     }
 }

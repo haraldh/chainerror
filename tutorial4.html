@@ -140,7 +140,13 @@
 
                 <div id="content" class="content">
                     <main>
-                        <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
+                        <a class="header" href="#saving-coding-chars" id="saving-coding-chars"><h2>Saving coding chars</h2></a>
+<p>Because decorating an error with more information should not
+let you jump through hoops, <code>chainerror</code> has a quick macro for that.</p>
+<p><code>mstrerror!()</code> fits right into <code>.map_err()</code> letting you quickly add
+more debug strings.</p>
+<p><code>mstrerror!()</code> even understands <code>format!()</code> syntax like <code>println!()</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
 use std::error::Error;
 use std::result::Result;
 
@@ -150,7 +156,8 @@ fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 }
 
 fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    do_some_io().map_err(mstrerr!(&quot;func2 error&quot;))?;
+    let filename = &quot;foo.txt&quot;;
+    do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
     Ok(())
 }
 

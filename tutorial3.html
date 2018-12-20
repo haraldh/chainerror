@@ -140,7 +140,9 @@
 
                 <div id="content" class="content">
                     <main>
-                        <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
+                        <a class="header" href="#mapping-errors" id="mapping-errors"><h2>Mapping Errors</h2></a>
+<p>Now let's get more rust idiomatic by using <code>.map_err()</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
 use std::error::Error;
 use std::result::Result;
 
@@ -445,6 +447,16 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 # }
 # }
 </code></pre></pre>
+<p>If you compare the output to the previous example, you will see,
+that:</p>
+<pre><code>Error: src/main.rs:19: &quot;func1 error&quot;
+</code></pre>
+<p>changed to just:</p>
+<pre><code>src/main.rs:16: &quot;func1 error&quot;
+</code></pre>
+<p>This is, because we caught the error of <code>func1()</code> in <code>main()</code> and print it out ourselves.</p>
+<p>We can now control, whether to output in <code>Debug</code> or <code>Display</code> mode.
+Maybe depending on <code>--debug</code> as a CLI argument.</p>
 
                     </main>
 

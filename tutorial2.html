@@ -1,0 +1,515 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 2 - chainerror</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Chapter 1</a></li><li><a href="tutorial2.html" class="active"><strong aria-hidden="true">2.</strong> Chapter 2</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Chapter 3</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Chapter 4</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> Chapter 5</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Chapter 6</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> Chapter 7</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Chapter 8</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Chapter 9</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> Chapter 10</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Chapter 11</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">chainerror</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
+use std::error::Error;
+use std::result::Result;
+
+fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+    Err(&quot;do_some_io error&quot;)?;
+    Ok(())
+}
+
+fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+    if let Err(e) = do_some_io() {
+        Err(cherr!(e, &quot;func2 error&quot;))?;
+    }
+    Ok(())
+}
+
+fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+    if let Err(e) = func2() {
+        Err(cherr!(e, &quot;func1 error&quot;))?;
+    }
+    Ok(())
+}
+
+fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+    func1()
+}
+# #[allow(dead_code)]
+# mod chainerror {
+# use std::error::Error;
+# use std::fmt::{Debug, Display, Formatter, Result};
+# use std::result::Result as StdResult;
+# 
+# pub struct ChainError&lt;T&gt; {
+#     #[cfg(not(feature = &quot;no-fileline&quot;))]
+#     occurrence: Option&lt;(u32, &amp;'static str)&gt;,
+#     kind: T,
+#     error_cause: Option&lt;Box&lt;dyn Error + 'static&gt;&gt;,
+# }
+# 
+# pub type ChainResult&lt;O, E&gt; = StdResult&lt;O, ChainError&lt;E&gt;&gt;;
+# 
+# impl&lt;T: 'static + Display + Debug&gt; ChainError&lt;T&gt; {
+#     #[cfg(not(feature = &quot;no-fileline&quot;))]
+#     pub fn new(
+#         kind: T,
+#         error_cause: Option&lt;Box&lt;dyn Error + 'static&gt;&gt;,
+#         occurrence: Option&lt;(u32, &amp;'static str)&gt;,
+#     ) -&gt; Self {
+#         Self {
+#             occurrence,
+#             kind,
+#             error_cause,
+#         }
+#     }
+# 
+#     #[cfg(feature = &quot;no-fileline&quot;)]
+#     pub fn new(
+#         kind: T,
+#         error_cause: Option&lt;Box&lt;dyn Error + 'static&gt;&gt;,
+#         _occurrence: Option&lt;(u32, &amp;'static str)&gt;,
+#     ) -&gt; Self {
+#         Self { kind, error_cause }
+#     }
+# 
+#     pub fn root_cause(&amp;self) -&gt; Option&lt;&amp;(dyn Error + 'static)&gt; {
+#         let mut cause = self as &amp;(dyn Error + 'static);
+#         while let Some(c) = cause.source() {
+#             cause = c;
+#         }
+#         Some(cause)
+#     }
+# 
+#     pub fn find_cause&lt;U: Error + 'static&gt;(&amp;self) -&gt; Option&lt;&amp;U&gt; {
+#         let mut cause = self as &amp;(dyn Error + 'static);
+#         loop {
+#             if cause.is::&lt;U&gt;() {
+#                 return cause.downcast_ref::&lt;U&gt;();
+#             }
+# 
+#             match cause.source() {
+#                 Some(c) =&gt; cause = c,
+#                 None =&gt; return None,
+#             }
+#         }
+#     }
+# 
+#     pub fn find_chain_cause&lt;U: Error + 'static&gt;(&amp;self) -&gt; Option&lt;&amp;ChainError&lt;U&gt;&gt; {
+#         let mut cause = self as &amp;(dyn Error + 'static);
+#         loop {
+#             if cause.is::&lt;ChainError&lt;U&gt;&gt;() {
+#                 return cause.downcast_ref::&lt;ChainError&lt;U&gt;&gt;();
+#             }
+# 
+#             match cause.source() {
+#                 Some(c) =&gt; cause = c,
+#                 None =&gt; return None,
+#             }
+#         }
+#     }
+# 
+#     pub fn kind&lt;'a&gt;(&amp;'a self) -&gt; &amp;'a T {
+#         &amp;self.kind
+#     }
+# }
+# 
+# pub trait ChainErrorDown {
+#     fn is_chain&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; bool;
+#     fn downcast_chain_ref&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; Option&lt;&amp;ChainError&lt;T&gt;&gt;;
+#     fn downcast_chain_mut&lt;T: 'static + Display + Debug&gt;(&amp;mut self) -&gt; Option&lt;&amp;mut ChainError&lt;T&gt;&gt;;
+# }
+# 
+# use std::any::TypeId;
+# 
+# impl&lt;U: 'static + Display + Debug&gt; ChainErrorDown for ChainError&lt;U&gt; {
+#     fn is_chain&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; bool {
+#         TypeId::of::&lt;T&gt;() == TypeId::of::&lt;U&gt;()
+#     }
+# 
+#     fn downcast_chain_ref&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; Option&lt;&amp;ChainError&lt;T&gt;&gt; {
+#         if self.is_chain::&lt;T&gt;() {
+#             unsafe { Some(&amp;*(self as *const dyn Error as *const &amp;ChainError&lt;T&gt;)) }
+#         } else {
+#             None
+#         }
+#     }
+# 
+#     fn downcast_chain_mut&lt;T: 'static + Display + Debug&gt;(&amp;mut self) -&gt; Option&lt;&amp;mut ChainError&lt;T&gt;&gt; {
+#         if self.is_chain::&lt;T&gt;() {
+#             unsafe { Some(&amp;mut *(self as *mut dyn Error as *mut &amp;mut ChainError&lt;T&gt;)) }
+#         } else {
+#             None
+#         }
+#     }
+# }
+# 
+# impl ChainErrorDown for dyn Error + 'static {
+#     fn is_chain&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; bool {
+#         self.is::&lt;ChainError&lt;T&gt;&gt;()
+#     }
+# 
+#     fn downcast_chain_ref&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; Option&lt;&amp;ChainError&lt;T&gt;&gt; {
+#         self.downcast_ref::&lt;ChainError&lt;T&gt;&gt;()
+#     }
+# 
+#     fn downcast_chain_mut&lt;T: 'static + Display + Debug&gt;(&amp;mut self) -&gt; Option&lt;&amp;mut ChainError&lt;T&gt;&gt; {
+#         self.downcast_mut::&lt;ChainError&lt;T&gt;&gt;()
+#     }
+# }
+# 
+# impl ChainErrorDown for dyn Error + 'static + Send {
+#     fn is_chain&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; bool {
+#         self.is::&lt;ChainError&lt;T&gt;&gt;()
+#     }
+# 
+#     fn downcast_chain_ref&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; Option&lt;&amp;ChainError&lt;T&gt;&gt; {
+#         self.downcast_ref::&lt;ChainError&lt;T&gt;&gt;()
+#     }
+# 
+#     fn downcast_chain_mut&lt;T: 'static + Display + Debug&gt;(&amp;mut self) -&gt; Option&lt;&amp;mut ChainError&lt;T&gt;&gt; {
+#         self.downcast_mut::&lt;ChainError&lt;T&gt;&gt;()
+#     }
+# }
+# 
+# impl ChainErrorDown for dyn Error + 'static + Send + Sync {
+#     fn is_chain&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; bool {
+#         self.is::&lt;ChainError&lt;T&gt;&gt;()
+#     }
+# 
+#     fn downcast_chain_ref&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; Option&lt;&amp;ChainError&lt;T&gt;&gt; {
+#         self.downcast_ref::&lt;ChainError&lt;T&gt;&gt;()
+#     }
+# 
+#     fn downcast_chain_mut&lt;T: 'static + Display + Debug&gt;(&amp;mut self) -&gt; Option&lt;&amp;mut ChainError&lt;T&gt;&gt; {
+#         self.downcast_mut::&lt;ChainError&lt;T&gt;&gt;()
+#     }
+# }
+# 
+# impl&lt;T: 'static + Display + Debug&gt; Error for ChainError&lt;T&gt; {
+#     fn source(&amp;self) -&gt; Option&lt;&amp;(dyn Error + 'static)&gt; {
+#         if let Some(ref e) = self.error_cause {
+#             Some(e.as_ref())
+#         } else {
+#             None
+#         }
+#     }
+# }
+# 
+# impl&lt;T: 'static + Display + Debug&gt; Error for &amp;ChainError&lt;T&gt; {
+#     fn source(&amp;self) -&gt; Option&lt;&amp;(dyn Error + 'static)&gt; {
+#         if let Some(ref e) = self.error_cause {
+#             Some(e.as_ref())
+#         } else {
+#             None
+#         }
+#     }
+# }
+# 
+# impl&lt;T: 'static + Display + Debug&gt; Error for &amp;mut ChainError&lt;T&gt; {
+#     fn source(&amp;self) -&gt; Option&lt;&amp;(dyn Error + 'static)&gt; {
+#         if let Some(ref e) = self.error_cause {
+#             Some(e.as_ref())
+#         } else {
+#             None
+#         }
+#     }
+# }
+# 
+# impl&lt;T: 'static + Display + Debug&gt; Display for ChainError&lt;T&gt; {
+#     fn fmt(&amp;self, f: &amp;mut Formatter) -&gt; Result {
+#         write!(f, &quot;{}&quot;, self.kind)?;
+# 
+#         #[cfg(feature = &quot;display-cause&quot;)]
+#         {
+#             if let Some(e) = self.source() {
+#                 writeln!(f, &quot;\nCaused by:&quot;)?;
+#                 Display::fmt(&amp;e, f)?;
+#             }
+#         }
+#         Ok(())
+#     }
+# }
+# 
+# impl&lt;T: 'static + Display + Debug&gt; Debug for ChainError&lt;T&gt; {
+#     fn fmt(&amp;self, f: &amp;mut Formatter) -&gt; Result {
+#         #[cfg(not(feature = &quot;no-fileline&quot;))]
+#         {
+#             if let Some(o) = self.occurrence {
+#                 write!(f, &quot;{}:{}: &quot;, o.1, o.0)?;
+#             }
+#         }
+# 
+#         Debug::fmt(&amp;self.kind, f)?;
+# 
+#         #[cfg(not(feature = &quot;no-debug-cause&quot;))]
+#         {
+#             if let Some(e) = self.source() {
+#                 writeln!(f, &quot;\nCaused by:&quot;)?;
+#                 Debug::fmt(&amp;e, f)?;
+#             }
+#         }
+#         Ok(())
+#     }
+# }
+# 
+# #[macro_export]
+# macro_rules! cherr {
+#     ( $k:expr ) =&gt; {
+#         ChainError::&lt;_&gt;::new($k, None, Some((line!(), file!())))
+#     };
+#     ( $e:expr, $k:expr ) =&gt; {
+#         ChainError::&lt;_&gt;::new($k, Some(Box::from($e)), Some((line!(), file!())))
+#     };
+# }
+# 
+# #[macro_export]
+# macro_rules! mstrerr {
+#     ( $t:ident, $v:expr $(, $more:expr)* ) =&gt; {
+#         |e| cherr!(e, $t (format!($v, $( $more , )* )))
+#     };
+#     ( $t:path, $v:expr $(, $more:expr)* ) =&gt; {
+#         |e| cherr!(e, $t (format!($v, $( $more , )* )))
+#     };
+#     ( $v:expr $(, $more:expr)* ) =&gt; {
+#         |e| cherr!(e, format!($v, $( $more , )* ))
+#     };
+# }
+# 
+# #[macro_export]
+# macro_rules! derive_str_cherr {
+#     ($e:ident) =&gt; {
+#         struct $e(String);
+#         impl ::std::fmt::Display for $e {
+#             fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+#                 write!(f, &quot;{}&quot;, self.0)
+#             }
+#         }
+#         impl ::std::fmt::Debug for $e {
+#             fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+#                 write!(f, &quot;{}({})&quot;, stringify!($e), self.0)
+#             }
+#         }
+#         impl ::std::error::Error for $e {}
+#     };
+# }
+# 
+# #[macro_export]
+# macro_rules! try_cherr_ref {
+#     ( $e:expr, $t:ident ) =&gt; {
+#         $e.downcast_ref::&lt;ChainError&lt;$t&gt;&gt;()
+#     };
+#     ( $e:expr, $t:path ) =&gt; {
+#         $e.downcast_ref::&lt;ChainError&lt;$t&gt;&gt;()
+#     };
+# }
+# 
+# #[macro_export]
+# macro_rules! try_cherr_mut {
+#     ( $e:expr, $t:ident ) =&gt; {
+#         $e.downcast_mut::&lt;ChainError&lt;$t&gt;&gt;()
+#     };
+#     ( $e:expr, $t:path ) =&gt; {
+#         $e.downcast_mut::&lt;ChainError&lt;$t&gt;&gt;()
+#     };
+# }
+# }
+</code></pre></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="tutorial1.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="tutorial3.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="tutorial1.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="tutorial3.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+        <script src="ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="editor.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mode-rust.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-dawn.js" type="text/javascript" charset="utf-8"></script>
+        <script src="theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

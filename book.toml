@@ -1,0 +1,13 @@
+[book]
+authors = ["Harald Hoyer"]
+multilingual = false
+src = "booksrc"
+title = "chainerror"
+
+[output.html.playpen]
+editable = true
+
+[build]
+build-dir = "docs"
+create-missing = true
+

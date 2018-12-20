@@ -1,14 +1,4 @@
-/*!
-
-~~~bash
-$ cargo run -q --example tutorial5
-Func2 failed because of 'entity not found'
-func1 error
-~~~
-
-!*/
-
-use chainerror::prelude::*;
+use chainerror::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;

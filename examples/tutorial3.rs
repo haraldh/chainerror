@@ -1,17 +1,4 @@
-/*!
-
-~~~bash
-$ cargo run -q --example tutorial3
-examples/tutorial3.rs:30: "func1 error"
-Caused by:
-examples/tutorial3.rs:25: "func2 error"
-Caused by:
-StringError("do_some_io error")
-~~~
-
-!*/
-
-use chainerror::prelude::*;
+use chainerror::*;
 use std::error::Error;
 use std::result::Result;
 

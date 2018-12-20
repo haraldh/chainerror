@@ -1,11 +1,3 @@
-/*!
-
-~~~bash
-$ cargo run -q --example tutorial1
-Error: StringError("func1 error")
-~~~
-
-!*/
 
 use std::error::Error;
 use std::result::Result;

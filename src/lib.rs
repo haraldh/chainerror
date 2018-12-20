@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display, Formatter, Result};
 use std::result::Result as StdResult;
 
 pub struct ChainError<T> {
-    #[cfg(feature = "fileline")]
+    #[cfg(not(feature = "no-fileline"))]
     occurrence: Option<(u32, &'static str)>,
     kind: T,
     error_cause: Option<Box<dyn Error + 'static>>,
@@ -12,7 +12,7 @@ pub struct ChainError<T> {
 pub type ChainResult<O, E> = StdResult<O, ChainError<E>>;
 
 impl<T: 'static + Display + Debug> ChainError<T> {
-    #[cfg(feature = "fileline")]
+    #[cfg(not(feature = "no-fileline"))]
     pub fn new(
         kind: T,
         error_cause: Option<Box<dyn Error + 'static>>,
@@ -25,7 +25,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
         }
     }
 
-    #[cfg(not(feature = "fileline"))]
+    #[cfg(feature = "no-fileline")]
     pub fn new(
         kind: T,
         error_cause: Option<Box<dyn Error + 'static>>,
@@ -194,7 +194,7 @@ impl<T: 'static + Display + Debug> Display for ChainError<T> {
 
 impl<T: 'static + Display + Debug> Debug for ChainError<T> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        #[cfg(feature = "fileline")]
+        #[cfg(not(feature = "no-fileline"))]
         {
             if let Some(o) = self.occurrence {
                 write!(f, "{}:{}: ", o.1, o.0)?;
@@ -203,7 +203,7 @@ impl<T: 'static + Display + Debug> Debug for ChainError<T> {
 
         Debug::fmt(&self.kind, f)?;
 
-        #[cfg(feature = "debug-cause")]
+        #[cfg(not(feature = "no-debug-cause"))]
         {
             if let Some(e) = self.source() {
                 writeln!(f, "\nCaused by:")?;
@@ -273,15 +273,4 @@ macro_rules! try_cherr_mut {
     ( $e:expr, $t:path ) => {
         $e.downcast_mut::<ChainError<$t>>()
     };
-}
-
-pub mod prelude {
-    pub use super::{
-        cherr, derive_str_cherr, mstrerr, try_cherr_mut, try_cherr_ref, ChainError, ChainErrorDown,
-        ChainResult,
-    };
-}
-
-#[cfg(test)]
-mod tests {
 }

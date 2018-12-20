@@ -1,16 +1,4 @@
-/*!
-
-~~~bash
-$ cargo run -q --example tutorial6
-Error: func1 error
-caused by: Error reading 'foo.txt'
-caused by: std::io::Error: entity not found
-of kind: std::io::ErrorKind::NotFound
-~~~
-
-!*/
-
-use chainerror::prelude::*;
+use chainerror::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;

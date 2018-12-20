@@ -1,18 +1,4 @@
-/*!
-
-~~~bash
-$ cargo run -q --example tutorial7
-Error: func1 error
-caused by: std::io::Error: entity not found
-of kind: std::io::ErrorKind::NotFound
-The root cause was: std::io::Error: Kind(
-    NotFound
-)
-~~~
-
-!*/
-
-use chainerror::prelude::*;
+use chainerror::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;

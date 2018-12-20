@@ -1,18 +1,4 @@
-/*!
-
-~~~bash
-$ cargo run -q --example tutorial8
-Func1Error: func1 error
-Func2Error: Error reading 'foo.txt'
-Debug Func2Error:
-examples/tutorial8.rs:27: Func2Error(Error reading 'foo.txt')
-Caused by:
-Kind(NotFound)
-~~~
-
-!*/
-
-use chainerror::prelude::*;
+use chainerror::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;

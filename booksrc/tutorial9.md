@@ -1,3 +1,7 @@
+## Selective Error Handling
+
+[TBD]
+
 ~~~rust
 use crate::chainerror::*;
 {{#include ../examples/tutorial9.rs:2:}}

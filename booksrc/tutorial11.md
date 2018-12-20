@@ -1,3 +1,7 @@
+## Debug for the ErrorKind
+
+[TBD]
+
 ~~~rust
 use crate::chainerror::*;
 {{#include ../examples/tutorial11.rs:2:}}

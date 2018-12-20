@@ -8,7 +8,8 @@ fn do_some_io() -> Result<(), Box<Error>> {
 }
 
 fn func2() -> Result<(), Box<Error>> {
-    do_some_io().map_err(mstrerr!("func2 error"))?;
+    let filename = "foo.txt";
+    do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
     Ok(())
 }
 

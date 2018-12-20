@@ -140,9 +140,10 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#simple-string-errors" id="simple-string-errors"><h2>Simple String Errors</h2></a>
+                        <a class="header" href="#simple-string-errors" id="simple-string-errors"><h1>Simple String Errors</h1></a>
 <p>The most simplest of doing error handling in rust is by returning <code>String</code> as a <code>Box&lt;Error&gt;</code>.</p>
-<p>As you can see by running the example, this only prints out the last <code>Error</code>.</p>
+<p>As you can see by running the example (the &quot;Play&quot; button in upper right of the code block), this only
+prints out the last <code>Error</code>.</p>
 <p>If the rust <code>main</code> function returns an Err(), this Err() will be displayed with <code>std::fmt::Debug</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">use std::error::Error;
 use std::result::Result;
@@ -170,7 +171,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
     func1()
 }
 </code></pre></pre>
-<a class="header" href="#simple-chained-string-errors" id="simple-chained-string-errors"><h2>Simple Chained String Errors</h2></a>
+<a class="header" href="#simple-chained-string-errors" id="simple-chained-string-errors"><h1>Simple Chained String Errors</h1></a>
 <p>Now with the help of the <code>chainerror</code> crate, we can have a nicer output.</p>
 <p>Press the play button in the upper right corner and see the nice debug output.</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
@@ -491,7 +492,7 @@ again have a <code>Err(Box&lt;Error&gt;)</code> as a result.</p>
 <p>The <code>Debug</code> implementation of <code>ChainError&lt;T&gt;</code> (which is returned by <code>cherr!()</code>)
 prints the <code>Debug</code> of <code>T</code> prefixed with the stored filename and line number.</p>
 <p><code>ChainError&lt;T&gt;</code> is in our case <code>ChainError&lt;String&gt;</code>.</p>
-<a class="header" href="#mapping-errors" id="mapping-errors"><h2>Mapping Errors</h2></a>
+<a class="header" href="#mapping-errors" id="mapping-errors"><h1>Mapping Errors</h1></a>
 <p>Now let's get more rust idiomatic by using <code>.map_err()</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
 use std::error::Error;
@@ -808,7 +809,7 @@ that:</p>
 <p>This is, because we caught the error of <code>func1()</code> in <code>main()</code> and print it out ourselves.</p>
 <p>We can now control, whether to output in <code>Debug</code> or <code>Display</code> mode.
 Maybe depending on <code>--debug</code> as a CLI argument.</p>
-<a class="header" href="#saving-coding-chars" id="saving-coding-chars"><h2>Saving coding chars</h2></a>
+<a class="header" href="#saving-coding-chars" id="saving-coding-chars"><h1>Saving coding chars</h1></a>
 <p>Because decorating an error with more information should not
 let you jump through hoops, <code>chainerror</code> has a quick macro for that.</p>
 <p><code>mstrerror!()</code> fits right into <code>.map_err()</code> letting you quickly add
@@ -1120,7 +1121,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 # }
 # }
 </code></pre></pre>
-<a class="header" href="#the-source-of-errors" id="the-source-of-errors"><h2>The source() of Errors</h2></a>
+<a class="header" href="#the-source-of-errors" id="the-source-of-errors"><h1>The source() of Errors</h1></a>
 <p>Sometimes you want to inspect the <code>source()</code> of an <code>Error</code>.
 <code>chainerror</code> implements <code>std::error::Error::source()</code>, so you can get the cause of an error.</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
@@ -1438,7 +1439,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 <p>Note, that we changed the output of the error in <code>main()</code> from <code>Debug</code> to <code>Display</code>, so we don't see
 the error backtrace with filename and line number.</p>
 <p>To enable the <code>Display</code> backtrace, you have to enable the feature <code>display-cause</code> for <code>chainerror</code>.</p>
-<a class="header" href="#downcast-the-errors" id="downcast-the-errors"><h2>Downcast the Errors</h2></a>
+<a class="header" href="#downcast-the-errors" id="downcast-the-errors"><h1>Downcast the Errors</h1></a>
 <p>[TBD]</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
 use std::error::Error;
@@ -1760,7 +1761,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 # }
 # }
 </code></pre></pre>
-<a class="header" href="#the-root-cause-of-all-errors" id="the-root-cause-of-all-errors"><h2>The root cause of all Errors</h2></a>
+<a class="header" href="#the-root-cause-of-all-errors" id="the-root-cause-of-all-errors"><h1>The root cause of all Errors</h1></a>
 <p>[TBD]</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
 use std::error::Error;
@@ -2083,7 +2084,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 # }
 # }
 </code></pre></pre>
-<a class="header" href="#finding-an-error-cause" id="finding-an-error-cause"><h2>Finding an Error cause</h2></a>
+<a class="header" href="#finding-an-error-cause" id="finding-an-error-cause"><h1>Finding an Error cause</h1></a>
 <p>[TBD]</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
 use std::error::Error;
@@ -2406,7 +2407,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 # }
 # }
 </code></pre></pre>
-<a class="header" href="#selective-error-handling" id="selective-error-handling"><h2>Selective Error Handling</h2></a>
+<a class="header" href="#selective-error-handling" id="selective-error-handling"><h1>Selective Error Handling</h1></a>
 <p>[TBD]</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
 use std::error::Error;
@@ -2728,7 +2729,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 # }
 # }
 </code></pre></pre>
-<a class="header" href="#errorkind-to-the-rescue" id="errorkind-to-the-rescue"><h2>ErrorKind to the rescue</h2></a>
+<a class="header" href="#errorkind-to-the-rescue" id="errorkind-to-the-rescue"><h1>ErrorKind to the rescue</h1></a>
 <p>[TBD]</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
 use std::error::Error;
@@ -3067,7 +3068,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 # }
 # }
 </code></pre></pre>
-<a class="header" href="#debug-for-the-errorkind" id="debug-for-the-errorkind"><h2>Debug for the ErrorKind</h2></a>
+<a class="header" href="#debug-for-the-errorkind" id="debug-for-the-errorkind"><h1>Debug for the ErrorKind</h1></a>
 <p>[TBD]</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
 use std::error::Error;

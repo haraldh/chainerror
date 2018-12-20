@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter, Result};
+use std::result::Result as StdResult;
 
 pub struct ChainError<T> {
     #[cfg(feature = "fileline")]
@@ -7,6 +8,8 @@ pub struct ChainError<T> {
     kind: T,
     error_cause: Option<Box<dyn Error + 'static>>,
 }
+
+pub type ChainResult<O, E> = StdResult<O, ChainError<E>>;
 
 impl<T: 'static + Display + Debug> ChainError<T> {
     #[cfg(feature = "fileline")]
@@ -39,11 +42,11 @@ impl<T: 'static + Display + Debug> ChainError<T> {
         Some(cause)
     }
 
-    pub fn find_cause<U: Error + 'static>(&self) -> Option<&(dyn Error + 'static)> {
+    pub fn find_cause<U: Error + 'static>(&self) -> Option<&U> {
         let mut cause = self as &(dyn Error + 'static);
         loop {
             if cause.is::<U>() {
-                return Some(cause);
+                return cause.downcast_ref::<U>();
             }
 
             match cause.source() {
@@ -53,7 +56,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
         }
     }
 
-    pub fn find_kind<U: 'static + Display + Debug>(&self) -> Option<&ChainError<U>> {
+    pub fn find_chain_cause<U: Error + 'static>(&self) -> Option<&ChainError<U>> {
         let mut cause = self as &(dyn Error + 'static);
         loop {
             if cause.is::<ChainError<U>>() {
@@ -229,6 +232,9 @@ macro_rules! mstrerr {
     ( $t:path, $v:expr $(, $more:expr)* ) => {
         |e| cherr!(e, $t (format!($v, $( $more , )* )))
     };
+    ( $v:expr $(, $more:expr)* ) => {
+        |e| cherr!(e, format!($v, $( $more , )* ))
+    };
 }
 
 #[macro_export]
@@ -245,138 +251,37 @@ macro_rules! derive_str_cherr {
                 write!(f, "{}({})", stringify!($e), self.0)
             }
         }
+        impl ::std::error::Error for $e {}
+    };
+}
+
+#[macro_export]
+macro_rules! try_cherr_ref {
+    ( $e:expr, $t:ident ) => {
+        $e.downcast_ref::<ChainError<$t>>()
+    };
+    ( $e:expr, $t:path ) => {
+        $e.downcast_ref::<ChainError<$t>>()
+    };
+}
+
+#[macro_export]
+macro_rules! try_cherr_mut {
+    ( $e:expr, $t:ident ) => {
+        $e.downcast_mut::<ChainError<$t>>()
+    };
+    ( $e:expr, $t:path ) => {
+        $e.downcast_mut::<ChainError<$t>>()
     };
 }
 
 pub mod prelude {
-    pub use super::{cherr, derive_str_cherr, mstrerr, ChainError, ChainErrorDown};
+    pub use super::{
+        cherr, derive_str_cherr, mstrerr, try_cherr_mut, try_cherr_ref, ChainError, ChainErrorDown,
+        ChainResult,
+    };
 }
 
 #[cfg(test)]
 mod tests {
-    use std::error::Error;
-    use std::io::Error as IoError;
-    use std::io::ErrorKind as IoErrorKind;
-    use std::path::Path;
-
-    use crate::prelude::*;
-
-    #[derive(Clone, PartialEq, Debug)]
-    enum ParseError {
-        InvalidValue(u32),
-        InvalidParameter(String),
-        NoOpen,
-        NoClose,
-    }
-
-    impl ::std::fmt::Display for ParseError {
-        fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-            match self {
-                ParseError::InvalidValue(a) => write!(f, "InvalidValue: {}", a),
-                ParseError::InvalidParameter(a) => write!(f, "InvalidParameter: '{}'", a),
-                ParseError::NoOpen => write!(f, "No opening '{{' in config file"),
-                ParseError::NoClose => write!(f, "No closing '}}' in config file"),
-            }
-        }
-    }
-
-    fn parse_config(c: String) -> Result<(), Box<Error>> {
-        if !c.starts_with('{') {
-            Err(cherr!(ParseError::NoOpen))?;
-        }
-        if !c.ends_with('}') {
-            Err(cherr!(ParseError::NoClose))?;
-        }
-        let c = &c[1..(c.len() - 1)];
-        let v = c
-            .parse::<u32>()
-            .map_err(|e| cherr!(e, ParseError::InvalidParameter(c.into())))?;
-        if v > 100 {
-            Err(cherr!(ParseError::InvalidValue(v)))?;
-        }
-        Ok(())
-    }
-
-    derive_str_cherr!(ConfigFileError);
-    derive_str_cherr!(SeriousError);
-    derive_str_cherr!(FileError);
-    derive_str_cherr!(AppError);
-
-    fn file_reader(_filename: &Path) -> Result<(), Box<Error>> {
-        Err(IoError::from(IoErrorKind::NotFound))
-            .map_err(mstrerr!(FileError, "File reader error"))?;
-        Ok(())
-    }
-
-    fn read_config(filename: &Path) -> Result<(), Box<Error>> {
-        if filename.eq(Path::new("global.ini")) {
-            // assume we got an IO error
-            file_reader(filename).map_err(mstrerr!(
-                ConfigFileError,
-                "Error reading file {:?}",
-                filename
-            ))?;
-        }
-        // assume we read some buffer
-        if filename.eq(Path::new("local.ini")) {
-            let buf = String::from("{1000}");
-            parse_config(buf)?;
-        }
-
-        if filename.eq(Path::new("user.ini")) {
-            let buf = String::from("foo");
-            parse_config(buf)?;
-        }
-
-        if filename.eq(Path::new("user2.ini")) {
-            let buf = String::from("{foo");
-            parse_config(buf)?;
-        }
-
-        if filename.eq(Path::new("user3.ini")) {
-            let buf = String::from("{foo}");
-            parse_config(buf)?;
-        }
-
-        if filename.eq(Path::new("custom.ini")) {
-            let buf = String::from("{10}");
-            parse_config(buf)?;
-        }
-
-        if filename.eq(Path::new("essential.ini")) {
-            Err(cherr!(SeriousError("Something is really wrong".into())))?;
-        }
-
-        Ok(())
-    }
-
-    fn read_config_pre(p: &str) -> Result<(), Box<Error>> {
-        read_config(Path::new(p)).map_err(mstrerr!(AppError, "{}", p))?;
-        Ok(())
-    }
-
-    #[test]
-    fn test_chain_error() {
-        for p in &[
-            "global.ini",
-            "local.ini",
-            "user.ini",
-            "user2.ini",
-            "user3.ini",
-            "custom.ini",
-            "essential.ini",
-        ] {
-            if let Err(e) = read_config_pre(p) {
-                let app_err = e.downcast_chain_ref::<AppError>().unwrap();
-
-                match p {
-                    &"global.ini" => {
-                        assert!(app_err.find_kind::<ConfigFileError>().is_some());
-                        assert!(app_err.root_cause().unwrap().is::<IoError>());
-                    },
-                    _ => {}
-                }
-            }
-        }
-    }
 }

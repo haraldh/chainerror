@@ -1,4 +1,4 @@
-## Simple Chained String Errors
+# Simple Chained String Errors
 
 Now with the help of the `chainerror` crate, we can have a nicer output.
 

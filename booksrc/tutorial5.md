@@ -1,4 +1,4 @@
-## The source() of Errors
+# The source() of Errors
 
 Sometimes you want to inspect the `source()` of an `Error`.
 `chainerror` implements `std::error::Error::source()`, so you can get the cause of an error.

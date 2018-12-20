@@ -1,4 +1,4 @@
-## Selective Error Handling
+# Selective Error Handling
 
 [TBD]
 

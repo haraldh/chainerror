@@ -1,4 +1,4 @@
-## Simple String Errors
+# Simple String Errors
 
 The most simplest of doing error handling in rust is by returning `String` as a `Box<Error>`.
 

@@ -1,4 +1,4 @@
-## Debug for the ErrorKind
+# Debug for the ErrorKind
 
 [TBD]
 

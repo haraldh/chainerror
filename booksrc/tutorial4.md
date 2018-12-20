@@ -1,4 +1,4 @@
-## Saving coding chars
+# Saving coding chars
 
 Because decorating an error with more information should not
 let you jump through hoops, `chainerror` has a quick macro for that.

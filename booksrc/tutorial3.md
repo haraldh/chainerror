@@ -1,4 +1,4 @@
-## Mapping Errors
+# Mapping Errors
 
 Now let's get more rust idiomatic by using `.map_err()`.
 

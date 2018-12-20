@@ -1,4 +1,4 @@
-## ErrorKind to the rescue
+# ErrorKind to the rescue
 
 [TBD]
 

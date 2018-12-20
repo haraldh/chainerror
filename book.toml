@@ -8,6 +8,6 @@ title = "chainerror"
 editable = true
 
 [build]
-build-dir = "docs"
-create-missing = true
+build-dir = "book"
+create-missing = false
 

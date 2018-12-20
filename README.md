@@ -3,6 +3,8 @@
 `chainerror` provides an error backtrace like `failure` without doing a real backtrace, so even after you `strip` your
 binaries, you still have the error backtrace.
 
+`chainerror` has no depenendencies!
+
 `chainerror` uses `.source()` of `std::error::Error` along with `line()!` and `file()!` to provide a nice debug error backtrace.
 It encapsulates all types, which have `Display + Debug` and can store the error cause internally.
 

@@ -7814,7 +7814,7 @@ src/main.rs:40: func1 error calling func2
 […}
 </code></pre>
 <p>which gives us a lot more detail.</p>
-<p>To create your own Errors, you might find <a href="https://crates.io">crates</a> which crate enum <code>Display+Debug</code> via derive macros.</p>
+<p>To create your own Errors, you might find <a href="https://crates.io">crates</a> which create enum <code>Display+Debug</code> via derive macros.</p>
 <p>Also noteworthy is <a href="https://crates.io/crates/custom_error">custom_error</a> to define your custom errors,
 which can then be used with <code>chainerror</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;

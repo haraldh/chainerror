@@ -11,7 +11,7 @@ description = "Make chaining errors easy."
 keywords = ["error"]
 categories = ["rust-patterns"]
 readme = "README.md"
-exclude = [ "booksrc/*", "book.toml", "theme/*" ]
+exclude = [ "booksrc/*", "book.toml", "theme/*", "git-deploy-branch.sh" ]
 
 [features]
 default = [ ]

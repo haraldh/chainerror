@@ -10,6 +10,22 @@ It encapsulates all types, which have `Display + Debug` and can store the error 
 
 Along with the `ChainError<T>` struct, `chainerror` comes with some useful helper macros to save a lot of typing.
 
+## Features
+
+`no-fileline`
+: completely turn off storing filename and line
+
+`display-cause`
+: turn on printing a backtrace of the errors in `Display`
+
+`no-debug-cause`
+: turn off printing a backtrace of the errors in `Debug`
+
+
+# Tutorial
+
+Read the [Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
+
 # Examples
 
 ~~~rust

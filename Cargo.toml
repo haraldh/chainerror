@@ -1,16 +1,17 @@
 [package]
 name = "chainerror"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Harald Hoyer <harald@redhat.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 documentation = "https://docs.rs/chainerror"
 homepage = "https://haraldh.github.io/chainerror/"
 repository = "https://github.com/haraldh/chainerror"
-description = "Yet another error boilerplate library."
+description = "Make chaining errors easy."
 keywords = ["error"]
 categories = ["rust-patterns"]
 readme = "README.md"
+exclude = [ "booksrc/*", "book.toml", "theme/*" ]
 
 [features]
 default = [ ]

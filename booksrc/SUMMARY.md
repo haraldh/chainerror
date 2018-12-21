@@ -1,13 +1,17 @@
 # Summary
 
-- [Chapter 1](./tutorial1.md)
-- [Chapter 2](./tutorial2.md)
-- [Chapter 3](./tutorial3.md)
-- [Chapter 4](./tutorial4.md)
-- [Chapter 5](./tutorial5.md)
-- [Chapter 6](./tutorial6.md)
-- [Chapter 7](./tutorial7.md)
-- [Chapter 8](./tutorial8.md)
-- [Chapter 9](./tutorial9.md)
-- [Chapter 10](./tutorial10.md)
-- [Chapter 11](./tutorial11.md)
+[chainerror](README.md)
+
+- [Simple String Errors](tutorial1.md)
+- [Simple Chained String Errors](tutorial2.md)
+- [Mapping Errors](tutorial3.md)
+- [Saving coding chars](tutorial4.md)
+- [The source() of Errors](tutorial5.md)
+- [Downcast the Errors](tutorial6.md)
+- [The root cause of all Errors](tutorial7.md)
+- [Finding an Error cause](tutorial8.md)
+- [Selective Error Handling](tutorial9.md)
+- [ErrorKind to the rescue](tutorial10.md)
+- [Debug for the ErrorKind](tutorial11.md)
+
+[The End](end.md)

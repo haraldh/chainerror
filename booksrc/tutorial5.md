@@ -12,8 +12,8 @@ use crate::chainerror::*;
 # }
 ~~~
 
-Note, that we changed the output of the error in `main()` from `Debug` to `Display`, so we don't see
-the error backtrace with filename and line number.
+Note, that because we changed the output of the error in `main()` from 
+`Debug` to `Display`, we don't see the error backtrace with filename and line number.
 
 To enable the `Display` backtrace, you have to enable the feature `display-cause` for `chainerror`.
  

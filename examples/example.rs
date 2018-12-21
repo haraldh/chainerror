@@ -1,44 +1,3 @@
-# chainerror
-
-`chainerror` provides an error backtrace like `failure` without doing a real backtrace, so even after you `strip` your
-binaries, you still have the error backtrace.
-
-`chainerror` has no dependencies!
-
-`chainerror` uses `.source()` of `std::error::Error` along with `line()!` and `file()!` to provide a nice debug error backtrace.
-It encapsulates all types, which have `Display + Debug` and can store the error cause internally.
-
-Along with the `ChainError<T>` struct, `chainerror` comes with some useful helper macros to save a lot of typing.
-
-Debug information is worth it!
-
-Now continue reading the
-[Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
-
-## Example:
-Output:
-
-~~~
-$ cargo run -q --example example
-Main Error Report: func1 error calling func2
-
-Error reported by Func2Error: func2 error: calling func3
-
-The root cause was: std::io::Error: Kind(
-    NotFound
-)
-
-Debug Error:
-examples/example.rs:45: func1 error calling func2
-Caused by:
-examples/example.rs:20: Func2Error(func2 error: calling func3)
-Caused by:
-examples/example.rs:13: Error reading 'foo.txt'
-Caused by:
-Kind(NotFound)
-~~~
-
-~~~rust,ignore
 use chainerror::*;
 use std::error::Error;
 use std::io;
@@ -110,16 +69,3 @@ fn main() {
         eprintln!("\nDebug Error:\n{:?}", e);
     }
 }
-
-~~~
-
-## Features
-
-`no-fileline`
-: completely turn off storing filename and line
-
-`display-cause`
-: turn on printing a backtrace of the errors in `Display`
-
-`no-debug-cause`
-: turn off printing a backtrace of the errors in `Debug`

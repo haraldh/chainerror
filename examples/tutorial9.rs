@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<Error>> {
             eprintln!("Func1ErrorIO:\n{:?}", s);
         }
 
-        if let Some(s) = try_cherr_ref!(e, Func1ErrorFunc2) {
+        if let Some(s) = e.downcast_chain_ref::<Func1ErrorFunc2>() {
             eprintln!("Func1ErrorFunc2:\n{:?}", s);
         }
     }

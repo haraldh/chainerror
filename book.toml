@@ -3,11 +3,8 @@ authors = ["Harald Hoyer"]
 multilingual = false
 src = "booksrc"
 title = "chainerror"
-
-[output.html.playpen]
-editable = true
+description = "A tutorial for the chainerror rust crate."
 
 [build]
 build-dir = "book"
 create-missing = false
-

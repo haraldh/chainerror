@@ -17,38 +17,38 @@ fn func2() -> Result<(), Box<Error>> {
 }
 
 #[derive(Debug)]
-enum Func1Error {
+enum Func1ErrorKind {
     Func2,
     IO(String),
 }
 
-impl ::std::fmt::Display for Func1Error {
+impl ::std::fmt::Display for Func1ErrorKind {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         match self {
-            Func1Error::Func2 => write!(f, "func1 error calling func2"),
-            Func1Error::IO(filename) => write!(f, "Error reading '{}'", filename),
+            Func1ErrorKind::Func2 => write!(f, "func1 error calling func2"),
+            Func1ErrorKind::IO(filename) => write!(f, "Error reading '{}'", filename),
         }
     }
 }
 
-fn func1() -> ChainResult<(), Func1Error> {
-    func2().map_err(|e| cherr!(e, Func1Error::Func2))?;
+fn func1() -> ChainResult<(), Func1ErrorKind> {
+    func2().map_err(|e| cherr!(e, Func1ErrorKind::Func2))?;
     let filename = String::from("bar.txt");
-    do_some_io().map_err(|e| cherr!(e, Func1Error::IO(filename)))?;
+    do_some_io().map_err(|e| cherr!(e, Func1ErrorKind::IO(filename)))?;
     Ok(())
 }
 
 fn main() -> Result<(), Box<Error>> {
     if let Err(e) = func1() {
         match e.kind() {
-            Func1Error::Func2 => eprintln!("Main Error Report: func1 error calling func2"),
-            Func1Error::IO(filename) => {
+            Func1ErrorKind::Func2 => eprintln!("Main Error Report: func1 error calling func2"),
+            Func1ErrorKind::IO(filename) => {
                 eprintln!("Main Error Report: func1 error reading '{}'", filename)
             }
         }
 
         if let Some(e) = e.find_chain_cause::<Func2Error>() {
-            eprintln!("Error reported by Func2Error: {}", e)
+            eprintln!("\nError reported by Func2Error: {}", e)
         }
 
         eprintln!("\nDebug Error:\n{:?}", e);

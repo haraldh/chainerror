@@ -1,9 +1,9 @@
-
 use std::error::Error;
+use std::io;
 use std::result::Result;
 
 fn do_some_io() -> Result<(), Box<Error>> {
-    Err("do_some_io error")?;
+    Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 

@@ -1,9 +1,9 @@
 [package]
 name = "chainerror"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Harald Hoyer <harald@redhat.com>"]
 edition = "2018"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 documentation = "https://docs.rs/chainerror"
 homepage = "https://haraldh.github.io/chainerror/"
 repository = "https://github.com/haraldh/chainerror"

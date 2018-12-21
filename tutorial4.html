@@ -3,9 +3,9 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Chapter 4 - chainerror</title>
+        <title>Saving coding chars - chainerror</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="A tutorial for the chainerror rust crate.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Chapter 1</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Chapter 2</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Chapter 3</a></li><li><a href="tutorial4.html" class="active"><strong aria-hidden="true">4.</strong> Chapter 4</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> Chapter 5</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Chapter 6</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> Chapter 7</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Chapter 8</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Chapter 9</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> Chapter 10</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Chapter 11</a></li></ol>
+            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html" class="active"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="affix"><a href="end.html">The End</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -148,10 +148,11 @@ more debug strings.</p>
 <p><code>mstrerror!()</code> even understands <code>format!()</code> syntax like <code>println!()</code>.</p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
 use std::error::Error;
+use std::io;
 use std::result::Result;
 
 fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    Err(&quot;do_some_io error&quot;)?;
+    Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
@@ -174,10 +175,167 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 }
 # #[allow(dead_code)]
 # mod chainerror {
+# /*!
+# 
+# `chainerror` provides an error backtrace without doing a real backtrace, so even after you `strip` your
+# binaries, you still have the error backtrace.
+# 
+# `chainerror` has no dependencies!
+# 
+# `chainerror` uses `.source()` of `std::error::Error` along with `line()!` and `file()!` to provide a nice debug error backtrace.
+# It encapsulates all types, which have `Display + Debug` and can store the error cause internally.
+# 
+# Along with the `ChainError&lt;T&gt;` struct, `chainerror` comes with some useful helper macros to save a lot of typing.
+# 
+# # Examples
+# 
+# ~~~rust
+# use chainerror::*;
+# use std::error::Error;
+# use std::io;
+# use std::result::Result;
+# 
+# fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     Err(io::Error::from(io::ErrorKind::NotFound))?;
+#     Ok(())
+# }
+# 
+# fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     let filename = &quot;foo.txt&quot;;
+#     do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
+#     Ok(())
+# }
+# 
+# fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     func2().map_err(mstrerr!(&quot;func1 error&quot;))?;
+#     Ok(())
+# }
+# 
+# fn main() {
+#     if let Err(e) = func1() {
+#         assert_eq!(
+#             format!(&quot;\n{:?}\n&quot;, e), r#&quot;
+# src/lib.rs:20: func1 error
+# Caused by:
+# src/lib.rs:15: Error reading 'foo.txt'
+# Caused by:
+# Kind(NotFound)
+# &quot;#
+#         );
+#     }
+# #    else {
+# #        unreachable!();
+# #    }
+# }
+# ~~~
+# 
+# 
+# ~~~rust
+# use chainerror::*;
+# use std::error::Error;
+# use std::io;
+# use std::result::Result;
+# 
+# fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     Err(io::Error::from(io::ErrorKind::NotFound))?;
+#     Ok(())
+# }
+# 
+# fn func3() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     let filename = &quot;foo.txt&quot;;
+#     do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
+#     Ok(())
+# }
+# 
+# derive_str_cherr!(Func2Error);
+# 
+# fn func2() -&gt; ChainResult&lt;(), Func2Error&gt; {
+#     func3().map_err(mstrerr!(Func2Error, &quot;func2 error: calling func3&quot;))?;
+#     Ok(())
+# }
+# 
+# enum Func1Error {
+#     Func2,
+#     IO(String),
+# }
+# 
+# impl ::std::fmt::Display for Func1Error {
+#     fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+#         match self {
+#             Func1Error::Func2 =&gt; write!(f, &quot;func1 error calling func2&quot;),
+#             Func1Error::IO(filename) =&gt; write!(f, &quot;Error reading '{}'&quot;, filename),
+#         }
+#     }
+# }
+# 
+# impl ::std::fmt::Debug for Func1Error {
+#     fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+#         write!(f, &quot;{}&quot;, self)
+#     }
+# }
+# 
+# fn func1() -&gt; ChainResult&lt;(), Func1Error&gt; {
+#     func2().map_err(|e| cherr!(e, Func1Error::Func2))?;
+#     let filename = String::from(&quot;bar.txt&quot;);
+#     do_some_io().map_err(|e| cherr!(e, Func1Error::IO(filename)))?;
+#     Ok(())
+# }
+# 
+# fn main() {
+#     if let Err(e) = func1() {
+#         assert!(
+#             match e.kind() {
+#                 Func1Error::Func2 =&gt; {
+#                     eprintln!(&quot;Main Error Report: func1 error calling func2&quot;);
+#                     true
+#                 }
+#                 Func1Error::IO(filename) =&gt; {
+#                     eprintln!(&quot;Main Error Report: func1 error reading '{}'&quot;, filename);
+#                     false
+#                 }
+#             }
+#         );
+# 
+#         assert!(e.find_chain_cause::&lt;Func2Error&gt;().is_some());
+# 
+#         if let Some(e) = e.find_chain_cause::&lt;Func2Error&gt;() {
+#             eprintln!(&quot;\nError reported by Func2Error: {}&quot;, e)
+#         }
+# 
+# 
+#         assert!(e.root_cause().is_some());
+# 
+#         if let Some(e) = e.root_cause() {
+#             let ioerror = e.downcast_ref::&lt;io::Error&gt;().unwrap();
+#             eprintln!(&quot;\nThe root cause was: std::io::Error: {:#?}&quot;, ioerror);
+#         }
+# 
+#         assert_eq!(
+#             format!(&quot;\n{:?}\n&quot;, e), r#&quot;
+# src/lib.rs:47: func1 error calling func2
+# Caused by:
+# src/lib.rs:22: Func2Error(func2 error: calling func3)
+# Caused by:
+# src/lib.rs:15: Error reading 'foo.txt'
+# Caused by:
+# Kind(NotFound)
+# &quot;#
+#         );
+#     }
+# #    else {
+# #        unreachable!();
+# #    }
+# }
+# ~~~
+# 
+# !*/
+# 
+# use std::any::TypeId;
 # use std::error::Error;
 # use std::fmt::{Debug, Display, Formatter, Result};
-# use std::result::Result as StdResult;
 # 
+# /** chains an inner error kind `T` with a causing error
+# **/
 # pub struct ChainError&lt;T&gt; {
 #     #[cfg(not(feature = &quot;no-fileline&quot;))]
 #     occurrence: Option&lt;(u32, &amp;'static str)&gt;,
@@ -185,10 +343,12 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #     error_cause: Option&lt;Box&lt;dyn Error + 'static&gt;&gt;,
 # }
 # 
-# pub type ChainResult&lt;O, E&gt; = StdResult&lt;O, ChainError&lt;E&gt;&gt;;
+# /// convenience type alias
+# pub type ChainResult&lt;O, E&gt; = std::result::Result&lt;O, ChainError&lt;E&gt;&gt;;
 # 
 # impl&lt;T: 'static + Display + Debug&gt; ChainError&lt;T&gt; {
 #     #[cfg(not(feature = &quot;no-fileline&quot;))]
+#     /// Use the `cherr!()` or `mstrerr!()` macro instead of calling this directly
 #     pub fn new(
 #         kind: T,
 #         error_cause: Option&lt;Box&lt;dyn Error + 'static&gt;&gt;,
@@ -202,6 +362,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #     }
 # 
 #     #[cfg(feature = &quot;no-fileline&quot;)]
+#     /// Use the `cherr!()` or `mstrerr!()` macro instead of calling this directly
 #     pub fn new(
 #         kind: T,
 #         error_cause: Option&lt;Box&lt;dyn Error + 'static&gt;&gt;,
@@ -210,6 +371,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #         Self { kind, error_cause }
 #     }
 # 
+#     /// return the root cause of the error chain, if any exists
 #     pub fn root_cause(&amp;self) -&gt; Option&lt;&amp;(dyn Error + 'static)&gt; {
 #         let mut cause = self as &amp;(dyn Error + 'static);
 #         while let Some(c) = cause.source() {
@@ -218,6 +380,54 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #         Some(cause)
 #     }
 # 
+#     /** find the first error cause of type U, if any exists
+# 
+#     # Examples
+# 
+#     ~~~rust
+#     # use crate::chainerror::*;
+#     # use std::error::Error;
+#     # use std::io;
+#     # use std::result::Result;
+#     #
+#     fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#         Err(io::Error::from(io::ErrorKind::NotFound))?;
+#         Ok(())
+#     }
+# 
+#     derive_str_cherr!(Func2Error);
+# 
+#     fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#         let filename = &quot;foo.txt&quot;;
+#         do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
+#         Ok(())
+#     }
+# 
+#     derive_str_cherr!(Func1Error);
+# 
+#     fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#         func2().map_err(mstrerr!(Func1Error, &quot;func1 error&quot;))?;
+#         Ok(())
+#     }
+# 
+#     fn main() {
+#         if let Err(e) = func1() {
+#             if let Some(f1err) = e.downcast_chain_ref::&lt;Func1Error&gt;() {
+# 
+#                 assert!(f1err.find_cause::&lt;io::Error&gt;().is_some());
+# 
+#                 assert!(f1err.find_chain_cause::&lt;Func2Error&gt;().is_some());
+#             }
+#     #        else {
+#     #            panic!();
+#     #        }
+#         }
+#     #    else {
+#     #         unreachable!();
+#     #    }
+#     }
+#     ~~~
+#     **/
 #     pub fn find_cause&lt;U: Error + 'static&gt;(&amp;self) -&gt; Option&lt;&amp;U&gt; {
 #         let mut cause = self as &amp;(dyn Error + 'static);
 #         loop {
@@ -232,6 +442,21 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #         }
 #     }
 # 
+#     /** find the first error cause of type ChainError&lt;U&gt;, if any exists
+# 
+#     Same as `find_cause`, but hides the `ChainError&lt;U&gt;` implementation internals
+# 
+#     # Examples
+# 
+#     ~~~rust,ignore
+#     /// Instead of writing
+#     err.find_cause::&lt;ChainError&lt;FooError&gt;&gt;();
+# 
+#     /// leave out the ChainError&lt;T&gt; implementation detail
+#     err.find_chain_cause::&lt;FooError&gt;();
+#     ~~~
+# 
+#     **/
 #     pub fn find_chain_cause&lt;U: Error + 'static&gt;(&amp;self) -&gt; Option&lt;&amp;ChainError&lt;U&gt;&gt; {
 #         let mut cause = self as &amp;(dyn Error + 'static);
 #         loop {
@@ -246,18 +471,83 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #         }
 #     }
 # 
+#     /** return a reference to T of `ChainError&lt;T&gt;`
+# 
+#     # Examples
+# 
+#     ~~~rust
+#     # use crate::chainerror::*;
+#     # use std::error::Error;
+#     # use std::io;
+#     # use std::result::Result;
+#     #
+#     fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#         Err(io::Error::from(io::ErrorKind::NotFound))?;
+#         Ok(())
+#     }
+# 
+#     derive_str_cherr!(Func2Error);
+# 
+#     fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#         let filename = &quot;foo.txt&quot;;
+#         do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
+#         Ok(())
+#     }
+# 
+#     #[derive(Debug)]
+#     enum Func1ErrorKind {
+#         Func2,
+#         IO(String),
+#     }
+# 
+#     // impl ::std::fmt::Display for Func1ErrorKind {…}
+#     # impl ::std::fmt::Display for Func1ErrorKind {
+#     #     fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+#     #         match self {
+#     #             Func1ErrorKind::Func2 =&gt; write!(f, &quot;func1 error calling func2&quot;),
+#     #             Func1ErrorKind::IO(filename) =&gt; write!(f, &quot;Error reading '{}'&quot;, filename),
+#     #         }
+#     #     }
+#     # }
+# 
+#     fn func1() -&gt; ChainResult&lt;(), Func1ErrorKind&gt; {
+#         func2().map_err(|e| cherr!(e, Func1ErrorKind::Func2))?;
+#         do_some_io().map_err(|e| cherr!(e, Func1ErrorKind::IO(&quot;bar.txt&quot;.into())))?;
+#         Ok(())
+#     }
+# 
+#     fn main() {
+#         if let Err(e) = func1() {
+#             match e.kind() {
+#                 Func1ErrorKind::Func2 =&gt; {},
+#                 Func1ErrorKind::IO(filename) =&gt; panic!(),
+#             }
+#         }
+#     #    else {
+#     #         unreachable!();
+#     #    }
+#     }
+#     ~~~
+# 
+#     **/
 #     pub fn kind&lt;'a&gt;(&amp;'a self) -&gt; &amp;'a T {
 #         &amp;self.kind
 #     }
 # }
 # 
+# /** convenience trait to hide the `ChainError&lt;T&gt;` implementation internals
+# **/
 # pub trait ChainErrorDown {
+#     /** test if of type `ChainError&lt;T&gt;`
+#      **/
 #     fn is_chain&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; bool;
+#     /** downcast to a reference of `ChainError&lt;T&gt;`
+#      **/
 #     fn downcast_chain_ref&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; Option&lt;&amp;ChainError&lt;T&gt;&gt;;
+#     /** downcast to a mutable reference of `ChainError&lt;T&gt;`
+#      **/
 #     fn downcast_chain_mut&lt;T: 'static + Display + Debug&gt;(&amp;mut self) -&gt; Option&lt;&amp;mut ChainError&lt;T&gt;&gt;;
 # }
-# 
-# use std::any::TypeId;
 # 
 # impl&lt;U: 'static + Display + Debug&gt; ChainErrorDown for ChainError&lt;U&gt; {
 #     fn is_chain&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; bool {
@@ -377,7 +667,11 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #             }
 #         }
 # 
-#         Debug::fmt(&amp;self.kind, f)?;
+#         if self.is_chain::&lt;String&gt;() {
+#             Display::fmt(&amp;self.kind, f)?;
+#         } else {
+#             Debug::fmt(&amp;self.kind, f)?;
+#         }
 # 
 #         #[cfg(not(feature = &quot;no-debug-cause&quot;))]
 #         {
@@ -390,6 +684,93 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #     }
 # }
 # 
+# /** creates a new `ChainError&lt;T&gt;`
+# 
+# # Examples
+# 
+# Create a new ChainError&lt;FooError&gt;, where `FooError` must implement `Display` and `Debug`.
+# ~~~rust
+# # use chainerror::*;
+# #
+# # #[derive(Debug)]
+# enum FooError {
+#     Bar,
+#     Baz(&amp;'static str),
+# }
+# #
+# # impl ::std::fmt::Display for FooError {
+# #     fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+# #         match self {
+# #             FooError::Bar =&gt; write!(f, &quot;Bar Error&quot;),
+# #             FooError::Baz(s) =&gt; write!(f, &quot;Baz Error: '{}'&quot;, s),
+# #         }
+# #     }
+# # }
+# 
+# // impl ::std::fmt::Display for FooError
+# 
+# fn do_some_stuff() -&gt; bool {
+#     false
+# }
+# 
+# fn func() -&gt; ChainResult&lt;(), FooError&gt; {
+#     if ! do_some_stuff() {
+#         Err(cherr!(FooError::Baz(&quot;Error&quot;)))?;
+#     }
+#     Ok(())
+# }
+# #
+# # pub fn main() {
+# #     match func().unwrap_err().kind() {
+# #         FooError::Baz(s) if s == &amp;&quot;Error&quot; =&gt; {},
+# #         _ =&gt; panic!(),
+# #     }
+# # }
+# ~~~
+# 
+# Additionally an error cause can be added.
+# 
+# ~~~rust
+# # use chainerror::*;
+# # use std::io;
+# # use std::error::Error;
+# #
+# # #[derive(Debug)]
+# # enum FooError {
+# #     Bar,
+# #     Baz(&amp;'static str),
+# # }
+# #
+# # impl ::std::fmt::Display for FooError {
+# #     fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+# #         match self {
+# #             FooError::Bar =&gt; write!(f, &quot;Bar Error&quot;),
+# #             FooError::Baz(s) =&gt; write!(f, &quot;Baz Error: '{}'&quot;, s),
+# #         }
+# #     }
+# # }
+# #
+# fn do_some_stuff() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     Err(io::Error::from(io::ErrorKind::NotFound))?;
+#     Ok(())
+# }
+# 
+# fn func() -&gt; ChainResult&lt;(), FooError&gt; {
+#     do_some_stuff().map_err(
+#         |e| cherr!(e, FooError::Baz(&quot;Error&quot;))
+#     )?;
+#     Ok(())
+# }
+# #
+# # pub fn main() {
+# #     match func().unwrap_err().kind() {
+# #         FooError::Baz(s) if s == &amp;&quot;Error&quot; =&gt; {},
+# #         _ =&gt; panic!(),
+# #     }
+# # }
+# ~~~
+# 
+# **/
 # #[macro_export]
 # macro_rules! cherr {
 #     ( $k:expr ) =&gt; {
@@ -400,6 +781,92 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #     };
 # }
 # 
+# /** convenience macro for |e| cherr!(e, format!(…))
+# 
+# # Examples
+# 
+# ~~~rust
+# # use crate::chainerror::*;
+# # use std::error::Error;
+# # use std::io;
+# # use std::result::Result;
+# #
+# # fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+# #     Err(io::Error::from(io::ErrorKind::NotFound))?;
+# #     Ok(())
+# # }
+# #
+# fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     let filename = &quot;foo.txt&quot;;
+#     do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
+#     Ok(())
+# }
+# 
+# fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     func2().map_err(mstrerr!(&quot;func1 error&quot;))?;
+#     Ok(())
+# }
+# 
+# # fn main() {
+# #     if let Err(e) = func1() {
+# #         assert_eq!(
+# #             format!(&quot;\n{:?}\n&quot;, e), r#&quot;
+# # src/lib.rs:20: func1 error
+# # Caused by:
+# # src/lib.rs:15: Error reading 'foo.txt'
+# # Caused by:
+# # Kind(NotFound)
+# # &quot;#
+# #         );
+# #     } else {
+# #         unreachable!();
+# #     }
+# # }
+# ~~~
+# 
+# `mstrerr!()` can also be used to map a new `ChainError&lt;T&gt;`, where T was defined with
+# `derive_str_cherr!(T)`
+# 
+# ~~~rust
+# # use crate::chainerror::*;
+# # use std::error::Error;
+# # use std::io;
+# # use std::result::Result;
+# #
+# # fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+# #     Err(io::Error::from(io::ErrorKind::NotFound))?;
+# #     Ok(())
+# # }
+# #
+# derive_str_cherr!(Func2Error);
+# 
+# fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     let filename = &quot;foo.txt&quot;;
+#     do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
+#     Ok(())
+# }
+# 
+# derive_str_cherr!(Func1Error);
+# 
+# fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     func2().map_err(mstrerr!(Func1Error, &quot;func1 error&quot;))?;
+#     Ok(())
+# }
+# #
+# # fn main() {
+# #     if let Err(e) = func1() {
+# #         if let Some(f1err) = e.downcast_chain_ref::&lt;Func1Error&gt;() {
+# #             assert!(f1err.find_cause::&lt;ChainError&lt;Func2Error&gt;&gt;().is_some());
+# #             assert!(f1err.find_chain_cause::&lt;Func2Error&gt;().is_some());
+# #         } else {
+# #             panic!();
+# #         }
+# #     } else {
+# #         unreachable!();
+# #     }
+# # }
+# ~~~
+# **/
 # #[macro_export]
 # macro_rules! mstrerr {
 #     ( $t:ident, $v:expr $(, $more:expr)* ) =&gt; {
@@ -413,6 +880,49 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #     };
 # }
 # 
+# /** convenience macro to create a &quot;new type&quot; T(String) and implement Display + Debug for T
+# 
+# ~~~rust
+# # use crate::chainerror::*;
+# # use std::error::Error;
+# # use std::io;
+# # use std::result::Result;
+# #
+# # fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+# #     Err(io::Error::from(io::ErrorKind::NotFound))?;
+# #     Ok(())
+# # }
+# #
+# derive_str_cherr!(Func2Error);
+# 
+# fn func2() -&gt; ChainResult&lt;(), Func2Error&gt; {
+#     let filename = &quot;foo.txt&quot;;
+#     do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
+#     Ok(())
+# }
+# 
+# derive_str_cherr!(Func1Error);
+# 
+# fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+#     func2().map_err(mstrerr!(Func1Error, &quot;func1 error&quot;))?;
+#     Ok(())
+# }
+# #
+# # fn main() {
+# #     if let Err(e) = func1() {
+# #         if let Some(f1err) = e.downcast_chain_ref::&lt;Func1Error&gt;() {
+# #             assert!(f1err.find_cause::&lt;ChainError&lt;Func2Error&gt;&gt;().is_some());
+# #             assert!(f1err.find_chain_cause::&lt;Func2Error&gt;().is_some());
+# #         } else {
+# #             panic!();
+# #         }
+# #     } else {
+# #         unreachable!();
+# #     }
+# # }
+# ~~~
+# 
+# **/
 # #[macro_export]
 # macro_rules! derive_str_cherr {
 #     ($e:ident) =&gt; {
@@ -428,26 +938,6 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #             }
 #         }
 #         impl ::std::error::Error for $e {}
-#     };
-# }
-# 
-# #[macro_export]
-# macro_rules! try_cherr_ref {
-#     ( $e:expr, $t:ident ) =&gt; {
-#         $e.downcast_ref::&lt;ChainError&lt;$t&gt;&gt;()
-#     };
-#     ( $e:expr, $t:path ) =&gt; {
-#         $e.downcast_ref::&lt;ChainError&lt;$t&gt;&gt;()
-#     };
-# }
-# 
-# #[macro_export]
-# macro_rules! try_cherr_mut {
-#     ( $e:expr, $t:ident ) =&gt; {
-#         $e.downcast_mut::&lt;ChainError&lt;$t&gt;&gt;()
-#     };
-#     ( $e:expr, $t:path ) =&gt; {
-#         $e.downcast_mut::&lt;ChainError&lt;$t&gt;&gt;()
 #     };
 # }
 # }
@@ -494,12 +984,6 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 
         
 
-        
-        <script src="ace.js" type="text/javascript" charset="utf-8"></script>
-        <script src="editor.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mode-rust.js" type="text/javascript" charset="utf-8"></script>
-        <script src="theme-dawn.js" type="text/javascript" charset="utf-8"></script>
-        <script src="theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
         
 
         

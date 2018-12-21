@@ -3,9 +3,9 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Chapter 1 - chainerror</title>
+        <title>chainerror - chainerror</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <meta name="description" content="">
+        <meta name="description" content="A tutorial for the chainerror rust crate.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Chapter 1</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Chapter 2</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Chapter 3</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Chapter 4</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> Chapter 5</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Chapter 6</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> Chapter 7</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Chapter 8</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Chapter 9</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> Chapter 10</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Chapter 11</a></li></ol>
+            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="affix"><a href="end.html">The End</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -140,37 +140,116 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#simple-string-errors" id="simple-string-errors"><h1>Simple String Errors</h1></a>
-<p>The most simplest of doing error handling in rust is by returning <code>String</code> as a <code>Box&lt;Error&gt;</code>.</p>
-<p>As you can see by running the example (the &quot;Play&quot; button in upper right of the code block), this only
-prints out the last <code>Error</code>.</p>
-<p>If the rust <code>main</code> function returns an Err(), this Err() will be displayed with <code>std::fmt::Debug</code>.</p>
-<pre><pre class="playpen"><code class="language-rust">use std::error::Error;
+                        <a class="header" href="#chainerror" id="chainerror"><h1>chainerror</h1></a>
+<p><code>chainerror</code> provides an error backtrace like <code>failure</code> without doing a real backtrace, so even after you <code>strip</code> your
+binaries, you still have the error backtrace.</p>
+<p><code>chainerror</code> has no dependencies!</p>
+<p><code>chainerror</code> uses <code>.source()</code> of <code>std::error::Error</code> along with <code>line()!</code> and <code>file()!</code> to provide a nice debug error backtrace.
+It encapsulates all types, which have <code>Display + Debug</code> and can store the error cause internally.</p>
+<p>Along with the <code>ChainError&lt;T&gt;</code> struct, <code>chainerror</code> comes with some useful helper macros to save a lot of typing.</p>
+<p>Debug information is worth it!</p>
+<p>Now continue reading the
+<a href="https://haraldh.github.io/chainerror/tutorial1.html">Tutorial</a></p>
+<a class="header" href="#example" id="example"><h2>Example:</h2></a>
+<p>Output:</p>
+<pre><code>$ cargo run -q --example example
+Main Error Report: func1 error calling func2
+
+Error reported by Func2Error: func2 error: calling func3
+
+The root cause was: std::io::Error: Kind(
+    NotFound
+)
+
+Debug Error:
+examples/example.rs:45: func1 error calling func2
+Caused by:
+examples/example.rs:20: Func2Error(func2 error: calling func3)
+Caused by:
+examples/example.rs:13: Error reading 'foo.txt'
+Caused by:
+Kind(NotFound)
+</code></pre>
+<pre><code class="language-rust ignore">use chainerror::*;
+use std::error::Error;
+use std::io;
 use std::result::Result;
 
 fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    Err(&quot;do_some_io error&quot;)?;
+    Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
-fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    if let Err(_) = do_some_io() {
-        Err(&quot;func2 error&quot;)?;
+fn func3() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+    let filename = &quot;foo.txt&quot;;
+    do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
+    Ok(())
+}
+
+derive_str_cherr!(Func2Error);
+
+fn func2() -&gt; ChainResult&lt;(), Func2Error&gt; {
+    func3().map_err(mstrerr!(Func2Error, &quot;func2 error: calling func3&quot;))?;
+    Ok(())
+}
+
+enum Func1Error {
+    Func2,
+    IO(String),
+}
+
+impl ::std::fmt::Display for Func1Error {
+    fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+        match self {
+            Func1Error::Func2 =&gt; write!(f, &quot;func1 error calling func2&quot;),
+            Func1Error::IO(filename) =&gt; write!(f, &quot;Error reading '{}'&quot;, filename),
+        }
     }
-    Ok(())
 }
 
-fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    if let Err(_) = func2() {
-        Err(&quot;func1 error&quot;)?;
+impl ::std::fmt::Debug for Func1Error {
+    fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+        write!(f, &quot;{}&quot;, self)
     }
+}
+
+fn func1() -&gt; ChainResult&lt;(), Func1Error&gt; {
+    func2().map_err(|e| cherr!(e, Func1Error::Func2))?;
+    let filename = String::from(&quot;bar.txt&quot;);
+    do_some_io().map_err(|e| cherr!(e, Func1Error::IO(filename)))?;
     Ok(())
 }
 
-fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    func1()
+fn main() {
+    if let Err(e) = func1() {
+        match e.kind() {
+            Func1Error::Func2 =&gt; eprintln!(&quot;Main Error Report: func1 error calling func2&quot;),
+            Func1Error::IO(filename) =&gt; {
+                eprintln!(&quot;Main Error Report: func1 error reading '{}'&quot;, filename)
+            }
+        }
+
+        if let Some(e) = e.find_chain_cause::&lt;Func2Error&gt;() {
+            eprintln!(&quot;\nError reported by Func2Error: {}&quot;, e)
+        }
+
+        if let Some(e) = e.root_cause() {
+            let ioerror = e.downcast_ref::&lt;io::Error&gt;().unwrap();
+            eprintln!(&quot;\nThe root cause was: std::io::Error: {:#?}&quot;, ioerror);
+        }
+
+        eprintln!(&quot;\nDebug Error:\n{:?}&quot;, e);
+    }
 }
-</code></pre></pre>
+
+</code></pre>
+<a class="header" href="#features" id="features"><h2>Features</h2></a>
+<p><code>no-fileline</code>
+: completely turn off storing filename and line</p>
+<p><code>display-cause</code>
+: turn on printing a backtrace of the errors in <code>Display</code></p>
+<p><code>no-debug-cause</code>
+: turn off printing a backtrace of the errors in <code>Debug</code></p>
 
                     </main>
 
@@ -197,12 +276,6 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 
         
 
-        
-        <script src="ace.js" type="text/javascript" charset="utf-8"></script>
-        <script src="editor.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mode-rust.js" type="text/javascript" charset="utf-8"></script>
-        <script src="theme-dawn.js" type="text/javascript" charset="utf-8"></script>
-        <script src="theme-tomorrow_night.js" type="text/javascript" charset="utf-8"></script>
         
 
         

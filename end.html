@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Simple String Errors - chainerror</title>
+        <title>The End - chainerror</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="A tutorial for the chainerror rust crate.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html" class="active"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="affix"><a href="end.html">The End</a></li></ol>
+            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="affix"><a href="end.html" class="active">The End</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -140,63 +140,20 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#simple-string-errors" id="simple-string-errors"><h1>Simple String Errors</h1></a>
-<p>An easy way of doing error handling in rust is by returning <code>String</code> as a <code>Box&lt;std::error::Error&gt;</code>.</p>
-<p>If the rust <code>main</code> function returns an <code>Err()</code>, this <code>Err()</code> will be displayed with <code>std::fmt::Debug</code>.</p>
-<p>As you can see by running the example (by pressing the &quot;Play&quot; button in upper right of the code block),
-this only
-prints out the last <code>Error</code>.</p>
-<pre><code>Error: StringError(&quot;func1 error&quot;)
-</code></pre>
-<p>The next chapters of this tutorial show how <code>chainerror</code> adds more information
-and improves inspecting the sources of an error.</p>
-<p>You can also run the tutorial examples in the checked out
-<a href="https://github.com/haraldh/chainerror">chainerror git repo</a>.</p>
-<pre><code>$ cargo run -q --example tutorial1
-</code></pre>
-<pre><pre class="playpen"><code class="language-rust">use std::error::Error;
-use std::io;
-use std::result::Result;
-
-fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    Err(io::Error::from(io::ErrorKind::NotFound))?;
-    Ok(())
-}
-
-fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    if let Err(_) = do_some_io() {
-        Err(&quot;func2 error&quot;)?;
-    }
-    Ok(())
-}
-
-fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    if let Err(_) = func2() {
-        Err(&quot;func1 error&quot;)?;
-    }
-    Ok(())
-}
-
-fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    func1()
-}
-
-</code></pre></pre>
+                        <a class="header" href="#the-end" id="the-end"><h1>The End</h1></a>
+<p>That's it for now…</p>
+<p>Happy error handling!</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="tutorial11.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
-                        
-                            <a rel="next" href="tutorial2.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
                         
 
                         <div style="clear: both"></div>
@@ -206,15 +163,11 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="tutorial11.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
-                
-                    <a href="tutorial2.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
                 
             </nav>
 

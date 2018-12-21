@@ -19,7 +19,7 @@ src/main.rs:40: func1 error calling func2
 
 which gives us a lot more detail.
 
-To create your own Errors, you might find [crates](https://crates.io) which crate enum `Display+Debug` via derive macros.
+To create your own Errors, you might find [crates](https://crates.io) which create enum `Display+Debug` via derive macros.
 
 Also noteworthy is [custom_error](https://crates.io/crates/custom_error) to define your custom errors,
 which can then be used with `chainerror`.

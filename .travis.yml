@@ -1,5 +1,9 @@
 language: rust
 
+branches:
+  except:
+    - gh-pages
+
 rust:
 - stable
 - nightly

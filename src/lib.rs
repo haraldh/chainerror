@@ -369,7 +369,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ~~~
 
     **/
-    pub fn kind<'a>(&'a self) -> &'a T {
+    pub fn kind(&self) -> &T {
         &self.kind
     }
 }
@@ -395,7 +395,10 @@ impl<U: 'static + Display + Debug> ChainErrorDown for ChainError<U> {
 
     fn downcast_chain_ref<T: 'static + Display + Debug>(&self) -> Option<&ChainError<T>> {
         if self.is_chain::<T>() {
-            unsafe { Some(&*(self as *const dyn Error as *const &ChainError<T>)) }
+            #[allow(clippy::cast_ptr_alignment)]
+            unsafe {
+                Some(&*(self as *const dyn Error as *const &ChainError<T>))
+            }
         } else {
             None
         }
@@ -403,7 +406,10 @@ impl<U: 'static + Display + Debug> ChainErrorDown for ChainError<U> {
 
     fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>> {
         if self.is_chain::<T>() {
-            unsafe { Some(&mut *(self as *mut dyn Error as *mut &mut ChainError<T>)) }
+            #[allow(clippy::cast_ptr_alignment)]
+            unsafe {
+                Some(&mut *(self as *mut dyn Error as *mut &mut ChainError<T>))
+            }
         } else {
             None
         }
@@ -521,6 +527,48 @@ impl<T: 'static + Display + Debug> Debug for ChainError<T> {
         }
         Ok(())
     }
+}
+
+pub trait ChainErrorFrom<T>: Sized {
+    fn chain_error_from(_: T, line_filename: Option<(u32, &'static str)>) -> ChainError<Self>;
+}
+
+pub trait IntoChainError<T>: Sized {
+    fn into_chain_error(self, line_filename: Option<(u32, &'static str)>) -> ChainError<T>;
+}
+
+impl<T, U> IntoChainError<U> for T
+where
+    U: ChainErrorFrom<T>,
+{
+    fn into_chain_error(self, line_filename: Option<(u32, &'static str)>) -> ChainError<U> {
+        U::chain_error_from(self, line_filename)
+    }
+}
+
+impl<T, U> ChainErrorFrom<T> for U
+where
+    T: Into<U>,
+    U: 'static + Display + Debug,
+{
+    fn chain_error_from(t: T, line_filename: Option<(u32, &'static str)>) -> ChainError<Self> {
+        let e: U = t.into();
+        ChainError::<_>::new(e, None, line_filename)
+    }
+}
+
+#[macro_export]
+macro_rules! minto_cherr {
+    ( ) => {
+        |e| e.into_chain_error(Some((line!(), file!())))
+    };
+}
+
+#[macro_export]
+macro_rules! into_cherr {
+    ( $t:expr ) => {
+        $t.into_chain_error(Some((line!(), file!())))
+    };
 }
 
 /** creates a new `ChainError<T>`
@@ -719,6 +767,54 @@ macro_rules! mstrerr {
     };
 }
 
+/** convenience macro for cherr!(T(format!(…))) where T(String)
+~~~rust
+# use crate::chainerror::*;
+# use std::error::Error;
+# use std::result::Result;
+#
+derive_str_cherr!(Func2Error);
+
+fn func2() -> ChainResult<(), Func2Error> {
+    let filename = "foo.txt";
+    Err(strerr!(Func2Error, "Error reading '{}'", filename))
+}
+
+derive_str_cherr!(Func1Error);
+
+fn func1() -> Result<(), Box<Error>> {
+    func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
+    Ok(())
+}
+#
+# fn main() {
+#     if let Err(e) = func1() {
+#         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
+#             assert!(f1err.find_cause::<ChainError<Func2Error>>().is_some());
+#             assert!(f1err.find_chain_cause::<Func2Error>().is_some());
+#         } else {
+#             panic!();
+#         }
+#     } else {
+#         unreachable!();
+#     }
+# }
+~~~
+
+**/
+#[macro_export]
+macro_rules! strerr {
+    ( $t:ident, $v:expr $(, $more:expr)* ) => {
+        cherr!($t (format!($v, $( $more , )* )))
+    };
+    ( $t:path, $v:expr $(, $more:expr)* ) => {
+        cherr!($t (format!($v, $( $more , )* )))
+    };
+    ( $v:expr $(, $more:expr)* ) => {
+        cherr!(format!($v, $( $more , )* ))
+    };
+}
+
 /** convenience macro to create a "new type" T(String) and implement Display + Debug for T
 
 ~~~rust
@@ -765,7 +861,7 @@ fn func1() -> Result<(), Box<Error>> {
 #[macro_export]
 macro_rules! derive_str_cherr {
     ($e:ident) => {
-        struct $e(String);
+        pub struct $e(pub String);
         impl ::std::fmt::Display for $e {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
                 write!(f, "{}", self.0)

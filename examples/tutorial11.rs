@@ -36,6 +36,8 @@ impl ::std::fmt::Debug for Func1ErrorKind {
     }
 }
 
+impl ::std::error::Error for Func1ErrorKind {}
+
 fn func1() -> ChainResult<(), Func1ErrorKind> {
     func2().map_err(|e| cherr!(e, Func1ErrorKind::Func2))?;
     let filename = String::from("bar.txt");

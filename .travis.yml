@@ -11,7 +11,7 @@ os:
 - windows
 
 script:
-- cargo build --verbose --all
+- cargo build --all
 - cargo test --all
 
 matrix:

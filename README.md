@@ -1,5 +1,9 @@
 # chainerror
 
+[![Build Status](https://travis-ci.com/haraldh/chainerror.svg?branch=master)](https://travis-ci.com/haraldh/chainerror)
+[![Crate](https://img.shields.io/crates/c/chainerror.svg)](https://crates.io/crates/chainerror)
+[![Rust Documentation](https://img.shields.io/badge/api-rustdoc-blue.svg)](https://docs.rs/chainerror/)
+
 `chainerror` provides an error backtrace like `failure` without doing a real backtrace, so even after you `strip` your
 binaries, you still have the error backtrace.
 

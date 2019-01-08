@@ -52,6 +52,7 @@ fn func1() -> Result<(), Box<Error>> {
 
 fn main() {
     if let Err(e) = func1() {
+        #[cfg(not(windows))]
         assert_eq!(
             format!("\n{:?}\n", e), r#"
 src/lib.rs:20: func1 error
@@ -149,6 +150,7 @@ fn main() {
             eprintln!("\nThe root cause was: std::io::Error: {:#?}", ioerror);
         }
 
+        #[cfg(not(windows))]
         assert_eq!(
             format!("\n{:?}\n", e), r#"
 src/lib.rs:47: func1 error calling func2
@@ -696,6 +698,7 @@ fn func1() -> Result<(), Box<Error>> {
 
 # fn main() {
 #     if let Err(e) = func1() {
+#         #[cfg(not(windows))]
 #         assert_eq!(
 #             format!("\n{:?}\n", e), r#"
 # src/lib.rs:20: func1 error

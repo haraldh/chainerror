@@ -13,6 +13,9 @@ categories = ["rust-patterns"]
 readme = "README.md"
 exclude = [ "booksrc/*", "book.toml", "theme/*", "git-deploy-branch.sh" ]
 
+[badges]
+travis-ci = { repository = "haraldh/chainerror" }
+
 [features]
 default = [ ]
 no-fileline = []

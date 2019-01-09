@@ -665,6 +665,9 @@ macro_rules! cherr {
     ( $k:expr ) => {
         ChainError::<_>::new($k, None, Some((line!(), file!())))
     };
+    ( None, $k:expr ) => {
+        ChainError::<_>::new($k, None, Some((line!(), file!())))
+    };
     ( $e:expr, $k:expr ) => {
         ChainError::<_>::new($k, Some(Box::from($e)), Some((line!(), file!())))
     };
@@ -759,15 +762,27 @@ fn func1() -> Result<(), Box<Error>> {
 **/
 #[macro_export]
 macro_rules! mstrerr {
-    ( $t:ident, $v:expr $(, $more:expr)* ) => {
-        |e| cherr!(e, $t (format!($v, $( $more , )* )))
-    };
-    ( $t:path, $v:expr $(, $more:expr)* ) => {
-        |e| cherr!(e, $t (format!($v, $( $more , )* )))
-    };
-    ( $v:expr $(, $more:expr)* ) => {
-        |e| cherr!(e, format!($v, $( $more , )* ))
-    };
+    ( $t:ident, $msg:expr ) => ({
+        |e| cherr!(e, $t ($msg.to_string()))
+    });
+    ( $t:path, $msg:expr ) => ({
+        |e| cherr!(e, $t ($msg.to_string()))
+    });
+    ( $t:ident, $fmt:expr, $($arg:tt)+ ) => ({
+        |e| cherr!(e, $t (format!($fmt, $($arg)+ )))
+    });
+    ( $t:path, $fmt:expr, $($arg:tt)+ ) => ({
+        |e| cherr!(e, $t (format!($fmt, $($arg)+ )))
+    });
+    ($msg:expr) => ({
+        |e| cherr!(e, $msg.to_string())
+    });
+    ($msg:expr, ) => ({
+        |e| cherr!(e, $msg.to_string())
+    });
+    ($fmt:expr, $($arg:tt)+) => ({
+        |e| cherr!(e, format!($fmt, $($arg)+ ))
+    });
 }
 
 /** convenience macro for cherr!(T(format!(…))) where T(String)
@@ -807,15 +822,27 @@ fn func1() -> Result<(), Box<Error>> {
 **/
 #[macro_export]
 macro_rules! strerr {
-    ( $t:ident, $v:expr $(, $more:expr)* ) => {
-        cherr!($t (format!($v, $( $more , )* )))
-    };
-    ( $t:path, $v:expr $(, $more:expr)* ) => {
-        cherr!($t (format!($v, $( $more , )* )))
-    };
-    ( $v:expr $(, $more:expr)* ) => {
-        cherr!(format!($v, $( $more , )* ))
-    };
+    ( $t:ident, $msg:expr ) => ({
+        cherr!($t ($msg.to_string()))
+    });
+    ( $t:path, $msg:expr ) => ({
+        cherr!($t ($msg.to_string()))
+    });
+    ( $t:ident, $fmt:expr, $($arg:tt)+ ) => ({
+        cherr!($t (format!($fmt, $($arg)+ )))
+    });
+    ( $t:path, $fmt:expr, $($arg:tt)+ ) => ({
+        cherr!($t (format!($fmt, $($arg)+ )))
+    });
+    ($msg:expr) => ({
+        cherr!($msg.to_string())
+    });
+    ($msg:expr, ) => ({
+        cherr!($msg.to_string())
+    });
+    ($fmt:expr, $($arg:tt)+) => ({
+        cherr!(format!($fmt, $($arg)+ ))
+    });
 }
 
 /** convenience macro to create a "new type" T(String) and implement Display + Debug for T

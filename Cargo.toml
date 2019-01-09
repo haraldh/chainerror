@@ -1,6 +1,6 @@
 [package]
 name = "chainerror"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Harald Hoyer <harald@redhat.com>"]
 edition = "2018"
 license = "MIT/Apache-2.0"
@@ -11,7 +11,9 @@ description = "Make chaining errors easy."
 keywords = ["error"]
 categories = ["rust-patterns"]
 readme = "README.md"
-exclude = [ "booksrc/*", "book.toml", "theme/*", "git-deploy-branch.sh" ]
+
+exclude = [ ".gitignore", "examples/*", "booksrc/*", "book.toml",
+            "theme/*", "git-deploy-branch.sh", ".travis.yml" ]
 
 [badges]
 travis-ci = { repository = "haraldh/chainerror" }

@@ -462,31 +462,19 @@ impl ChainErrorDown for dyn Error + 'static + Send + Sync {
 
 impl<T: 'static + Display + Debug> Error for ChainError<T> {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        if let Some(ref e) = self.error_cause {
-            Some(e.as_ref())
-        } else {
-            None
-        }
+        self.error_cause.as_ref().map(|e| e.as_ref())
     }
 }
 
 impl<T: 'static + Display + Debug> Error for &ChainError<T> {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        if let Some(ref e) = self.error_cause {
-            Some(e.as_ref())
-        } else {
-            None
-        }
+        self.error_cause.as_ref().map(|e| e.as_ref())
     }
 }
 
 impl<T: 'static + Display + Debug> Error for &mut ChainError<T> {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        if let Some(ref e) = self.error_cause {
-            Some(e.as_ref())
-        } else {
-            None
-        }
+        self.error_cause.as_ref().map(|e| e.as_ref())
     }
 }
 

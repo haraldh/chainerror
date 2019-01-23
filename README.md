@@ -1,6 +1,6 @@
 # chainerror
 
-[![Build Status](https://travis-ci.com/haraldh/chainerror.svg?branch=master)](https://travis-ci.com/haraldh/chainerror)
+[![Build Status](https://travis-ci.org/haraldh/chainerror.svg?branch=master)](https://travis-ci.org/haraldh/chainerror)
 [![Crate](https://img.shields.io/crates/v/chainerror.svg)](https://crates.io/crates/chainerror)
 [![Rust Documentation](https://img.shields.io/badge/api-rustdoc-blue.svg)](https://docs.rs/chainerror/)
 

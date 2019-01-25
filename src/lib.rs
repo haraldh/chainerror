@@ -214,11 +214,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
 
     /// return the root cause of the error chain, if any exists
     pub fn root_cause(&self) -> Option<&(dyn Error + 'static)> {
-        let mut cause = self as &(dyn Error + 'static);
-        while let Some(c) = cause.source() {
-            cause = c;
-        }
-        Some(cause)
+        self.iter().last()
     }
 
     /** find the first error cause of type U, if any exists
@@ -270,17 +266,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ~~~
     **/
     pub fn find_cause<U: Error + 'static>(&self) -> Option<&U> {
-        let mut cause = self as &(dyn Error + 'static);
-        loop {
-            if cause.is::<U>() {
-                return cause.downcast_ref::<U>();
-            }
-
-            match cause.source() {
-                Some(c) => cause = c,
-                None => return None,
-            }
-        }
+        self.iter().filter_map(Error::downcast_ref::<U>()).next()
     }
 
     /** find the first error cause of type ChainError<U>, if any exists
@@ -299,17 +285,9 @@ impl<T: 'static + Display + Debug> ChainError<T> {
 
     **/
     pub fn find_chain_cause<U: Error + 'static>(&self) -> Option<&ChainError<U>> {
-        let mut cause = self as &(dyn Error + 'static);
-        loop {
-            if cause.is::<ChainError<U>>() {
-                return cause.downcast_ref::<ChainError<U>>();
-            }
-
-            match cause.source() {
-                Some(c) => cause = c,
-                None => return None,
-            }
-        }
+        self.iter()
+            .filter_map(Error::downcast_ref::<ChainError<U>>())
+            .next()
     }
 
     /** return a reference to T of `ChainError<T>`
@@ -373,6 +351,26 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     **/
     pub fn kind(&self) -> &T {
         &self.kind
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &(dyn Error + 'static)> {
+        ErrorIter {
+            current: Some(self),
+        }
+    }
+}
+
+struct ErrorIter<'a> {
+    current: Option<&'a (dyn Error + 'static)>,
+}
+
+impl<'a> Iterator for ErrorIter<'a> {
+    type Item = &'a (dyn Error + 'static);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let current = self.current;
+        self.current = self.current.and_then(Error::source);
+        current
     }
 }
 

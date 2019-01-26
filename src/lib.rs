@@ -266,7 +266,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ~~~
     **/
     pub fn find_cause<U: Error + 'static>(&self) -> Option<&U> {
-        self.iter().filter_map(Error::downcast_ref::<U>()).next()
+        self.iter().filter_map(Error::downcast_ref::<U>).next()
     }
 
     /** find the first error cause of type ChainError<U>, if any exists
@@ -286,7 +286,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     **/
     pub fn find_chain_cause<U: Error + 'static>(&self) -> Option<&ChainError<U>> {
         self.iter()
-            .filter_map(Error::downcast_ref::<ChainError<U>>())
+            .filter_map(Error::downcast_ref::<ChainError<U>>)
             .next()
     }
 

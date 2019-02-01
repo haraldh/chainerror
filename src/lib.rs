@@ -374,6 +374,14 @@ impl<'a> Iterator for ErrorIter<'a> {
     }
 }
 
+impl<T: 'static + Display + Debug> std::ops::Deref for ChainError<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        self.kind()
+    }
+}
+
 /// Convenience trait to hide the `ChainError<T>` implementation internals
 pub trait ChainErrorDown {
     /// Test if of type `ChainError<T>`

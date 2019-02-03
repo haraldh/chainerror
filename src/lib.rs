@@ -263,7 +263,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
         self.iter().filter_map(Error::downcast_ref::<U>).next()
     }
 
-    /// Find the first error cause of type ChainError<U>, if any exists
+    /// Find the first error cause of type `ChainError<U>`, if any exists
     ///
     /// Same as `find_cause`, but hides the `ChainError<U>` implementation internals
     ///
@@ -273,7 +273,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// // Instead of writing
     /// err.find_cause::<ChainError<FooError>>();
     ///
-    /// // leave out the ChainError<T> implementation detail
+    /// // leave out the ChainError<FooError> implementation detail
     /// err.find_chain_cause::<FooError>();
     /// ~~~
     pub fn find_chain_cause<U: Error + 'static>(&self) -> Option<&ChainError<U>> {
@@ -282,8 +282,24 @@ impl<T: 'static + Display + Debug> ChainError<T> {
             .next()
     }
 
-    // FIXME: naming
-    fn find_chain_or_cause<U: Error + 'static>(&self) -> Option<&U> {
+    /// Find the first error cause of type `ChainError<U>` or `U`, if any exists and return `U`
+    ///
+    /// Same as `find_cause` and `find_chain_cause`, but hides the `ChainError<U>` implementation internals
+    ///
+    /// # Examples
+    ///
+    /// ~~~rust,ignore
+    /// // Instead of writing
+    /// err.find_cause::<ChainError<FooErrorKind>>();
+    /// // and/or
+    /// err.find_chain_cause::<FooErrorKind>();
+    /// // and/or
+    /// err.find_cause::<FooErrorKind>();
+    ///
+    /// // leave out the ChainError<FooErrorKind> implementation detail
+    /// err.find_chain_or_kind::<FooErrorKind>();
+    /// ~~~
+    pub fn find_kind_or_cause<U: Error + 'static>(&self) -> Option<&U> {
         self.iter()
             .filter_map(|e| {
                 e.downcast_ref::<ChainError<U>>().map(|e| e.kind())
@@ -353,6 +369,11 @@ impl<T: 'static + Display + Debug> ChainError<T> {
         &self.kind
     }
 
+    /// Returns an Iterator over all error causes/sources
+    ///
+    /// # Example
+    ///
+    ///
     pub fn iter(&self) -> impl Iterator<Item = &(dyn Error + 'static)> {
         ErrorIter {
             current: Some(self),
@@ -378,7 +399,7 @@ impl<T: 'static + Display + Debug> std::ops::Deref for ChainError<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        self.kind()
+        &self.kind
     }
 }
 

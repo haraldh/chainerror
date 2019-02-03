@@ -13,5 +13,6 @@
 - [Selective Error Handling](tutorial9.md)
 - [ErrorKind to the rescue](tutorial10.md)
 - [Debug for the ErrorKind](tutorial11.md)
+- [Deref for the ErrorKind](tutorial12.md)
 
 [The End](end.md)

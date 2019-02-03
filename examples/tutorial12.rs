@@ -45,6 +45,15 @@ fn func1() -> ChainResult<(), Func1ErrorKind> {
     Ok(())
 }
 
+fn handle_func1errorkind(e: &Func1ErrorKind) {
+    match e {
+        Func1ErrorKind::Func2 => eprintln!("Main Error Report: func1 error calling func2"),
+        Func1ErrorKind::IO(ref filename) => {
+            eprintln!("Main Error Report: func1 error reading '{}'", filename)
+        }
+    }
+}
+
 fn main() -> Result<(), Box<Error>> {
     if let Err(e) = func1() {
         match *e {
@@ -53,6 +62,8 @@ fn main() -> Result<(), Box<Error>> {
                 eprintln!("Main Error Report: func1 error reading '{}'", filename)
             }
         }
+
+        handle_func1errorkind(&e);
 
         if let Some(e) = e.find_chain_cause::<Func2Error>() {
             eprintln!("\nError reported by Func2Error: {}", e)

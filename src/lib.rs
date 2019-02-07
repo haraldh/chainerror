@@ -302,7 +302,8 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     pub fn find_kind_or_cause<U: Error + 'static>(&self) -> Option<&U> {
         self.iter()
             .filter_map(|e| {
-                e.downcast_ref::<ChainError<U>>().map(|e| e.kind())
+                e.downcast_ref::<ChainError<U>>()
+                    .map(|e| e.kind())
                     .or_else(|| e.downcast_ref::<U>())
             })
             .next()

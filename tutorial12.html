@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Mapping Errors - chainerror</title>
+        <title>Deref for the ErrorKind - chainerror</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="A tutorial for the chainerror rust crate.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html" class="active"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li><a href="tutorial12.html"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li class="affix"><a href="end.html">The End</a></li></ol>
+            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li><a href="tutorial12.html" class="active"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li class="affix"><a href="end.html">The End</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -140,10 +140,10 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#mapping-errors" id="mapping-errors"><h1>Mapping Errors</h1></a>
-<p>Now let's get more rust idiomatic by using <code>.map_err()</code>.</p>
+                        <a class="header" href="#deref-for-the-errorkind" id="deref-for-the-errorkind"><h1>Deref for the ErrorKind</h1></a>
+<p>Because ChainError<T> implements Deref to &amp;T, we can also match on <code>*e</code> instead of <code>e.kind()</code>
+or call a function with <code>&amp;e</code></p>
 <pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
-
 use std::error::Error;
 use std::io;
 use std::result::Result;
@@ -153,19 +153,68 @@ fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
     Ok(())
 }
 
+derive_str_cherr!(Func2Error);
+
 fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    do_some_io().map_err(|e| cherr!(e, &quot;func2 error&quot;))?;
+    let filename = &quot;foo.txt&quot;;
+    do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
     Ok(())
 }
 
-fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    func2().map_err(|e| cherr!(e, &quot;func1 error&quot;))?;
+enum Func1ErrorKind {
+    Func2,
+    IO(String),
+}
+
+impl ::std::fmt::Display for Func1ErrorKind {
+    fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+        match self {
+            Func1ErrorKind::Func2 =&gt; write!(f, &quot;func1 error calling func2&quot;),
+            Func1ErrorKind::IO(filename) =&gt; write!(f, &quot;Error reading '{}'&quot;, filename),
+        }
+    }
+}
+
+impl ::std::fmt::Debug for Func1ErrorKind {
+    fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+        write!(f, &quot;{}&quot;, self)
+    }
+}
+
+impl ::std::error::Error for Func1ErrorKind {}
+
+fn func1() -&gt; ChainResult&lt;(), Func1ErrorKind&gt; {
+    func2().map_err(|e| cherr!(e, Func1ErrorKind::Func2))?;
+    let filename = String::from(&quot;bar.txt&quot;);
+    do_some_io().map_err(|e| cherr!(e, Func1ErrorKind::IO(filename)))?;
     Ok(())
+}
+
+fn handle_func1errorkind(e: &amp;Func1ErrorKind) {
+    match e {
+        Func1ErrorKind::Func2 =&gt; eprintln!(&quot;Main Error Report: func1 error calling func2&quot;),
+        Func1ErrorKind::IO(ref filename) =&gt; {
+            eprintln!(&quot;Main Error Report: func1 error reading '{}'&quot;, filename)
+        }
+    }
 }
 
 fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
     if let Err(e) = func1() {
-        eprintln!(&quot;{:?}&quot;, e);
+        match *e {
+            Func1ErrorKind::Func2 =&gt; eprintln!(&quot;Main Error Report: func1 error calling func2&quot;),
+            Func1ErrorKind::IO(ref filename) =&gt; {
+                eprintln!(&quot;Main Error Report: func1 error reading '{}'&quot;, filename)
+            }
+        }
+
+        handle_func1errorkind(&amp;e);
+
+        if let Some(e) = e.find_chain_cause::&lt;Func2Error&gt;() {
+            eprintln!(&quot;\nError reported by Func2Error: {}&quot;, e)
+        }
+
+        eprintln!(&quot;\nDebug Error:\n{:?}&quot;, e);
     }
     Ok(())
 }
@@ -1118,29 +1167,19 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 # }
 # }
 </code></pre></pre>
-<p>If you compare the output to the previous example, you will see,
-that:</p>
-<pre><code>Error: src/main.rs:19: &quot;func1 error&quot;
-</code></pre>
-<p>changed to just:</p>
-<pre><code>src/main.rs:16: &quot;func1 error&quot;
-</code></pre>
-<p>This is, because we caught the error of <code>func1()</code> in <code>main()</code> and print it out ourselves.</p>
-<p>We can now control, whether to output in <code>Debug</code> or <code>Display</code> mode.
-Maybe depending on <code>--debug</code> as a CLI argument.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="tutorial2.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="tutorial11.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="tutorial4.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="end.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -1152,13 +1191,13 @@ Maybe depending on <code>--debug</code> as a CLI argument.</p>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="tutorial2.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="tutorial11.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="tutorial4.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a href="end.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

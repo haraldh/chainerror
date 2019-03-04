@@ -684,14 +684,8 @@ macro_rules! cherr {
     ( None, $fmt:expr, $($arg:tt)+ ) => ({
         cherr!(None, format!($fmt, $($arg)+ ))
     });
-    ( $e:ident, $k:expr ) => ({
-        ChainError::<_>::new($k, Some(Box::from($e)), Some((line!(), file!())))
-    });
     ( $e:path, $k:expr ) => ({
         ChainError::<_>::new($k, Some(Box::from($e)), Some((line!(), file!())))
-    });
-    ( $e:ident, $fmt:expr, $($arg:tt)+ ) => ({
-        cherr!($e, format!($fmt, $($arg)+ ))
     });
     ( $e:path, $fmt:expr, $($arg:tt)+ ) => ({
         cherr!($e, format!($fmt, $($arg)+ ))
@@ -787,20 +781,11 @@ macro_rules! cherr {
 /// ~~~
 #[macro_export]
 macro_rules! mstrerr {
-    ( $t:ident, $msg:expr ) => ({
-        |e| cherr!(e, $t ($msg.to_string()))
-    });
     ( $t:path, $msg:expr ) => ({
-        |e| cherr!(e, $t ($msg.to_string()))
-    });
-    ( $t:ident, $msg:expr, ) => ({
         |e| cherr!(e, $t ($msg.to_string()))
     });
     ( $t:path, $msg:expr, ) => ({
         |e| cherr!(e, $t ($msg.to_string()))
-    });
-    ( $t:ident, $fmt:expr, $($arg:tt)+ ) => ({
-        |e| cherr!(e, $t (format!($fmt, $($arg)+ )))
     });
     ( $t:path, $fmt:expr, $($arg:tt)+ ) => ({
         |e| cherr!(e, $t (format!($fmt, $($arg)+ )))
@@ -854,20 +839,11 @@ macro_rules! mstrerr {
 /// ~~~
 #[macro_export]
 macro_rules! strerr {
-    ( $t:ident, $msg:expr ) => ({
-        cherr!($t ($msg.to_string()))
-    });
     ( $t:path, $msg:expr ) => ({
-        cherr!($t ($msg.to_string()))
-    });
-    ( $t:ident, $msg:expr, ) => ({
         cherr!($t ($msg.to_string()))
     });
     ( $t:path, $msg:expr, ) => ({
         cherr!($t ($msg.to_string()))
-    });
-    ( $t:ident, $fmt:expr, $($arg:tt)+ ) => ({
-        cherr!($t (format!($fmt, $($arg)+ )))
     });
     ( $t:path, $fmt:expr, $($arg:tt)+ ) => ({
         cherr!($t (format!($fmt, $($arg)+ )))

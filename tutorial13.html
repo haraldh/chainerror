@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Saving coding chars - chainerror</title>
+        <title>Writing a library - chainerror</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="A tutorial for the chainerror rust crate.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html" class="active"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li><a href="tutorial12.html"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li><a href="tutorial13.html"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="affix"><a href="end.html">The End</a></li></ol>
+            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li><a href="tutorial12.html"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li><a href="tutorial13.html" class="active"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="affix"><a href="end.html">The End</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -140,42 +140,14 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#saving-coding-chars" id="saving-coding-chars"><h1>Saving coding chars</h1></a>
-<p>Because decorating an error with more information should not
-let you jump through hoops, <code>chainerror</code> has a quick macro for that.</p>
-<p><code>mstrerror!()</code> fits right into <code>.map_err()</code> letting you quickly add
-more debug strings.</p>
-<p><code>mstrerror!()</code> even understands <code>format!()</code> syntax like <code>println!()</code>.</p>
-<pre><pre class="playpen"><code class="language-rust">use chainerror::*;
-use std::error::Error;
-use std::io;
-use std::result::Result;
-
-fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    Err(io::Error::from(io::ErrorKind::NotFound))?;
-    Ok(())
-}
-
-fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    let filename = &quot;foo.txt&quot;;
-    do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
-    Ok(())
-}
-
-fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    func2().map_err(mstrerr!(&quot;func1 error&quot;))?;
-    Ok(())
-}
-
-fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
-    if let Err(e) = func1() {
-        eprintln!(&quot;{:?}&quot;, e);
-    }
-    Ok(())
-}
-
-# #[allow(dead_code)]
-# mod chainerror {
+                        <a class="header" href="#writing-a-library" id="writing-a-library"><h1>Writing a library</h1></a>
+<p>I would advise to only expose an <code>mycrate::ErrorKind</code> and type alias <code>mycrate::Error</code> to <code>ChainError&lt;mycrate::ErrorKind&gt;</code>
+so you can tell your library users to use the <code>.kind()</code> method as <code>std::io::Error</code> does.</p>
+<p>If you later decide to make your own <code>Error</code> implementation, your library users don't
+have to change much or anything.</p>
+<pre><pre class="playpen"><code class="language-rust"># #[allow(dead_code)]
+# #[macro_use]
+# pub mod chainerror {
 # //! `chainerror` provides an error backtrace without doing a real backtrace, so even after you `strip` your
 # //! binaries, you still have the error backtrace.
 # //!
@@ -1098,6 +1070,82 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #     };
 # }
 # }
+pub mod mycrate {
+    use crate::chainerror::*; // omit the `crate::` part
+    use std::io;
+
+    fn do_some_io() -&gt; std::result::Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+        Err(io::Error::from(io::ErrorKind::NotFound))?;
+        Ok(())
+    }
+
+    derive_str_cherr!(Func2Error);
+
+    fn func2() -&gt; std::result::Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+        let filename = &quot;foo.txt&quot;;
+        do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
+        Ok(())
+    }
+
+    #[derive(Debug)]
+    pub enum ErrorKind {
+        Func2,
+        IO(String),
+    }
+
+    pub type Error = ChainError&lt;ErrorKind&gt;;
+    pub type Result&lt;T&gt; = std::result::Result&lt;T, Error&gt;;
+
+    impl ::std::fmt::Display for ErrorKind {
+        fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
+            match self {
+                ErrorKind::Func2 =&gt; write!(f, &quot;func1 error calling func2&quot;),
+                ErrorKind::IO(filename) =&gt; write!(f, &quot;Error reading '{}'&quot;, filename),
+            }
+        }
+    }
+
+    pub fn func1() -&gt; Result&lt;()&gt; {
+        func2().map_err(|e| cherr!(e, ErrorKind::Func2))?;
+        let filename = String::from(&quot;bar.txt&quot;);
+        do_some_io().map_err(|e| cherr!(e, ErrorKind::IO(filename)))?;
+        Ok(())
+    }
+}
+
+fn main() -&gt; Result&lt;(), Box&lt;std::error::Error&gt;&gt; {
+    use mycrate::func1;
+    use mycrate::ErrorKind;
+    use std::error::Error;
+    use std::io;
+
+    if let Err(e) = func1() {
+        match e.kind() {
+            ErrorKind::Func2 =&gt; eprintln!(&quot;Main Error Report: func1 error calling func2&quot;),
+            ErrorKind::IO(ref filename) =&gt; {
+                eprintln!(&quot;Main Error Report: func1 error reading '{}'&quot;, filename)
+            }
+        }
+
+        eprintln!();
+        let mut s : &amp;Error = &amp;e;
+        while let Some(c) = s.source() {
+            if let Some(ioerror) = c.downcast_ref::&lt;io::Error&gt;() {
+                eprintln!(&quot;caused by: std::io::Error: {}&quot;, ioerror);
+                match ioerror.kind() {
+                    io::ErrorKind::NotFound =&gt; eprintln!(&quot;of kind: std::io::ErrorKind::NotFound&quot;),
+                    _ =&gt; {}
+                }
+            } else {
+                eprintln!(&quot;caused by: {}&quot;, c);
+            }
+            s = c;
+        }
+
+        eprintln!(&quot;\nDebug Error:\n{:?}&quot;, e);
+    }
+    Ok(())
+}
 </code></pre></pre>
 
                     </main>
@@ -1105,13 +1153,13 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="tutorial3.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="tutorial12.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="tutorial5.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="end.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -1123,13 +1171,13 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="tutorial3.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="tutorial12.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="tutorial5.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a href="end.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

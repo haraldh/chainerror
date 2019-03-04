@@ -75,7 +75,7 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li><a href="tutorial12.html" class="active"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li class="affix"><a href="end.html">The End</a></li></ol>
+            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li><a href="tutorial12.html" class="active"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li><a href="tutorial13.html"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="affix"><a href="end.html">The End</a></li></ol>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -143,7 +143,7 @@
                         <a class="header" href="#deref-for-the-errorkind" id="deref-for-the-errorkind"><h1>Deref for the ErrorKind</h1></a>
 <p>Because ChainError<T> implements Deref to &amp;T, we can also match on <code>*e</code> instead of <code>e.kind()</code>
 or call a function with <code>&amp;e</code></p>
-<pre><pre class="playpen"><code class="language-rust">use crate::chainerror::*;
+<pre><pre class="playpen"><code class="language-rust">use chainerror::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;
@@ -218,6 +218,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
     }
     Ok(())
 }
+
 # #[allow(dead_code)]
 # mod chainerror {
 # //! `chainerror` provides an error backtrace without doing a real backtrace, so even after you `strip` your
@@ -906,14 +907,8 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 #     ( None, $fmt:expr, $($arg:tt)+ ) =&gt; ({
 #         cherr!(None, format!($fmt, $($arg)+ ))
 #     });
-#     ( $e:ident, $k:expr ) =&gt; ({
-#         ChainError::&lt;_&gt;::new($k, Some(Box::from($e)), Some((line!(), file!())))
-#     });
 #     ( $e:path, $k:expr ) =&gt; ({
 #         ChainError::&lt;_&gt;::new($k, Some(Box::from($e)), Some((line!(), file!())))
-#     });
-#     ( $e:ident, $fmt:expr, $($arg:tt)+ ) =&gt; ({
-#         cherr!($e, format!($fmt, $($arg)+ ))
 #     });
 #     ( $e:path, $fmt:expr, $($arg:tt)+ ) =&gt; ({
 #         cherr!($e, format!($fmt, $($arg)+ ))
@@ -1009,20 +1004,11 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 # /// ~~~
 # #[macro_export]
 # macro_rules! mstrerr {
-#     ( $t:ident, $msg:expr ) =&gt; ({
-#         |e| cherr!(e, $t ($msg.to_string()))
-#     });
 #     ( $t:path, $msg:expr ) =&gt; ({
-#         |e| cherr!(e, $t ($msg.to_string()))
-#     });
-#     ( $t:ident, $msg:expr, ) =&gt; ({
 #         |e| cherr!(e, $t ($msg.to_string()))
 #     });
 #     ( $t:path, $msg:expr, ) =&gt; ({
 #         |e| cherr!(e, $t ($msg.to_string()))
-#     });
-#     ( $t:ident, $fmt:expr, $($arg:tt)+ ) =&gt; ({
-#         |e| cherr!(e, $t (format!($fmt, $($arg)+ )))
 #     });
 #     ( $t:path, $fmt:expr, $($arg:tt)+ ) =&gt; ({
 #         |e| cherr!(e, $t (format!($fmt, $($arg)+ )))
@@ -1076,20 +1062,11 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 # /// ~~~
 # #[macro_export]
 # macro_rules! strerr {
-#     ( $t:ident, $msg:expr ) =&gt; ({
-#         cherr!($t ($msg.to_string()))
-#     });
 #     ( $t:path, $msg:expr ) =&gt; ({
-#         cherr!($t ($msg.to_string()))
-#     });
-#     ( $t:ident, $msg:expr, ) =&gt; ({
 #         cherr!($t ($msg.to_string()))
 #     });
 #     ( $t:path, $msg:expr, ) =&gt; ({
 #         cherr!($t ($msg.to_string()))
-#     });
-#     ( $t:ident, $fmt:expr, $($arg:tt)+ ) =&gt; ({
-#         cherr!($t (format!($fmt, $($arg)+ )))
 #     });
 #     ( $t:path, $fmt:expr, $($arg:tt)+ ) =&gt; ({
 #         cherr!($t (format!($fmt, $($arg)+ )))
@@ -1179,7 +1156,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
                         
 
                         
-                            <a rel="next" href="end.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="tutorial13.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -1197,7 +1174,7 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
                 
 
                 
-                    <a href="end.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a href="tutorial13.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

@@ -23,8 +23,7 @@ as a shortcut to
 hiding the `ChainError<T>` implementation detail.
 
 ~~~rust
-use crate::chainerror::*;
-{{#include ../examples/tutorial8.rs:2:}}
+{{#include ../examples/tutorial8.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
 {{#includecomment ../src/lib.rs}}

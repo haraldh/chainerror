@@ -9,8 +9,7 @@ more debug strings.
 `mstrerror!()` even understands `format!()` syntax like `println!()`.
 
 ~~~rust
-use crate::chainerror::*;
-{{#include ../examples/tutorial4.rs:2:}}
+{{#include ../examples/tutorial4.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
 {{#includecomment ../src/lib.rs}}

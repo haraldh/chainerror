@@ -4,8 +4,7 @@ Sometimes you want to inspect the `source()` of an `Error`.
 `chainerror` implements `std::error::Error::source()`, so you can get the cause of an error.
 
 ~~~rust
-use crate::chainerror::*;
-{{#include ../examples/tutorial5.rs:2:}}
+{{#include ../examples/tutorial5.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
 {{#includecomment ../src/lib.rs}}

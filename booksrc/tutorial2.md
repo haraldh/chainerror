@@ -6,8 +6,7 @@ the `String` errors are now chained together.
 Press the play button in the upper right corner and see the nice debug output.
 
 ~~~rust
-use crate::chainerror::*;
-{{#include ../examples/tutorial2.rs:2:}}
+{{#include ../examples/tutorial2.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
 {{#includecomment ../src/lib.rs}}

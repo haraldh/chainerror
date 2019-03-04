@@ -17,8 +17,7 @@ Also a nice `match` on `ChainError<T>.kind()` is now possible, which returns `&T
 `&Func1ErrorKind` here.
 
 ~~~rust
-use crate::chainerror::*;
-{{#include ../examples/tutorial10.rs:2:}}
+{{#include ../examples/tutorial10.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
 {{#includecomment ../src/lib.rs}}

@@ -11,8 +11,7 @@ pub fn downcast_mut<T: Error + 'static>(&mut self) -> Option<&mut T>
 This is how it looks like, when using those:
 
 ~~~rust
-use crate::chainerror::*;
-{{#include ../examples/tutorial6.rs:2:}}
+{{#include ../examples/tutorial6.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
 {{#includecomment ../src/lib.rs}}

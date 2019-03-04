@@ -27,8 +27,7 @@ or to use `.root_cause()`, which of course can be of any type implementing `std:
 ~~~
 
 ~~~rust
-use crate::chainerror::*;
-{{#include ../examples/tutorial7.rs:2:}}
+{{#include ../examples/tutorial7.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
 {{#includecomment ../src/lib.rs}}

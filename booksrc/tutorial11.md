@@ -25,8 +25,7 @@ Also noteworthy is [custom_error](https://crates.io/crates/custom_error) to defi
 which can then be used with `chainerror`.
 
 ~~~rust
-use crate::chainerror::*;
-{{#include ../examples/tutorial11.rs:2:}}
+{{#include ../examples/tutorial11.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
 {{#includecomment ../src/lib.rs}}

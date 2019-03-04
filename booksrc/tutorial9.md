@@ -25,8 +25,7 @@ but this is not valid rust code, so we end up doing it the hard way.
 In the next chapter, we will see, how to solve this more elegantly.
 
 ~~~rust
-use crate::chainerror::*;
-{{#include ../examples/tutorial9.rs:2:}}
+{{#include ../examples/tutorial9.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
 {{#includecomment ../src/lib.rs}}

@@ -1,0 +1,76 @@
+pub mod mycrate {
+    use chainerror::*;
+    use std::io;
+
+    fn do_some_io() -> std::result::Result<(), Box<std::error::Error>> {
+        Err(io::Error::from(io::ErrorKind::NotFound))?;
+        Ok(())
+    }
+
+    derive_str_cherr!(Func2Error);
+
+    fn func2() -> std::result::Result<(), Box<std::error::Error>> {
+        let filename = "foo.txt";
+        do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
+        Ok(())
+    }
+
+    #[derive(Debug)]
+    pub enum ErrorKind {
+        Func2,
+        IO(String),
+    }
+
+    pub type Error = ChainError<ErrorKind>;
+    pub type Result<T> = std::result::Result<T, Error>;
+
+    impl ::std::fmt::Display for ErrorKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+            match self {
+                ErrorKind::Func2 => write!(f, "func1 error calling func2"),
+                ErrorKind::IO(filename) => write!(f, "Error reading '{}'", filename),
+            }
+        }
+    }
+
+    pub fn func1() -> Result<()> {
+        func2().map_err(|e| cherr!(e, ErrorKind::Func2))?;
+        let filename = String::from("bar.txt");
+        do_some_io().map_err(|e| cherr!(e, ErrorKind::IO(filename)))?;
+        Ok(())
+    }
+}
+
+fn main() -> Result<(), Box<std::error::Error>> {
+    use mycrate::func1;
+    use mycrate::ErrorKind;
+    use std::error::Error;
+    use std::io;
+
+    if let Err(e) = func1() {
+        match e.kind() {
+            ErrorKind::Func2 => eprintln!("Main Error Report: func1 error calling func2"),
+            ErrorKind::IO(ref filename) => {
+                eprintln!("Main Error Report: func1 error reading '{}'", filename)
+            }
+        }
+
+        eprintln!();
+        let mut s : &Error = &e;
+        while let Some(c) = s.source() {
+            if let Some(ioerror) = c.downcast_ref::<io::Error>() {
+                eprintln!("caused by: std::io::Error: {}", ioerror);
+                match ioerror.kind() {
+                    io::ErrorKind::NotFound => eprintln!("of kind: std::io::ErrorKind::NotFound"),
+                    _ => {}
+                }
+            } else {
+                eprintln!("caused by: {}", c);
+            }
+            s = c;
+        }
+
+        eprintln!("\nDebug Error:\n{:?}", e);
+    }
+    Ok(())
+}

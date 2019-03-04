@@ -14,5 +14,6 @@
 - [ErrorKind to the rescue](tutorial10.md)
 - [Debug for the ErrorKind](tutorial11.md)
 - [Deref for the ErrorKind](tutorial12.md)
+- [Writing a library](tutorial13.md)
 
 [The End](end.md)

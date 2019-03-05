@@ -26,7 +26,7 @@
 //!
 //! # Examples
 //!
-//! ~~~rust
+//! ```rust
 //! use chainerror::*;
 //! use std::error::Error;
 //! use std::io;
@@ -65,10 +65,10 @@
 //! #        unreachable!();
 //! #    }
 //! }
-//! ~~~
+//! ```
 //!
 //!
-//! ~~~rust
+//! ```rust
 //! use chainerror::*;
 //! use std::error::Error;
 //! use std::io;
@@ -165,7 +165,32 @@
 //! #        unreachable!();
 //! #    }
 //! }
-//! ~~~
+//! ```
+
+#![deny(
+    warnings,
+    absolute_paths_not_starting_with_crate,
+    deprecated_in_future,
+    keyword_idents,
+    macro_use_extern_crate,
+    missing_debug_implementations,
+    missing_docs,
+    trivial_casts,
+    trivial_numeric_casts,
+    unused_extern_crates,
+    unused_import_braces,
+    unused_qualifications,
+    unused_results,
+    unused_labels,
+    unused_lifetimes,
+    unstable_features,
+    unreachable_pub,
+    future_incompatible,
+    missing_copy_implementations,
+    missing_doc_code_examples,
+    rust_2018_idioms,
+    rust_2018_compatibility
+)]
 
 use std::any::TypeId;
 use std::error::Error;
@@ -216,7 +241,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ///
     /// # Examples
     ///
-    /// ~~~rust
+    /// ```rust
     /// # use crate::chainerror::*;
     /// # use std::error::Error;
     /// # use std::io;
@@ -258,7 +283,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// #         unreachable!();
     /// #    }
     /// }
-    /// ~~~
+    /// ```
     pub fn find_cause<U: Error + 'static>(&self) -> Option<&U> {
         self.iter().filter_map(Error::downcast_ref::<U>).next()
     }
@@ -269,13 +294,16 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ///
     /// # Examples
     ///
-    /// ~~~rust,ignore
+    /// ```rust
+    /// # use chainerror::{ChainError, derive_str_cherr};
+    /// # derive_str_cherr!(FooError);
+    /// # let err = ChainError::new(String::new(), None, None);
     /// // Instead of writing
     /// err.find_cause::<ChainError<FooError>>();
     ///
     /// // leave out the ChainError<FooError> implementation detail
     /// err.find_chain_cause::<FooError>();
-    /// ~~~
+    /// ```
     pub fn find_chain_cause<U: Error + 'static>(&self) -> Option<&ChainError<U>> {
         self.iter()
             .filter_map(Error::downcast_ref::<ChainError<U>>)
@@ -288,7 +316,10 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ///
     /// # Examples
     ///
-    /// ~~~rust,ignore
+    /// ```rust
+    /// # use chainerror::{ChainError, derive_str_cherr};
+    /// # derive_str_cherr!(FooErrorKind);
+    /// # let err = ChainError::new(String::new(), None, None);
     /// // Instead of writing
     /// err.find_cause::<ChainError<FooErrorKind>>();
     /// // and/or
@@ -297,8 +328,8 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// err.find_cause::<FooErrorKind>();
     ///
     /// // leave out the ChainError<FooErrorKind> implementation detail
-    /// err.find_chain_or_kind::<FooErrorKind>();
-    /// ~~~
+    /// err.find_kind_or_cause::<FooErrorKind>();
+    /// ```
     pub fn find_kind_or_cause<U: Error + 'static>(&self) -> Option<&U> {
         self.iter()
             .filter_map(|e| {
@@ -313,7 +344,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ///
     /// # Examples
     ///
-    /// ~~~rust
+    /// ```rust
     /// # use crate::chainerror::*;
     /// # use std::error::Error;
     /// # use std::io;
@@ -365,7 +396,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// #         unreachable!();
     /// #    }
     /// }
-    /// ~~~
+    /// ```
     pub fn kind(&self) -> &T {
         &self.kind
     }
@@ -423,6 +454,7 @@ impl<U: 'static + Display + Debug> ChainErrorDown for ChainError<U> {
         if self.is_chain::<T>() {
             #[allow(clippy::cast_ptr_alignment)]
             unsafe {
+                #[allow(trivial_casts)]
                 Some(&*(self as *const dyn Error as *const &ChainError<T>))
             }
         } else {
@@ -434,6 +466,7 @@ impl<U: 'static + Display + Debug> ChainErrorDown for ChainError<U> {
         if self.is_chain::<T>() {
             #[allow(clippy::cast_ptr_alignment)]
             unsafe {
+                #[allow(trivial_casts)]
                 Some(&mut *(self as *mut dyn Error as *mut &mut ChainError<T>))
             }
         } else {
@@ -503,7 +536,7 @@ impl<T: 'static + Display + Debug> Error for &mut ChainError<T> {
 }
 
 impl<T: 'static + Display + Debug> Display for ChainError<T> {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "{}", self.kind)?;
 
         #[cfg(feature = "display-cause")]
@@ -518,7 +551,7 @@ impl<T: 'static + Display + Debug> Display for ChainError<T> {
 }
 
 impl<T: 'static + Display + Debug> Debug for ChainError<T> {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         #[cfg(not(feature = "no-fileline"))]
         {
             if let Some(o) = self.occurrence {
@@ -543,11 +576,15 @@ impl<T: 'static + Display + Debug> Debug for ChainError<T> {
     }
 }
 
+/// `ChainErrorFrom<T>` is similar to `From<T>`
 pub trait ChainErrorFrom<T>: Sized {
+    /// similar to From<T>::from()
     fn chain_error_from(_: T, line_filename: Option<(u32, &'static str)>) -> ChainError<Self>;
 }
 
+/// `IntoChainError<T>` is similar to `Into<T>`
 pub trait IntoChainError<T>: Sized {
+    /// similar to Into<T>::into()
     fn into_chain_error(self, line_filename: Option<(u32, &'static str)>) -> ChainError<T>;
 }
 
@@ -571,6 +608,9 @@ where
     }
 }
 
+/// map into `ChainError<T>` with `IntoChainError`
+///
+/// adds `line!()` and `file!()` information
 #[macro_export]
 macro_rules! minto_cherr {
     ( ) => {
@@ -578,6 +618,9 @@ macro_rules! minto_cherr {
     };
 }
 
+/// into `ChainError<T>` with `IntoChainError`
+///
+/// adds `line!()` and `file!()` information
 #[macro_export]
 macro_rules! into_cherr {
     ( $t:expr ) => {
@@ -590,7 +633,7 @@ macro_rules! into_cherr {
 /// # Examples
 ///
 /// Create a new ChainError<FooError>, where `FooError` must implement `Display` and `Debug`.
-/// ~~~rust
+/// ```rust
 /// # use chainerror::*;
 /// #
 /// # #[derive(Debug)]
@@ -627,11 +670,11 @@ macro_rules! into_cherr {
 /// #         _ => panic!(),
 /// #     }
 /// # }
-/// ~~~
+/// ```
 ///
 /// Additionally an error cause can be added.
 ///
-/// ~~~rust
+/// ```rust
 /// # use chainerror::*;
 /// # use std::io;
 /// # use std::error::Error;
@@ -669,7 +712,7 @@ macro_rules! into_cherr {
 /// #         _ => panic!(),
 /// #     }
 /// # }
-/// ~~~
+/// ```
 #[macro_export]
 macro_rules! cherr {
     ( $k:expr ) => ({
@@ -697,7 +740,7 @@ macro_rules! cherr {
 ///
 /// # Examples
 ///
-/// ~~~rust
+/// ```rust
 /// # use crate::chainerror::*;
 /// # use std::error::Error;
 /// # use std::io;
@@ -735,12 +778,12 @@ macro_rules! cherr {
 /// #         unreachable!();
 /// #     }
 /// # }
-/// ~~~
+/// ```
 ///
 /// `mstrerr!()` can also be used to map a new `ChainError<T>`, where T was defined with
 /// `derive_str_cherr!(T)`
 ///
-/// ~~~rust
+/// ```rust
 /// # use crate::chainerror::*;
 /// # use std::error::Error;
 /// # use std::io;
@@ -778,7 +821,7 @@ macro_rules! cherr {
 /// #         unreachable!();
 /// #     }
 /// # }
-/// ~~~
+/// ```
 #[macro_export]
 macro_rules! mstrerr {
     ( $t:path, $msg:expr ) => ({
@@ -805,7 +848,7 @@ macro_rules! mstrerr {
 ///
 /// # Examples
 ///
-/// ~~~rust
+/// ```rust
 /// # use crate::chainerror::*;
 /// # use std::error::Error;
 /// # use std::result::Result;
@@ -836,7 +879,7 @@ macro_rules! mstrerr {
 /// #         unreachable!();
 /// #     }
 /// # }
-/// ~~~
+/// ```
 #[macro_export]
 macro_rules! strerr {
     ( $t:path, $msg:expr ) => ({
@@ -863,7 +906,7 @@ macro_rules! strerr {
 ///
 /// # Examples
 ///
-/// ~~~rust
+/// ```rust
 /// # use crate::chainerror::*;
 /// # use std::error::Error;
 /// # use std::io;
@@ -901,7 +944,7 @@ macro_rules! strerr {
 /// #         unreachable!();
 /// #     }
 /// # }
-/// ~~~
+/// ```
 #[macro_export]
 macro_rules! derive_str_cherr {
     ($e:ident) => {

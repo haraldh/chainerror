@@ -144,8 +144,8 @@
 //!         assert!(e.root_cause().is_some());
 //!
 //!         if let Some(e) = e.root_cause() {
-//!             let ioerror = e.downcast_ref::<io::Error>().unwrap();
-//!             eprintln!("\nThe root cause was: std::io::Error: {:#?}", ioerror);
+//!             let io_error = e.downcast_ref::<io::Error>().unwrap();
+//!             eprintln!("\nThe root cause was: std::io::Error: {:#?}", io_error);
 //!         }
 //!
 //!         #[cfg(not(windows))]

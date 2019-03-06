@@ -56,7 +56,7 @@ fn main() -> Result<(), Box<std::error::Error>> {
         }
 
         eprintln!();
-        let mut s : &Error = &e;
+        let mut s: &Error = &e;
         while let Some(c) = s.source() {
             if let Some(ioerror) = c.downcast_ref::<io::Error>() {
                 eprintln!("caused by: std::io::Error: {}", ioerror);

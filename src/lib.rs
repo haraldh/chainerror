@@ -246,7 +246,6 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// # use std::error::Error;
     /// # use std::io;
     /// # use std::result::Result;
-    /// #
     /// fn do_some_io() -> Result<(), Box<Error>> {
     ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
     ///     Ok(())
@@ -349,7 +348,6 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// # use std::error::Error;
     /// # use std::io;
     /// # use std::result::Result;
-    /// #
     /// fn do_some_io() -> Result<(), Box<Error>> {
     ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
     ///     Ok(())
@@ -388,7 +386,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// fn main() {
     ///     if let Err(e) = func1() {
     ///         match e.kind() {
-    ///             Func1ErrorKind::Func2 => {},
+    ///             Func1ErrorKind::Func2 => {}
     ///             Func1ErrorKind::IO(filename) => panic!(),
     ///         }
     ///     }
@@ -635,13 +633,11 @@ macro_rules! into_cherr {
 /// Create a new ChainError<FooError>, where `FooError` must implement `Display` and `Debug`.
 /// ```rust
 /// # use chainerror::*;
-/// #
 /// # #[derive(Debug)]
 /// enum FooError {
 ///     Bar,
 ///     Baz(&'static str),
 /// }
-/// #
 /// # impl ::std::fmt::Display for FooError {
 /// #     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
 /// #         match self {
@@ -663,10 +659,9 @@ macro_rules! into_cherr {
 ///     }
 ///     Ok(())
 /// }
-/// #
 /// # pub fn main() {
 /// #     match func().unwrap_err().kind() {
-/// #         FooError::Baz(s) if s == &"Error" => {},
+/// #         FooError::Baz(s) if s == &"Error" => {}
 /// #         _ => panic!(),
 /// #     }
 /// # }
@@ -678,13 +673,11 @@ macro_rules! into_cherr {
 /// # use chainerror::*;
 /// # use std::io;
 /// # use std::error::Error;
-/// #
 /// # #[derive(Debug)]
 /// # enum FooError {
 /// #     Bar,
 /// #     Baz(&'static str),
 /// # }
-/// #
 /// # impl ::std::fmt::Display for FooError {
 /// #     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
 /// #         match self {
@@ -693,7 +686,6 @@ macro_rules! into_cherr {
 /// #         }
 /// #     }
 /// # }
-/// #
 /// fn do_some_stuff() -> Result<(), Box<Error>> {
 ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
 ///     Ok(())
@@ -705,10 +697,9 @@ macro_rules! into_cherr {
 ///     )?;
 ///     Ok(())
 /// }
-/// #
 /// # pub fn main() {
 /// #     match func().unwrap_err().kind() {
-/// #         FooError::Baz(s) if s == &"Error" => {},
+/// #         FooError::Baz(s) if s == &"Error" => {}
 /// #         _ => panic!(),
 /// #     }
 /// # }
@@ -745,12 +736,10 @@ macro_rules! cherr {
 /// # use std::error::Error;
 /// # use std::io;
 /// # use std::result::Result;
-/// #
 /// # fn do_some_io() -> Result<(), Box<Error>> {
 /// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 /// #     Ok(())
 /// # }
-/// #
 /// fn func2() -> Result<(), Box<Error>> {
 ///     let filename = "foo.txt";
 ///     do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
@@ -788,12 +777,10 @@ macro_rules! cherr {
 /// # use std::error::Error;
 /// # use std::io;
 /// # use std::result::Result;
-/// #
 /// # fn do_some_io() -> Result<(), Box<Error>> {
 /// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 /// #     Ok(())
 /// # }
-/// #
 /// derive_str_cherr!(Func2Error);
 ///
 /// fn func2() -> Result<(), Box<Error>> {
@@ -808,7 +795,6 @@ macro_rules! cherr {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
-/// #
 /// # fn main() {
 /// #     if let Err(e) = func1() {
 /// #         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
@@ -852,7 +838,6 @@ macro_rules! mstrerr {
 /// # use crate::chainerror::*;
 /// # use std::error::Error;
 /// # use std::result::Result;
-/// #
 /// derive_str_cherr!(Func2Error);
 ///
 /// fn func2() -> ChainResult<(), Func2Error> {
@@ -866,7 +851,6 @@ macro_rules! mstrerr {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
-/// #
 /// # fn main() {
 /// #     if let Err(e) = func1() {
 /// #         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
@@ -911,12 +895,10 @@ macro_rules! strerr {
 /// # use std::error::Error;
 /// # use std::io;
 /// # use std::result::Result;
-/// #
 /// # fn do_some_io() -> Result<(), Box<Error>> {
 /// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 /// #     Ok(())
 /// # }
-/// #
 /// derive_str_cherr!(Func2Error);
 ///
 /// fn func2() -> ChainResult<(), Func2Error> {
@@ -931,7 +913,6 @@ macro_rules! strerr {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
-/// #
 /// # fn main() {
 /// #     if let Err(e) = func1() {
 /// #         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {

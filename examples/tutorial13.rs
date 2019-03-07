@@ -21,11 +21,12 @@ pub mod mycrate {
         IO(String),
     }
 
-    pub type Error = ChainError<ErrorKind>;
+    derive_err_kind!(Error, ErrorKind);
+
     pub type Result<T> = std::result::Result<T, Error>;
 
-    impl ::std::fmt::Display for ErrorKind {
-        fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+    impl std::fmt::Display for ErrorKind {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter) -> std::fmt::Result {
             match self {
                 ErrorKind::Func2 => write!(f, "func1 error calling func2"),
                 ErrorKind::IO(filename) => write!(f, "Error reading '{}'", filename),

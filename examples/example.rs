@@ -3,12 +3,12 @@ use std::error::Error;
 use std::io;
 use std::result::Result;
 
-fn do_some_io() -> Result<(), Box<Error>> {
+fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
-fn func3() -> Result<(), Box<Error>> {
+fn func3() -> Result<(), Box<Error + Send + Sync>> {
     let filename = "foo.txt";
     do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
     Ok(())

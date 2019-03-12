@@ -7,7 +7,7 @@ In this example `func1()` can return either `Func1ErrorFunc2` or `Func1ErrorIO`.
 We might want to `match` on `func1()` with something like:
 
 ~~~rust,ignore
-fn main() -> Result<(), Box<Error>> {
+fn main() -> Result<(), Box<Error + Send + Sync>> {
     match func1() {
         Err(e) if let Some(s) = e.downcast_chain_ref::<Func1ErrorIO>() =>
         eprintln!("Func1ErrorIO:\n{:?}", s),

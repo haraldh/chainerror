@@ -32,18 +32,18 @@
 //! use std::io;
 //! use std::result::Result;
 //!
-//! fn do_some_io() -> Result<(), Box<Error>> {
+//! fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
 //!     Err(io::Error::from(io::ErrorKind::NotFound))?;
 //!     Ok(())
 //! }
 //!
-//! fn func2() -> Result<(), Box<Error>> {
+//! fn func2() -> Result<(), Box<Error + Send + Sync>> {
 //!     let filename = "foo.txt";
 //!     do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
 //!     Ok(())
 //! }
 //!
-//! fn func1() -> Result<(), Box<Error>> {
+//! fn func1() -> Result<(), Box<Error + Send + Sync>> {
 //!     func2().map_err(mstrerr!("func1 error"))?;
 //!     Ok(())
 //! }
@@ -74,12 +74,12 @@
 //! use std::io;
 //! use std::result::Result;
 //!
-//! fn do_some_io() -> Result<(), Box<Error>> {
+//! fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
 //!     Err(io::Error::from(io::ErrorKind::NotFound))?;
 //!     Ok(())
 //! }
 //!
-//! fn func3() -> Result<(), Box<Error>> {
+//! fn func3() -> Result<(), Box<Error + Send + Sync>> {
 //!     let filename = "foo.txt";
 //!     do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
 //!     Ok(())
@@ -175,7 +175,6 @@
     macro_use_extern_crate,
     missing_debug_implementations,
     missing_docs,
-    trivial_casts,
     trivial_numeric_casts,
     unused_extern_crates,
     unused_import_braces,
@@ -201,7 +200,7 @@ pub struct ChainError<T> {
     #[cfg(not(feature = "no-fileline"))]
     occurrence: Option<&'static str>,
     kind: T,
-    error_cause: Option<Box<dyn Error + 'static>>,
+    error_cause: Option<Box<dyn Error + 'static + Send + Sync>>,
 }
 
 /// convenience type alias
@@ -213,7 +212,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     #[inline]
     pub fn new(
         kind: T,
-        error_cause: Option<Box<dyn Error + 'static>>,
+        error_cause: Option<Box<dyn Error + 'static + Send + Sync>>,
         occurrence: Option<&'static str>,
     ) -> Self {
         Self {
@@ -228,7 +227,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     #[inline]
     pub fn new(
         kind: T,
-        error_cause: Option<Box<dyn Error + 'static>>,
+        error_cause: Option<Box<dyn Error + 'static + Send + Sync>>,
         _occurrence: Option<&'static str>,
     ) -> Self {
         Self { kind, error_cause }
@@ -248,14 +247,14 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// # use std::error::Error;
     /// # use std::io;
     /// # use std::result::Result;
-    /// fn do_some_io() -> Result<(), Box<Error>> {
+    /// fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
     ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
     ///     Ok(())
     /// }
     ///
     /// derive_str_cherr!(Func2Error);
     ///
-    /// fn func2() -> Result<(), Box<Error>> {
+    /// fn func2() -> Result<(), Box<Error + Send + Sync>> {
     ///     let filename = "foo.txt";
     ///     do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
     ///     Ok(())
@@ -263,7 +262,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ///
     /// derive_str_cherr!(Func1Error);
     ///
-    /// fn func1() -> Result<(), Box<Error>> {
+    /// fn func1() -> Result<(), Box<Error + Send + Sync>> {
     ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
     ///     Ok(())
     /// }
@@ -353,14 +352,14 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// # use std::error::Error;
     /// # use std::io;
     /// # use std::result::Result;
-    /// fn do_some_io() -> Result<(), Box<Error>> {
+    /// fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
     ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
     ///     Ok(())
     /// }
     ///
     /// derive_str_cherr!(Func2Error);
     ///
-    /// fn func2() -> Result<(), Box<Error>> {
+    /// fn func2() -> Result<(), Box<Error + Send + Sync>> {
     ///     let filename = "foo.txt";
     ///     do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
     ///     Ok(())
@@ -539,21 +538,21 @@ impl ChainErrorDown for dyn Error + 'static + Send + Sync {
 impl<T: 'static + Display + Debug> Error for ChainError<T> {
     #[inline]
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        self.error_cause.as_ref().map(|e| e.as_ref())
+        self.error_cause.as_ref().map(|e| e.as_ref() as &(dyn Error + 'static))
     }
 }
 
 impl<T: 'static + Display + Debug> Error for &ChainError<T> {
     #[inline]
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        self.error_cause.as_ref().map(|e| e.as_ref())
+        self.error_cause.as_ref().map(|e| e.as_ref() as &(dyn Error + 'static))
     }
 }
 
 impl<T: 'static + Display + Debug> Error for &mut ChainError<T> {
     #[inline]
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        self.error_cause.as_ref().map(|e| e.as_ref())
+        self.error_cause.as_ref().map(|e| e.as_ref() as &(dyn Error + 'static))
     }
 }
 
@@ -714,7 +713,7 @@ macro_rules! into_cherr {
 /// #         }
 /// #     }
 /// # }
-/// fn do_some_stuff() -> Result<(), Box<Error>> {
+/// fn do_some_stuff() -> Result<(), Box<Error + Send + Sync>> {
 ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
 ///     Ok(())
 /// }
@@ -772,17 +771,17 @@ macro_rules! mcherr {
 /// # use std::error::Error;
 /// # use std::io;
 /// # use std::result::Result;
-/// # fn do_some_io() -> Result<(), Box<Error>> {
+/// # fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
 /// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 /// #     Ok(())
 /// # }
-/// fn func2() -> Result<(), Box<Error>> {
+/// fn func2() -> Result<(), Box<Error + Send + Sync>> {
 ///     let filename = "foo.txt";
 ///     do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
 ///     Ok(())
 /// }
 ///
-/// fn func1() -> Result<(), Box<Error>> {
+/// fn func1() -> Result<(), Box<Error + Send + Sync>> {
 ///     func2().map_err(mstrerr!("func1 error"))?;
 ///     Ok(())
 /// }
@@ -813,13 +812,13 @@ macro_rules! mcherr {
 /// # use std::error::Error;
 /// # use std::io;
 /// # use std::result::Result;
-/// # fn do_some_io() -> Result<(), Box<Error>> {
+/// # fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
 /// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 /// #     Ok(())
 /// # }
 /// derive_str_cherr!(Func2Error);
 ///
-/// fn func2() -> Result<(), Box<Error>> {
+/// fn func2() -> Result<(), Box<Error + Send + Sync>> {
 ///     let filename = "foo.txt";
 ///     do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
 ///     Ok(())
@@ -827,7 +826,7 @@ macro_rules! mcherr {
 ///
 /// derive_str_cherr!(Func1Error);
 ///
-/// fn func1() -> Result<(), Box<Error>> {
+/// fn func1() -> Result<(), Box<Error + Send + Sync>> {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
@@ -883,7 +882,7 @@ macro_rules! mstrerr {
 ///
 /// derive_str_cherr!(Func1Error);
 ///
-/// fn func1() -> Result<(), Box<Error>> {
+/// fn func1() -> Result<(), Box<Error + Send + Sync>> {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
@@ -931,7 +930,7 @@ macro_rules! strerr {
 /// # use std::error::Error;
 /// # use std::io;
 /// # use std::result::Result;
-/// # fn do_some_io() -> Result<(), Box<Error>> {
+/// # fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
 /// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 /// #     Ok(())
 /// # }
@@ -945,7 +944,7 @@ macro_rules! strerr {
 ///
 /// derive_str_cherr!(Func1Error);
 ///
-/// fn func1() -> Result<(), Box<Error>> {
+/// fn func1() -> Result<(), Box<Error + Send + Sync>> {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }

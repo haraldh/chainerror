@@ -24,7 +24,7 @@ along with the filename (`file!()`) and line number (`line!()`)
 and returns `newerror`.
 
 `Err()?` then returns the inner error applying `.into()`, so that we
-again have a `Err(Box<Error>)` as a result.
+again have a `Err(Box<Error + Send + Sync>)` as a result.
 
 The `Debug` implementation of `ChainError<T>` (which is returned by `cherr!()`)
 prints the `Debug` of `T` prefixed with the stored filename and line number.

@@ -2,14 +2,14 @@ pub mod mycrate {
     use chainerror::*;
     use std::io;
 
-    fn do_some_io() -> std::result::Result<(), Box<std::error::Error>> {
+    fn do_some_io() -> std::result::Result<(), Box<std::error::Error + Send + Sync>> {
         Err(io::Error::from(io::ErrorKind::NotFound))?;
         Ok(())
     }
 
     derive_str_cherr!(Func2Error);
 
-    fn func2() -> std::result::Result<(), Box<std::error::Error>> {
+    fn func2() -> std::result::Result<(), Box<std::error::Error + Send + Sync>> {
         let filename = "foo.txt";
         do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
         Ok(())

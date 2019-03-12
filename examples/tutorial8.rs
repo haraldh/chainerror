@@ -3,14 +3,14 @@ use std::error::Error;
 use std::io;
 use std::result::Result;
 
-fn do_some_io() -> Result<(), Box<Error>> {
+fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
 derive_str_cherr!(Func2Error);
 
-fn func2() -> Result<(), Box<Error>> {
+fn func2() -> Result<(), Box<Error + Send + Sync>> {
     let filename = "foo.txt";
     do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
     Ok(())
@@ -18,12 +18,12 @@ fn func2() -> Result<(), Box<Error>> {
 
 derive_str_cherr!(Func1Error);
 
-fn func1() -> Result<(), Box<Error>> {
+fn func1() -> Result<(), Box<Error + Send + Sync>> {
     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
     Ok(())
 }
 
-fn main() -> Result<(), Box<Error>> {
+fn main() -> Result<(), Box<Error + Send + Sync>> {
     if let Err(e) = func1() {
         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
             eprintln!("Func1Error: {}", f1err);

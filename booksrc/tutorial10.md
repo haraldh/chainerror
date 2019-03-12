@@ -8,7 +8,7 @@ a `std::error::Error`.
 Not using `String` errors anymore, the `cherr!()` macro seen in the beginning of
 the tutorial has to be used again.
 
-Only returning `Func1ErrorKind` in `func1()` now let us get rid of `Result<(), Box<Error>>` and we can
+Only returning `Func1ErrorKind` in `func1()` now let us get rid of `Result<(), Box<Error + Send + Sync>>` and we can
 use `ChainResult<(), Func1ErrorKind>`.
 
 In `main` we can now directly use the methods of `ChainError<T>` without downcasting the error first.

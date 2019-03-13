@@ -182,7 +182,7 @@ pub mod mycrate {
     }
 }
 
-fn main() -> Result<(), Box<std::error::Error>> {
+fn main() -> Result<(), Box<std::error::Error + Send + Sync>> {
     use mycrate::func1;
     use mycrate::ErrorKind;
     use std::error::Error;

@@ -174,7 +174,6 @@
     keyword_idents,
     macro_use_extern_crate,
     missing_debug_implementations,
-    missing_docs,
     trivial_numeric_casts,
     unused_extern_crates,
     unused_import_braces,
@@ -243,10 +242,10 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// # Examples
     ///
     /// ```rust
-    /// # use crate::chainerror::*;
-    /// # use std::error::Error;
-    /// # use std::io;
-    /// # use std::result::Result;
+    /// use chainerror::*;
+    /// use std::error::Error;
+    /// use std::io;
+    ///
     /// fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
     ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
     ///     Ok(())
@@ -296,7 +295,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// # Examples
     ///
     /// ```rust
-    /// # use chainerror::{ChainError, derive_str_cherr};
+    /// # use chainerror::*;
     /// # derive_str_cherr!(FooError);
     /// # let err = ChainError::new(String::new(), None, None);
     /// // Instead of writing
@@ -319,7 +318,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// # Examples
     ///
     /// ```rust
-    /// # use chainerror::{ChainError, derive_str_cherr};
+    /// # use chainerror::*;
     /// # derive_str_cherr!(FooErrorKind);
     /// # let err = ChainError::new(String::new(), None, None);
     /// // Instead of writing
@@ -348,10 +347,10 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// # Examples
     ///
     /// ```rust
-    /// # use crate::chainerror::*;
-    /// # use std::error::Error;
-    /// # use std::io;
-    /// # use std::result::Result;
+    /// use chainerror::*;
+    /// use std::error::Error;
+    /// use std::io;
+    ///
     /// fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
     ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
     ///     Ok(())
@@ -449,6 +448,10 @@ pub trait ChainErrorDown {
     fn downcast_chain_ref<T: 'static + Display + Debug>(&self) -> Option<&ChainError<T>>;
     /// Downcast to a mutable reference of `ChainError<T>`
     fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>>;
+    /// Downcast to T of `ChainError<T>`
+    fn downcast_inner_ref<T: 'static + Error>(&self) -> Option<&T>;
+    /// Downcast to T mutable reference of `ChainError<T>`
+    fn downcast_inner_mut<T: 'static + Error>(&mut self) -> Option<&mut T>;
 }
 
 impl<U: 'static + Display + Debug> ChainErrorDown for ChainError<U> {
@@ -482,6 +485,31 @@ impl<U: 'static + Display + Debug> ChainErrorDown for ChainError<U> {
             None
         }
     }
+    #[inline]
+    fn downcast_inner_ref<T: 'static + Error>(&self) -> Option<&T> {
+        if self.is_chain::<T>() {
+            #[allow(clippy::cast_ptr_alignment)]
+            unsafe {
+                #[allow(trivial_casts)]
+                Some(&(*(self as *const dyn Error as *const &ChainError<T>)).kind)
+            }
+        } else {
+            None
+        }
+    }
+
+    #[inline]
+    fn downcast_inner_mut<T: 'static + Error>(&mut self) -> Option<&mut T> {
+        if self.is_chain::<T>() {
+            #[allow(clippy::cast_ptr_alignment)]
+            unsafe {
+                #[allow(trivial_casts)]
+                Some(&mut (*(self as *mut dyn Error as *mut &mut ChainError<T>)).kind)
+            }
+        } else {
+            None
+        }
+    }
 }
 
 impl ChainErrorDown for dyn Error + 'static {
@@ -498,6 +526,22 @@ impl ChainErrorDown for dyn Error + 'static {
     #[inline]
     fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>> {
         self.downcast_mut::<ChainError<T>>()
+    }
+
+    #[inline]
+    fn downcast_inner_ref<T: 'static + Error>(&self) -> Option<&T> {
+        self.downcast_ref::<T>()
+            .or_else(|| self.downcast_ref::<ChainError<T>>().map(|e| e.kind()))
+    }
+
+    #[inline]
+    fn downcast_inner_mut<T: 'static + Error>(&mut self) -> Option<&mut T> {
+        if self.is::<T>() {
+            return self.downcast_mut::<T>();
+        }
+
+        self.downcast_mut::<ChainError<T>>()
+            .and_then(|e| e.downcast_inner_mut::<T>())
     }
 }
 
@@ -516,6 +560,22 @@ impl ChainErrorDown for dyn Error + 'static + Send {
     fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>> {
         self.downcast_mut::<ChainError<T>>()
     }
+
+    #[inline]
+    fn downcast_inner_ref<T: 'static + Error>(&self) -> Option<&T> {
+        self.downcast_ref::<T>()
+            .or_else(|| self.downcast_ref::<ChainError<T>>().map(|e| e.kind()))
+    }
+
+    #[inline]
+    fn downcast_inner_mut<T: 'static + Error>(&mut self) -> Option<&mut T> {
+        if self.is::<T>() {
+            return self.downcast_mut::<T>();
+        }
+
+        self.downcast_mut::<ChainError<T>>()
+            .and_then(|e| e.downcast_inner_mut::<T>())
+    }
 }
 
 impl ChainErrorDown for dyn Error + 'static + Send + Sync {
@@ -533,26 +593,48 @@ impl ChainErrorDown for dyn Error + 'static + Send + Sync {
     fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>> {
         self.downcast_mut::<ChainError<T>>()
     }
+
+    #[inline]
+    fn downcast_inner_ref<T: 'static + Error>(&self) -> Option<&T> {
+        self.downcast_ref::<T>()
+            .or_else(|| self.downcast_ref::<ChainError<T>>().map(|e| e.kind()))
+    }
+
+    #[inline]
+    fn downcast_inner_mut<T: 'static + Error>(&mut self) -> Option<&mut T> {
+        if self.is::<T>() {
+            return self.downcast_mut::<T>();
+        }
+
+        self.downcast_mut::<ChainError<T>>()
+            .and_then(|e| e.downcast_inner_mut::<T>())
+    }
 }
 
 impl<T: 'static + Display + Debug> Error for ChainError<T> {
     #[inline]
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        self.error_cause.as_ref().map(|e| e.as_ref() as &(dyn Error + 'static))
+        self.error_cause
+            .as_ref()
+            .map(|e| e.as_ref() as &(dyn Error + 'static))
     }
 }
 
 impl<T: 'static + Display + Debug> Error for &ChainError<T> {
     #[inline]
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        self.error_cause.as_ref().map(|e| e.as_ref() as &(dyn Error + 'static))
+        self.error_cause
+            .as_ref()
+            .map(|e| e.as_ref() as &(dyn Error + 'static))
     }
 }
 
 impl<T: 'static + Display + Debug> Error for &mut ChainError<T> {
     #[inline]
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        self.error_cause.as_ref().map(|e| e.as_ref() as &(dyn Error + 'static))
+        self.error_cause
+            .as_ref()
+            .map(|e| e.as_ref() as &(dyn Error + 'static))
     }
 }
 
@@ -629,28 +711,34 @@ where
     #[inline]
     fn chain_error_from(t: T, line_filename: Option<&'static str>) -> ChainError<Self> {
         let e: U = t.into();
-        ChainError::<_>::new(e, None, line_filename)
+        ChainError::new(e, None, line_filename)
     }
 }
 
-/// map into `ChainError<T>` with `IntoChainError`
+/*
+impl<T, U> ChainErrorFrom<T> for U
+    where
+        T: 'static + Error + Into<Box<T>> + Clone,
+        U: 'static + Display + Debug + From<T>,
+{
+    #[inline]
+    fn chain_error_from(t: T, line_filename: Option<&'static str>) -> ChainError<Self> {
+        ChainError::new(U::from(t.clone()), Some(Box::from(t)), line_filename)
+    }
+}
+*/
+
+/// map into `ChainError<T>` with `T::from(err)`
 ///
 /// adds `line!()` and `file!()` information
 #[macro_export]
 macro_rules! minto_cherr {
-    ( ) => {
-        |e| ChainErrorFrom::chain_error_from(e, Some(concat!(file!(), ":", line!(), ": ")))
-    };
-}
-
-/// into `ChainError<T>` with `IntoChainError`
-///
-/// adds `line!()` and `file!()` information
-#[macro_export]
-macro_rules! into_cherr {
-    ( $t:expr ) => {
-        ChainErrorFrom::chain_error_from($t, Some(concat!(file!(), ":", line!(), ": ")))
-    };
+    ( $k:ident ) => (
+        |e| $crate::cherr!(e, $k::from(&e))
+    );
+    ( $enum:ident $(:: $enum_path:ident)* ) => (
+        |e| $crate::cherr!(e, $enum $(:: $enum_path)*::from(&e))
+    );
 }
 
 /// Creates a new `ChainError<T>`
@@ -734,32 +822,23 @@ macro_rules! into_cherr {
 #[macro_export]
 macro_rules! cherr {
     ( $k:expr ) => ({
-        ChainError::new($k, None, Some(concat!(file!(), ":", line!(), ": ")))
+        $crate::ChainError::new($k, None, Some(concat!(file!(), ":", line!(), ": ")))
     });
     ( None, $k:expr ) => ({
-        ChainError::new($k, None, Some(concat!(file!(), ":", line!(), ": ")))
+        $crate::ChainError::new($k, None, Some(concat!(file!(), ":", line!(), ": ")))
     });
     ( None, $fmt:expr, $($arg:tt)+ ) => ({
-        cherr!(None, format!($fmt, $($arg)+ ))
+        $crate::cherr!(None, format!($fmt, $($arg)+ ))
     });
     ( None, $fmt:expr, $($arg:tt)+ ) => ({
-        cherr!(None, format!($fmt, $($arg)+ ))
+        $crate::cherr!(None, format!($fmt, $($arg)+ ))
     });
     ( $e:path, $k:expr ) => ({
-        ChainError::new($k, Some(Box::from($e)), Some(concat!(file!(), ":", line!(), ": ")))
+        $crate::ChainError::new($k, Some(Box::from($e)), Some(concat!(file!(), ":", line!(), ": ")))
     });
     ( $e:path, $fmt:expr, $($arg:tt)+ ) => ({
-        cherr!($e, format!($fmt, $($arg)+ ))
+        $crate::cherr!($e, format!($fmt, $($arg)+ ))
     });
-
-}
-
-/// shortcut for |e| cherr!(e, $k)
-#[macro_export]
-macro_rules! mcherr {
-    ( $k:expr ) => {{
-        |e| cherr!(e, $k)
-    }};
 }
 
 /// Convenience macro for `|e| cherr!(e, format!(…))`
@@ -846,22 +925,22 @@ macro_rules! mcherr {
 #[macro_export]
 macro_rules! mstrerr {
     ( $t:path, $msg:expr ) => ({
-        |e| cherr!(e, $t ($msg.to_string()))
+        |e| $crate::cherr!(e, $t ($msg.to_string()))
     });
     ( $t:path, $msg:expr, ) => ({
-        |e| cherr!(e, $t ($msg.to_string()))
+        |e| $crate::cherr!(e, $t ($msg.to_string()))
     });
     ( $t:path, $fmt:expr, $($arg:tt)+ ) => ({
-        |e| cherr!(e, $t (format!($fmt, $($arg)+ )))
+        |e| $crate::cherr!(e, $t (format!($fmt, $($arg)+ )))
     });
     ($msg:expr) => ({
-        |e| cherr!(e, $msg.to_string())
+        |e| $crate::cherr!(e, $msg.to_string())
     });
     ($msg:expr, ) => ({
-        |e| cherr!(e, $msg.to_string())
+        |e| $crate::cherr!(e, $msg.to_string())
     });
     ($fmt:expr, $($arg:tt)+) => ({
-        |e| cherr!(e, format!($fmt, $($arg)+ ))
+        |e| $crate::cherr!(e, format!($fmt, $($arg)+ ))
     });
 }
 
@@ -882,7 +961,7 @@ macro_rules! mstrerr {
 ///
 /// derive_str_cherr!(Func1Error);
 ///
-/// fn func1() -> Result<(), Box<Error + Send + Sync>> {
+/// fn func1() -> Result<(), Box<Error>> {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
@@ -902,22 +981,22 @@ macro_rules! mstrerr {
 #[macro_export]
 macro_rules! strerr {
     ( $t:path, $msg:expr ) => ({
-        cherr!($t ($msg.to_string()))
+        $crate::cherr!($t ($msg.to_string()))
     });
     ( $t:path, $msg:expr, ) => ({
-        cherr!($t ($msg.to_string()))
+        $crate::cherr!($t ($msg.to_string()))
     });
     ( $t:path, $fmt:expr, $($arg:tt)+ ) => ({
-        cherr!($t (format!($fmt, $($arg)+ )))
+        $crate::cherr!($t (format!($fmt, $($arg)+ )))
     });
     ($msg:expr) => ({
-        cherr!($msg.to_string())
+        $crate::cherr!($msg.to_string())
     });
     ($msg:expr, ) => ({
-        cherr!($msg.to_string())
+        $crate::cherr!($msg.to_string())
     });
     ($fmt:expr, $($arg:tt)+) => ({
-        cherr!(format!($fmt, $($arg)+ ))
+        $crate::cherr!(format!($fmt, $($arg)+ ))
     });
 }
 
@@ -944,7 +1023,7 @@ macro_rules! strerr {
 ///
 /// derive_str_cherr!(Func1Error);
 ///
-/// fn func1() -> Result<(), Box<Error + Send + Sync>> {
+/// fn func1() -> Result<(), Box<Error>> {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
@@ -980,13 +1059,76 @@ macro_rules! derive_str_cherr {
     };
 }
 
-/// Derive an Error, which wraps ChainError and implements a kind() method
+/// Derive an Error for an ErrorKind, which wraps a `ChainError` and implements a `kind()` method
 ///
-/// e.kind() returns the kind
+/// It basically hides `ChainError` to the outside and only exposes the `kind()`
+/// method.
+///
+/// Error::kind() returns the ErrorKind
+/// Error::source() returns the parent error
+///
+/// # Examples
+///
+/// ```rust
+/// use std::io;
+/// use chainerror::*;
+///
+/// fn do_some_io(_f: &str) -> std::result::Result<(), io::Error> {
+///     return Err(io::Error::from(io::ErrorKind::NotFound));
+/// }
+///
+/// #[derive(Debug, Clone)]
+/// pub enum ErrorKind {
+///     IO(String),
+///     FatalError(String),
+///     Unknown,
+/// }
+///
+/// derive_err_kind!(Error, ErrorKind);
+///
+/// impl std::fmt::Display for ErrorKind {
+///     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> std::fmt::Result {
+///         match self {
+///             ErrorKind::FatalError(e) => write!(f, "fatal error {}", e),
+///             ErrorKind::Unknown => write!(f, "unknown error"),
+///             ErrorKind::IO(filename) => write!(f, "Error reading '{}'", filename),
+///         }
+///     }
+/// }
+///
+/// impl ErrorKind {
+///     fn from_io_error(e: &io::Error, f: String) -> Self {
+///         match e.kind() {
+///             io::ErrorKind::BrokenPipe => panic!("Should not happen"),
+///             io::ErrorKind::ConnectionReset => {
+///                 ErrorKind::FatalError(format!("While reading `{}`: {}", f, e))
+///             }
+///             _ => ErrorKind::IO(f),
+///         }
+///     }
+/// }
+///
+/// impl From<&io::Error> for ErrorKind {
+///     fn from(e: &io::Error) -> Self {
+///         ErrorKind::IO(format!("{}", e))
+///     }
+/// }
+///
+/// pub fn func1() -> std::result::Result<(), Error> {
+///     let filename = "bar.txt";
+///
+///     do_some_io(filename)
+///         .map_err(|e| cherr!(e, ErrorKind::from_io_error(&e, filename.into())))?;
+///     do_some_io(filename).map_err(|e| cherr!(e, ErrorKind::IO(filename.into())))?;
+///     do_some_io(filename).map_err(|e| cherr!(e, ErrorKind::from(&e)))?;
+///     do_some_io(filename).map_err(minto_cherr!(ErrorKind))?;
+///     Ok(())
+/// }
+/// ```
 #[macro_export]
 macro_rules! derive_err_kind {
     ($e:ident, $k:ident) => {
-        pub struct $e(ChainError<$k>);
+        pub struct $e($crate::ChainError<$k>);
 
         impl $e {
             pub fn kind(&self) -> &$k {
@@ -996,13 +1138,35 @@ macro_rules! derive_err_kind {
 
         impl From<$k> for $e {
             fn from(e: $k) -> Self {
-                $e(ChainError::new(e, None, None))
+                $e($crate::ChainError::new(e, None, None))
             }
         }
 
         impl From<ChainError<$k>> for $e {
-            fn from(e: ChainError<$k>) -> Self {
+            fn from(e: $crate::ChainError<$k>) -> Self {
                 $e(e)
+            }
+        }
+
+        impl From<&$e> for $k
+        where
+            $k: Clone,
+        {
+            fn from(e: &$e) -> Self {
+                e.kind().clone()
+            }
+        }
+
+        impl $crate::ChainErrorFrom<$e> for $k
+        where
+            $k: Clone,
+        {
+            #[inline]
+            fn chain_error_from(
+                t: $e,
+                line_filename: Option<&'static str>,
+            ) -> $crate::ChainError<$k> {
+                $crate::ChainError::new((*t.kind()).clone(), Some(Box::from(t)), line_filename)
             }
         }
 

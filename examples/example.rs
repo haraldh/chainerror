@@ -1,7 +1,8 @@
-use chainerror::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;
+
+use chainerror::*;
 
 fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;

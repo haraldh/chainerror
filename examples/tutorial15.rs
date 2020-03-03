@@ -10,7 +10,7 @@ pub mod mycrate {
 
     derive_str_cherr!(Func2Error);
 
-    fn func2() -> std::result::Result<(), Box<std::error::Error + Send + Sync>> {
+    fn func2() -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let filename = "foo.txt";
         do_some_io(filename)
             .map_err(|e| cherr!(e, Func2Error(format!("Error reading '{}'", filename))))?;
@@ -52,7 +52,7 @@ pub mod mycrate {
     }
 
     impl From<&(dyn std::error::Error + 'static + Send + Sync)> for ErrorKind {
-        fn from(e: &(dyn std::error::Error + 'static  + Send + Sync)) -> Self {
+        fn from(e: &(dyn std::error::Error + 'static + Send + Sync)) -> Self {
             if let Some(_) = e.downcast_ref::<io::Error>() {
                 ErrorKind::IO(String::from("Unknown filename"))
             } else if let Some(_) = e.downcast_inner_ref::<Func2Error>() {
@@ -63,8 +63,8 @@ pub mod mycrate {
         }
     }
 
-    impl From<&std::boxed::Box<dyn std::error::Error + 'static  + Send + Sync>> for ErrorKind {
-        fn from(e: &std::boxed::Box<dyn std::error::Error + 'static  + Send + Sync>) -> Self {
+    impl From<&std::boxed::Box<dyn std::error::Error + 'static + Send + Sync>> for ErrorKind {
+        fn from(e: &std::boxed::Box<dyn std::error::Error + 'static + Send + Sync>) -> Self {
             Self::from(&**e)
         }
     }
@@ -99,10 +99,9 @@ pub mod mycrate {
         func1().map_err(minto_cherr!(ErrorKind))?;
         Ok(())
     }
-
 }
 
-fn main() -> Result<(), Box<std::error::Error + Send + Sync>> {
+fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     use mycrate::super_func1;
     use mycrate::ErrorKind;
     use std::error::Error;
@@ -119,7 +118,7 @@ fn main() -> Result<(), Box<std::error::Error + Send + Sync>> {
         }
 
         eprintln!();
-        let mut s: &Error = &e;
+        let mut s: &dyn Error = &e;
         while let Some(c) = s.source() {
             if let Some(ioerror) = c.downcast_ref::<io::Error>() {
                 eprintln!("caused by: std::io::Error: {}", ioerror);

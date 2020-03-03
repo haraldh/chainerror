@@ -32,18 +32,18 @@
 //! use std::io;
 //! use std::result::Result;
 //!
-//! fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
+//! fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 //!     Err(io::Error::from(io::ErrorKind::NotFound))?;
 //!     Ok(())
 //! }
 //!
-//! fn func2() -> Result<(), Box<Error + Send + Sync>> {
+//! fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
 //!     let filename = "foo.txt";
 //!     do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
 //!     Ok(())
 //! }
 //!
-//! fn func1() -> Result<(), Box<Error + Send + Sync>> {
+//! fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
 //!     func2().map_err(mstrerr!("func1 error"))?;
 //!     Ok(())
 //! }
@@ -74,12 +74,12 @@
 //! use std::io;
 //! use std::result::Result;
 //!
-//! fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
+//! fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 //!     Err(io::Error::from(io::ErrorKind::NotFound))?;
 //!     Ok(())
 //! }
 //!
-//! fn func3() -> Result<(), Box<Error + Send + Sync>> {
+//! fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
 //!     let filename = "foo.txt";
 //!     do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
 //!     Ok(())
@@ -246,14 +246,14 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// use std::error::Error;
     /// use std::io;
     ///
-    /// fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
+    /// fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
     ///     Ok(())
     /// }
     ///
     /// derive_str_cherr!(Func2Error);
     ///
-    /// fn func2() -> Result<(), Box<Error + Send + Sync>> {
+    /// fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     ///     let filename = "foo.txt";
     ///     do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
     ///     Ok(())
@@ -261,7 +261,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ///
     /// derive_str_cherr!(Func1Error);
     ///
-    /// fn func1() -> Result<(), Box<Error + Send + Sync>> {
+    /// fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
     ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
     ///     Ok(())
     /// }
@@ -351,14 +351,14 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// use std::error::Error;
     /// use std::io;
     ///
-    /// fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
+    /// fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
     ///     Ok(())
     /// }
     ///
     /// derive_str_cherr!(Func2Error);
     ///
-    /// fn func2() -> Result<(), Box<Error + Send + Sync>> {
+    /// fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     ///     let filename = "foo.txt";
     ///     do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
     ///     Ok(())
@@ -801,7 +801,7 @@ macro_rules! minto_cherr {
 /// #         }
 /// #     }
 /// # }
-/// fn do_some_stuff() -> Result<(), Box<Error + Send + Sync>> {
+/// fn do_some_stuff() -> Result<(), Box<dyn Error + Send + Sync>> {
 ///     Err(io::Error::from(io::ErrorKind::NotFound))?;
 ///     Ok(())
 /// }
@@ -850,17 +850,17 @@ macro_rules! cherr {
 /// # use std::error::Error;
 /// # use std::io;
 /// # use std::result::Result;
-/// # fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
+/// # fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 /// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 /// #     Ok(())
 /// # }
-/// fn func2() -> Result<(), Box<Error + Send + Sync>> {
+/// fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
 ///     let filename = "foo.txt";
 ///     do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
 ///     Ok(())
 /// }
 ///
-/// fn func1() -> Result<(), Box<Error + Send + Sync>> {
+/// fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
 ///     func2().map_err(mstrerr!("func1 error"))?;
 ///     Ok(())
 /// }
@@ -891,13 +891,13 @@ macro_rules! cherr {
 /// # use std::error::Error;
 /// # use std::io;
 /// # use std::result::Result;
-/// # fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
+/// # fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 /// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 /// #     Ok(())
 /// # }
 /// derive_str_cherr!(Func2Error);
 ///
-/// fn func2() -> Result<(), Box<Error + Send + Sync>> {
+/// fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
 ///     let filename = "foo.txt";
 ///     do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
 ///     Ok(())
@@ -905,7 +905,7 @@ macro_rules! cherr {
 ///
 /// derive_str_cherr!(Func1Error);
 ///
-/// fn func1() -> Result<(), Box<Error + Send + Sync>> {
+/// fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
@@ -961,7 +961,7 @@ macro_rules! mstrerr {
 ///
 /// derive_str_cherr!(Func1Error);
 ///
-/// fn func1() -> Result<(), Box<Error>> {
+/// fn func1() -> Result<(), Box<dyn Error>> {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
@@ -1009,7 +1009,7 @@ macro_rules! strerr {
 /// # use std::error::Error;
 /// # use std::io;
 /// # use std::result::Result;
-/// # fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
+/// # fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 /// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 /// #     Ok(())
 /// # }
@@ -1023,7 +1023,7 @@ macro_rules! strerr {
 ///
 /// derive_str_cherr!(Func1Error);
 ///
-/// fn func1() -> Result<(), Box<Error>> {
+/// fn func1() -> Result<(), Box<dyn Error>> {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }

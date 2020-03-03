@@ -4,12 +4,12 @@ use std::result::Result;
 
 use chainerror::*;
 
-fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
+fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
-fn func3() -> Result<(), Box<Error + Send + Sync>> {
+fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
     do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
     Ok(())

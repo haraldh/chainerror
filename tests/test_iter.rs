@@ -4,7 +4,7 @@ use std::fmt::Write;
 use std::io;
 
 #[test]
-fn test_iter() -> Result<(), Box<Error + Send + Sync>> {
+fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
     let err = io::Error::from(io::ErrorKind::NotFound);
     let err = cherr!(err, "1");
     let err = cherr!(err, "2");
@@ -31,7 +31,7 @@ fn test_iter() -> Result<(), Box<Error + Send + Sync>> {
 }
 
 #[test]
-fn test_find_cause() -> Result<(), Box<Error + Send + Sync>> {
+fn test_find_cause() -> Result<(), Box<dyn Error + Send + Sync>> {
     let err = io::Error::from(io::ErrorKind::NotFound);
     let err = cherr!(err, "1");
     let err = cherr!(err, "2");
@@ -48,7 +48,7 @@ fn test_find_cause() -> Result<(), Box<Error + Send + Sync>> {
 }
 
 #[test]
-fn test_root_cause() -> Result<(), Box<Error + Send + Sync>> {
+fn test_root_cause() -> Result<(), Box<dyn Error + Send + Sync>> {
     let err = io::Error::from(io::ErrorKind::NotFound);
     let err = cherr!(err, "1");
     let err = cherr!(err, "2");

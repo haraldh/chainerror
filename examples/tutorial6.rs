@@ -3,26 +3,26 @@ use std::error::Error;
 use std::io;
 use std::result::Result;
 
-fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
+fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
-fn func2() -> Result<(), Box<Error + Send + Sync>> {
+fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
     do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
     Ok(())
 }
 
-fn func1() -> Result<(), Box<Error + Send + Sync>> {
+fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
     func2().map_err(mstrerr!("func1 error"))?;
     Ok(())
 }
 
-fn main() -> Result<(), Box<Error + Send + Sync>> {
+fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     if let Err(e) = func1() {
         eprintln!("Error: {}", e);
-        let mut s : &(dyn Error) = e.as_ref();
+        let mut s: &(dyn Error) = e.as_ref();
         while let Some(c) = s.source() {
             if let Some(ioerror) = c.downcast_ref::<io::Error>() {
                 eprintln!("caused by: std::io::Error: {}", ioerror);

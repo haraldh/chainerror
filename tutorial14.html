@@ -335,7 +335,7 @@
     }
 }
 
-fn main() -&gt; Result&lt;(), Box&lt;std::error::Error + Send + Sync&gt;&gt; {
+fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error + Send + Sync&gt;&gt; {
     use mycrate::func1;
     use mycrate::ErrorKind;
     use std::error::Error;
@@ -350,7 +350,7 @@ fn main() -&gt; Result&lt;(), Box&lt;std::error::Error + Send + Sync&gt;&gt; {
         }
 
         eprintln!();
-        let mut s: &amp;Error = &amp;e;
+        let mut s: &amp;dyn Error = &amp;e;
         while let Some(c) = s.source() {
             if let Some(ioerror) = c.downcast_ref::&lt;io::Error&gt;() {
                 eprintln!(&quot;caused by: std::io::Error: {}&quot;, ioerror);

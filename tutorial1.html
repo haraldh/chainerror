@@ -160,32 +160,32 @@ prints out the last <code>Error</code>.</p>
 and improves inspecting the sources of an error.</p>
 <p>You can also run the tutorial examples in the checked out 
 <a href="https://github.com/haraldh/chainerror">chainerror git repo</a>.</p>
-<pre><code>$ cargo run -q --example tutorial1
+<pre><code class="language-console">$ cargo run -q --example tutorial1
 </code></pre>
 <pre><pre class="playpen"><code class="language-rust">use std::error::Error;
 use std::io;
 use std::result::Result;
 
-fn do_some_io() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
+fn do_some_io() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
-fn func2() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
+fn func2() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
     if let Err(_) = do_some_io() {
         Err(&quot;func2 error&quot;)?;
     }
     Ok(())
 }
 
-fn func1() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
+fn func1() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
     if let Err(_) = func2() {
         Err(&quot;func1 error&quot;)?;
     }
     Ok(())
 }
 
-fn main() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
+fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
     func1()
 }
 </code></pre></pre>

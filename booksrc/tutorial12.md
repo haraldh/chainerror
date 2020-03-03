@@ -6,6 +6,6 @@ or call a function with `&e`
 {{#include ../examples/tutorial12.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 ~~~

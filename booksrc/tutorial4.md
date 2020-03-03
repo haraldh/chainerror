@@ -12,6 +12,6 @@ more debug strings.
 {{#include ../examples/tutorial4.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 ~~~

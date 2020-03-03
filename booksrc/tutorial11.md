@@ -28,6 +28,6 @@ which can then be used with `chainerror`.
 {{#include ../examples/tutorial11.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 ~~~

@@ -7,7 +7,7 @@ Sometimes you want to inspect the `source()` of an `Error`.
 {{#include ../examples/tutorial5.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 ~~~
 

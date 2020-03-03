@@ -20,6 +20,6 @@ Also a nice `match` on `ChainError<T>.kind()` is now possible, which returns `&T
 {{#include ../examples/tutorial10.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 ~~~

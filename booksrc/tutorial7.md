@@ -30,6 +30,6 @@ or to use `.root_cause()`, which of course can be of any type implementing `std:
 {{#include ../examples/tutorial7.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 ~~~

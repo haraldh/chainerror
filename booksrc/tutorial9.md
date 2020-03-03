@@ -28,6 +28,6 @@ In the next chapter, we will see, how to solve this more elegantly.
 {{#include ../examples/tutorial9.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 ~~~

@@ -6,7 +6,7 @@ Now let's get more rust idiomatic by using `.map_err()`.
 {{#include ../examples/tutorial3.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 ~~~
 

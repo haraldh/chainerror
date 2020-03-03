@@ -9,7 +9,7 @@ Press the play button in the upper right corner and see the nice debug output.
 {{#include ../examples/tutorial2.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 ~~~
 

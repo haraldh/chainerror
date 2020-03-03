@@ -17,7 +17,7 @@ and improves inspecting the sources of an error.
 
 You can also run the tutorial examples in the checked out 
 [chainerror git repo](https://github.com/haraldh/chainerror).
-~~~
+~~~console
 $ cargo run -q --example tutorial1
 ~~~
 

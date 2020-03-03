@@ -10,7 +10,7 @@ have to change much or anything.
 # #[allow(dead_code)]
 # #[macro_use]
 # pub mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 pub mod mycrate {
     use crate::chainerror::*; // omit the `crate::` part

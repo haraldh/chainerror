@@ -14,6 +14,6 @@ This is how it looks like, when using those:
 {{#include ../examples/tutorial6.rs}}
 # #[allow(dead_code)]
 # mod chainerror {
-{{#includecomment ../src/lib.rs}}
+{{#rustdoc_include ../src/lib.rs:-1}}
 # }
 ~~~

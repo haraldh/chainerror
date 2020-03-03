@@ -1,9 +1,11 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Simple String Errors - chainerror</title>
+        
+
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="A tutorial for the chainerror rust crate.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,11 +32,11 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "";
-            var default_theme = "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -56,10 +58,13 @@
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script type="text/javascript">
             var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -75,7 +80,10 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <ol class="chapter"><li class="affix"><a href="index.html">chainerror</a></li><li><a href="tutorial1.html" class="active"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li><a href="tutorial12.html"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li><a href="tutorial13.html"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="affix"><a href="end.html">The End</a></li></ol>
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded affix "><a href="index.html">chainerror</a></li><li class="expanded "><a href="tutorial1.html" class="active"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li class="expanded "><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li class="expanded "><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li class="expanded "><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li class="expanded "><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li class="expanded "><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li class="expanded "><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li class="expanded "><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li class="expanded "><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li class="expanded "><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li class="expanded "><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="expanded "><a href="tutorial12.html"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li class="expanded "><a href="tutorial13.html"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="expanded "><a href="tutorial14.html"><strong aria-hidden="true">14.</strong> Going back to std</a></li><li class="expanded affix "><a href="end.html">The End</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -105,7 +113,7 @@
                             
                         </div>
 
-                        <h1 class="menu-title">chainerror</h1> 
+                        <h1 class="menu-title">chainerror</h1>
 
                         <div class="right-buttons">
                             <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -140,17 +148,17 @@
 
                 <div id="content" class="content">
                     <main>
-                        <a class="header" href="#simple-string-errors" id="simple-string-errors"><h1>Simple String Errors</h1></a>
+                        <h1><a class="header" href="#simple-string-errors" id="simple-string-errors">Simple String Errors</a></h1>
 <p>An easy way of doing error handling in rust is by returning <code>String</code> as a <code>Box&lt;std::error::Error&gt;</code>.</p>
 <p>If the rust <code>main</code> function returns an <code>Err()</code>, this <code>Err()</code> will be displayed with <code>std::fmt::Debug</code>.</p>
-<p>As you can see by running the example (by pressing the &quot;Play&quot; button in upper right of the code block),
-this only
+<p>As you can see by running the example (by pressing the &quot;Play&quot; button in upper right of the code block), 
+this only 
 prints out the last <code>Error</code>.</p>
 <pre><code>Error: StringError(&quot;func1 error&quot;)
 </code></pre>
 <p>The next chapters of this tutorial show how <code>chainerror</code> adds more information
 and improves inspecting the sources of an error.</p>
-<p>You can also run the tutorial examples in the checked out
+<p>You can also run the tutorial examples in the checked out 
 <a href="https://github.com/haraldh/chainerror">chainerror git repo</a>.</p>
 <pre><code>$ cargo run -q --example tutorial1
 </code></pre>
@@ -158,29 +166,28 @@ and improves inspecting the sources of an error.</p>
 use std::io;
 use std::result::Result;
 
-fn do_some_io() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+fn do_some_io() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
-fn func2() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+fn func2() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
     if let Err(_) = do_some_io() {
         Err(&quot;func2 error&quot;)?;
     }
     Ok(())
 }
 
-fn func1() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+fn func1() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
     if let Err(_) = func2() {
         Err(&quot;func1 error&quot;)?;
     }
     Ok(())
 }
 
-fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
+fn main() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
     func1()
 }
-
 </code></pre></pre>
 
                     </main>
@@ -222,6 +229,14 @@ fn main() -&gt; Result&lt;(), Box&lt;Error&gt;&gt; {
 
         
 
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
         
 
         

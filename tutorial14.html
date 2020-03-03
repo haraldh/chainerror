@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>The root cause of all Errors - chainerror</title>
+        <title>Going back to std - chainerror</title>
         
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -81,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded affix "><a href="index.html">chainerror</a></li><li class="expanded "><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li class="expanded "><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li class="expanded "><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li class="expanded "><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li class="expanded "><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li class="expanded "><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li class="expanded "><a href="tutorial7.html" class="active"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li class="expanded "><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li class="expanded "><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li class="expanded "><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li class="expanded "><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="expanded "><a href="tutorial12.html"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li class="expanded "><a href="tutorial13.html"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="expanded "><a href="tutorial14.html"><strong aria-hidden="true">14.</strong> Going back to std</a></li><li class="expanded affix "><a href="end.html">The End</a></li></ol>
+                <ol class="chapter"><li class="expanded affix "><a href="index.html">chainerror</a></li><li class="expanded "><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li class="expanded "><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li class="expanded "><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li class="expanded "><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li class="expanded "><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li class="expanded "><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li class="expanded "><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li class="expanded "><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li class="expanded "><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li class="expanded "><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li class="expanded "><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="expanded "><a href="tutorial12.html"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li class="expanded "><a href="tutorial13.html"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="expanded "><a href="tutorial14.html" class="active"><strong aria-hidden="true">14.</strong> Going back to std</a></li><li class="expanded affix "><a href="end.html">The End</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -148,83 +148,240 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#the-root-cause-of-all-errors" id="the-root-cause-of-all-errors">The root cause of all Errors</a></h1>
-<p><code>chainerror</code> also has some helper methods:</p>
-<pre><code class="language-rust ignore">fn is_chain&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; bool
-fn downcast_chain_ref&lt;T: 'static + Display + Debug&gt;(&amp;self) -&gt; Option&lt;&amp;ChainError&lt;T&gt;&gt;
-fn downcast_chain_mut&lt;T: 'static + Display + Debug&gt;(&amp;mut self) -&gt; Option&lt;&amp;mut ChainError&lt;T&gt;&gt;
-fn root_cause(&amp;self) -&gt; Option&lt;&amp;(dyn Error + 'static)&gt;
-fn find_cause&lt;U: Error + 'static&gt;(&amp;self) -&gt; Option&lt;&amp;U&gt;
-fn find_chain_cause&lt;U: Error + 'static&gt;(&amp;self) -&gt; Option&lt;&amp;ChainError&lt;U&gt;&gt;
-fn kind&lt;'a&gt;(&amp;'a self) -&gt; &amp;'a T
-</code></pre>
-<p>Using <code>downcast_chain_ref::&lt;String&gt;()</code> gives a <code>ChainError&lt;String&gt;</code>, which can be used
-to call <code>.find_cause::&lt;io::Error&gt;()</code>. </p>
-<pre><code class="language-rust ignore">        if let Some(s) = e.downcast_chain_ref::&lt;String&gt;() {
-            if let Some(ioerror) = s.find_cause::&lt;io::Error&gt;() {
-</code></pre>
-<p>or to use <code>.root_cause()</code>, which of course can be of any type implementing <code>std::error::Error</code>.</p>
-<pre><code class="language-rust ignore">            if let Some(e) = s.root_cause() {
-</code></pre>
-<pre><pre class="playpen"><code class="language-rust">use chainerror::*;
-use std::error::Error;
-use std::io;
-use std::result::Result;
+                        <h1><a class="header" href="#going-back-to-std" id="going-back-to-std">Going back to std</a></h1>
+<p>Not using <code>chainerror</code> and going full <code>std</code> would look like this:</p>
+<p>Btw, the code size is bigger than using <code>chainerror</code> :-)</p>
+<pre><pre class="playpen"><code class="language-rust">pub mod mycrate {
+    use std::error::Error as StdError;
 
-fn do_some_io() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
-    Err(io::Error::from(io::ErrorKind::NotFound))?;
-    Ok(())
+    use func2mod::{do_some_io, func2};
+
+    pub mod func2mod {
+        use std::error::Error as StdError;
+        use std::io;
+
+        pub enum ErrorKind {
+            IO(String),
+        }
+
+        impl std::fmt::Display for ErrorKind {
+            fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; std::fmt::Result {
+                match self {
+                    ErrorKind::IO(s) =&gt; std::fmt::Display::fmt(s, f),
+                }
+            }
+        }
+
+        impl std::fmt::Debug for ErrorKind {
+            fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; std::fmt::Result {
+                match self {
+                    ErrorKind::IO(s) =&gt; std::fmt::Display::fmt(s, f),
+                }
+            }
+        }
+
+        macro_rules! mcherr {
+            ( $k:expr ) =&gt; {{
+                |e| {
+                    Error(
+                        $k,
+                        Some(Box::from(e)),
+                        Some(concat!(file!(), &quot;:&quot;, line!(), &quot;: &quot;)),
+                    )
+                }
+            }};
+        }
+
+        pub struct Error(
+            ErrorKind,
+            Option&lt;Box&lt;dyn std::error::Error + 'static&gt;&gt;,
+            Option&lt;&amp;'static str&gt;,
+        );
+
+        impl Error {
+            pub fn kind(&amp;self) -&gt; &amp;ErrorKind {
+                &amp;self.0
+            }
+        }
+
+        impl From&lt;ErrorKind&gt; for Error {
+            fn from(e: ErrorKind) -&gt; Self {
+                Error(e, None, None)
+            }
+        }
+
+        impl std::error::Error for Error {
+            fn source(&amp;self) -&gt; Option&lt;&amp;(dyn std::error::Error + 'static)&gt; {
+                self.1.as_ref().map(|e| e.as_ref())
+            }
+        }
+
+        impl std::fmt::Display for Error {
+            fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter) -&gt; std::fmt::Result {
+                std::fmt::Display::fmt(&amp;self.0, f)
+            }
+        }
+
+        impl std::fmt::Debug for Error {
+            fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter) -&gt; std::fmt::Result {
+                if let Some(ref o) = self.2 {
+                    std::fmt::Display::fmt(o, f)?;
+                }
+
+                std::fmt::Debug::fmt(&amp;self.0, f)?;
+
+                if let Some(e) = self.source() {
+                    std::fmt::Display::fmt(&quot;\nCaused by:\n&quot;, f)?;
+                    std::fmt::Debug::fmt(&amp;e, f)?;
+                }
+                Ok(())
+            }
+        }
+
+        pub fn do_some_io() -&gt; std::result::Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+            Err(io::Error::from(io::ErrorKind::NotFound))?;
+            Ok(())
+        }
+
+        pub fn func2() -&gt; std::result::Result&lt;(), Error&gt; {
+            let filename = &quot;foo.txt&quot;;
+            do_some_io().map_err(mcherr!(ErrorKind::IO(format!(
+                &quot;Error reading '{}'&quot;,
+                filename
+            ))))?;
+            Ok(())
+        }
+    }
+
+    #[derive(Debug)]
+    pub enum ErrorKind {
+        Func2,
+        IO(String),
+    }
+
+    impl std::fmt::Display for ErrorKind {
+        fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; std::fmt::Result {
+            match self {
+                ErrorKind::Func2 =&gt; write!(f, &quot;func1 error calling func2&quot;),
+                ErrorKind::IO(filename) =&gt; write!(f, &quot;Error reading '{}'&quot;, filename),
+            }
+        }
+    }
+
+    macro_rules! mcherr {
+        ( $k:expr ) =&gt; {{
+            |e| {
+                Error(
+                    $k,
+                    Some(Box::from(e)),
+                    Some(concat!(file!(), &quot;:&quot;, line!(), &quot;: &quot;)),
+                )
+            }
+        }};
+    }
+
+    pub struct Error(
+        ErrorKind,
+        Option&lt;Box&lt;dyn std::error::Error + 'static&gt;&gt;,
+        Option&lt;&amp;'static str&gt;,
+    );
+
+    impl Error {
+        pub fn kind(&amp;self) -&gt; &amp;ErrorKind {
+            &amp;self.0
+        }
+    }
+
+    impl From&lt;ErrorKind&gt; for Error {
+        fn from(e: ErrorKind) -&gt; Self {
+            Error(e, None, None)
+        }
+    }
+
+    impl std::error::Error for Error {
+        fn source(&amp;self) -&gt; Option&lt;&amp;(dyn std::error::Error + 'static)&gt; {
+            self.1.as_ref().map(|e| e.as_ref())
+        }
+    }
+
+    impl std::fmt::Display for Error {
+        fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter) -&gt; std::fmt::Result {
+            std::fmt::Display::fmt(&amp;self.0, f)
+        }
+    }
+
+    impl std::fmt::Debug for Error {
+        fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter) -&gt; std::fmt::Result {
+            if let Some(ref o) = self.2 {
+                std::fmt::Display::fmt(o, f)?;
+            }
+
+            std::fmt::Debug::fmt(&amp;self.0, f)?;
+            if let Some(e) = self.source() {
+                std::fmt::Display::fmt(&quot;\nCaused by:\n&quot;, f)?;
+                std::fmt::Debug::fmt(&amp;e, f)?;
+            }
+            Ok(())
+        }
+    }
+
+    pub type Result&lt;T&gt; = std::result::Result&lt;T, Error&gt;;
+
+    pub fn func1() -&gt; Result&lt;()&gt; {
+        func2().map_err(mcherr!(ErrorKind::Func2))?;
+        let filename = String::from(&quot;bar.txt&quot;);
+        do_some_io().map_err(mcherr!(ErrorKind::IO(filename)))?;
+        Ok(())
+    }
 }
 
-fn func2() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
-    let filename = &quot;foo.txt&quot;;
-    do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
-    Ok(())
-}
+fn main() -&gt; Result&lt;(), Box&lt;std::error::Error + Send + Sync&gt;&gt; {
+    use mycrate::func1;
+    use mycrate::ErrorKind;
+    use std::error::Error;
+    use std::io;
 
-fn func1() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
-    func2().map_err(mstrerr!(&quot;func1 error&quot;))?;
-    Ok(())
-}
-
-fn main() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
     if let Err(e) = func1() {
-        eprintln!(&quot;Error: {}&quot;, e);
-        if let Some(s) = e.downcast_chain_ref::&lt;String&gt;() {
-            if let Some(ioerror) = s.find_cause::&lt;io::Error&gt;() {
+        match e.kind() {
+            ErrorKind::Func2 =&gt; eprintln!(&quot;Main Error Report: func1 error calling func2&quot;),
+            ErrorKind::IO(ref filename) =&gt; {
+                eprintln!(&quot;Main Error Report: func1 error reading '{}'&quot;, filename)
+            }
+        }
+
+        eprintln!();
+        let mut s: &amp;Error = &amp;e;
+        while let Some(c) = s.source() {
+            if let Some(ioerror) = c.downcast_ref::&lt;io::Error&gt;() {
                 eprintln!(&quot;caused by: std::io::Error: {}&quot;, ioerror);
                 match ioerror.kind() {
                     io::ErrorKind::NotFound =&gt; eprintln!(&quot;of kind: std::io::ErrorKind::NotFound&quot;),
                     _ =&gt; {}
                 }
+            } else {
+                eprintln!(&quot;caused by: {}&quot;, c);
             }
-
-            if let Some(e) = s.root_cause() {
-                let ioerror = e.downcast_ref::&lt;io::Error&gt;().unwrap();
-                eprintln!(&quot;The root cause was: std::io::Error: {:#?}&quot;, ioerror);
-            }
+            s = c;
         }
+
+        eprintln!(&quot;\nDebug Error:\n{:?}&quot;, e);
     }
     Ok(())
 }
-<span class="boring">#[allow(dead_code)]
-</span><span class="boring">mod chainerror {
-</span>{{#includecomment ../src/lib.rs}}
-<span class="boring">}
-</span></code></pre></pre>
+</code></pre></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="tutorial6.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="tutorial13.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
                         
-                            <a rel="next" href="tutorial8.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="end.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -236,13 +393,13 @@ fn main() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="tutorial6.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a href="tutorial13.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="tutorial8.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a href="end.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 

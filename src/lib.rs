@@ -48,23 +48,22 @@
 //!     Ok(())
 //! }
 //!
-//! fn main() {
-//!     if let Err(e) = func1() {
-//!         #[cfg(not(windows))]
-//!         assert_eq!(
-//!             format!("\n{:?}\n", e), r#"
-//! src/lib.rs:20: func1 error
+//! if let Err(e) = func1() {
+//!     #[cfg(not(windows))]
+//!     assert_eq!(
+//!         format!("\n{:?}\n", e),
+//!         r#"
+//! src/lib.rs:21: func1 error
 //! Caused by:
-//! src/lib.rs:15: Error reading 'foo.txt'
+//! src/lib.rs:16: Error reading 'foo.txt'
 //! Caused by:
 //! Kind(NotFound)
 //! "#
-//!         );
-//!     }
+//!     );
+//! }
 //! #    else {
 //! #        unreachable!();
 //! #    }
-//! }
 //! ```
 //!
 //!
@@ -119,52 +118,48 @@
 //!     Ok(())
 //! }
 //!
-//! fn main() {
-//!     if let Err(e) = func1() {
-//!         assert!(
-//!             match e.kind() {
-//!                 Func1Error::Func2 => {
-//!                     eprintln!("Main Error Report: func1 error calling func2");
-//!                     true
-//!                 }
-//!                 Func1Error::IO(filename) => {
-//!                     eprintln!("Main Error Report: func1 error reading '{}'", filename);
-//!                     false
-//!                 }
-//!             }
-//!         );
-//!
-//!         assert!(e.find_chain_cause::<Func2Error>().is_some());
-//!
-//!         if let Some(e) = e.find_chain_cause::<Func2Error>() {
-//!             eprintln!("\nError reported by Func2Error: {}", e)
+//! if let Err(e) = func1() {
+//!     assert!(match e.kind() {
+//!         Func1Error::Func2 => {
+//!             eprintln!("Main Error Report: func1 error calling func2");
+//!             true
 //!         }
-//!
-//!
-//!         assert!(e.root_cause().is_some());
-//!
-//!         if let Some(e) = e.root_cause() {
-//!             let io_error = e.downcast_ref::<io::Error>().unwrap();
-//!             eprintln!("\nThe root cause was: std::io::Error: {:#?}", io_error);
+//!         Func1Error::IO(filename) => {
+//!             eprintln!("Main Error Report: func1 error reading '{}'", filename);
+//!             false
 //!         }
+//!     });
 //!
-//!         #[cfg(not(windows))]
-//!         assert_eq!(
-//!             format!("\n{:?}\n", e), r#"
-//! src/lib.rs:47: func1 error calling func2
+//!     assert!(e.find_chain_cause::<Func2Error>().is_some());
+//!
+//!     if let Some(e) = e.find_chain_cause::<Func2Error>() {
+//!         eprintln!("\nError reported by Func2Error: {}", e)
+//!     }
+//!
+//!     assert!(e.root_cause().is_some());
+//!
+//!     if let Some(e) = e.root_cause() {
+//!         let io_error = e.downcast_ref::<io::Error>().unwrap();
+//!         eprintln!("\nThe root cause was: std::io::Error: {:#?}", io_error);
+//!     }
+//!
+//!     #[cfg(not(windows))]
+//!     assert_eq!(
+//!         format!("\n{:?}\n", e),
+//!         r#"
+//! src/lib.rs:48: func1 error calling func2
 //! Caused by:
-//! src/lib.rs:22: Func2Error(func2 error: calling func3)
+//! src/lib.rs:23: Func2Error(func2 error: calling func3)
 //! Caused by:
-//! src/lib.rs:15: Error reading 'foo.txt'
+//! src/lib.rs:16: Error reading 'foo.txt'
 //! Caused by:
 //! Kind(NotFound)
 //! "#
-//!         );
-//!     }
+//!     );
+//! }
 //! #    else {
 //! #        unreachable!();
 //! #    }
-//! }
 //! ```
 
 #![deny(
@@ -266,22 +261,19 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ///     Ok(())
     /// }
     ///
-    /// fn main() {
-    ///     if let Err(e) = func1() {
-    ///         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
+    /// if let Err(e) = func1() {
+    ///     if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
+    ///         assert!(f1err.find_cause::<io::Error>().is_some());
     ///
-    ///             assert!(f1err.find_cause::<io::Error>().is_some());
-    ///
-    ///             assert!(f1err.find_chain_cause::<Func2Error>().is_some());
-    ///         }
+    ///         assert!(f1err.find_chain_cause::<Func2Error>().is_some());
+    ///     }
     /// #        else {
     /// #            panic!();
     /// #        }
-    ///     }
+    /// }
     /// #    else {
     /// #         unreachable!();
     /// #    }
-    /// }
     /// ```
     #[inline]
     pub fn find_cause<U: Error + 'static>(&self) -> Option<&U> {
@@ -386,17 +378,15 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     ///     Ok(())
     /// }
     ///
-    /// fn main() {
-    ///     if let Err(e) = func1() {
-    ///         match e.kind() {
-    ///             Func1ErrorKind::Func2 => {}
-    ///             Func1ErrorKind::IO(filename) => panic!(),
-    ///         }
+    /// if let Err(e) = func1() {
+    ///     match e.kind() {
+    ///         Func1ErrorKind::Func2 => {}
+    ///         Func1ErrorKind::IO(filename) => panic!(),
     ///     }
+    /// }
     /// #    else {
     /// #         unreachable!();
     /// #    }
-    /// }
     /// ```
     #[inline]
     pub fn kind(&self) -> &T {
@@ -406,8 +396,6 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// Returns an Iterator over all error causes/sources
     ///
     /// # Example
-    ///
-    ///
     #[inline]
     pub fn iter(&self) -> impl Iterator<Item = &(dyn Error + 'static)> {
         ErrorIter {
@@ -769,17 +757,15 @@ macro_rules! minto_cherr {
 /// }
 ///
 /// fn func() -> ChainResult<(), FooError> {
-///     if ! do_some_stuff() {
+///     if !do_some_stuff() {
 ///         Err(cherr!(FooError::Baz("Error")))?;
 ///     }
 ///     Ok(())
 /// }
-/// # pub fn main() {
 /// #     match func().unwrap_err().kind() {
 /// #         FooError::Baz(s) if s == &"Error" => {}
 /// #         _ => panic!(),
 /// #     }
-/// # }
 /// ```
 ///
 /// Additionally an error cause can be added.
@@ -807,17 +793,13 @@ macro_rules! minto_cherr {
 /// }
 ///
 /// fn func() -> ChainResult<(), FooError> {
-///     do_some_stuff().map_err(
-///         |e| cherr!(e, FooError::Baz("Error"))
-///     )?;
+///     do_some_stuff().map_err(|e| cherr!(e, FooError::Baz("Error")))?;
 ///     Ok(())
 /// }
-/// # pub fn main() {
 /// #     match func().unwrap_err().kind() {
 /// #         FooError::Baz(s) if s == &"Error" => {}
 /// #         _ => panic!(),
 /// #     }
-/// # }
 /// ```
 #[macro_export]
 macro_rules! cherr {
@@ -865,14 +847,13 @@ macro_rules! cherr {
 ///     Ok(())
 /// }
 ///
-/// # fn main() {
 /// #     if let Err(e) = func1() {
 /// #         #[cfg(not(windows))]
 /// #         assert_eq!(
 /// #             format!("\n{:?}\n", e), r#"
-/// # src/lib.rs:18: func1 error
+/// # src/lib.rs:19: func1 error
 /// # Caused by:
-/// # src/lib.rs:13: Error reading 'foo.txt'
+/// # src/lib.rs:14: Error reading 'foo.txt'
 /// # Caused by:
 /// # Kind(NotFound)
 /// # "#
@@ -880,7 +861,6 @@ macro_rules! cherr {
 /// #     } else {
 /// #         unreachable!();
 /// #     }
-/// # }
 /// ```
 ///
 /// `mstrerr!()` can also be used to map a new `ChainError<T>`, where T was defined with
@@ -909,7 +889,6 @@ macro_rules! cherr {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
-/// # fn main() {
 /// #     if let Err(e) = func1() {
 /// #         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
 /// #             assert!(f1err.find_cause::<ChainError<Func2Error>>().is_some());
@@ -920,7 +899,6 @@ macro_rules! cherr {
 /// #     } else {
 /// #         unreachable!();
 /// #     }
-/// # }
 /// ```
 #[macro_export]
 macro_rules! mstrerr {
@@ -965,7 +943,6 @@ macro_rules! mstrerr {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
-/// # fn main() {
 /// #     if let Err(e) = func1() {
 /// #         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
 /// #             assert!(f1err.find_cause::<ChainError<Func2Error>>().is_some());
@@ -976,7 +953,6 @@ macro_rules! mstrerr {
 /// #     } else {
 /// #         unreachable!();
 /// #     }
-/// # }
 /// ```
 #[macro_export]
 macro_rules! strerr {
@@ -1027,7 +1003,6 @@ macro_rules! strerr {
 ///     func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
 ///     Ok(())
 /// }
-/// # fn main() {
 /// #     if let Err(e) = func1() {
 /// #         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
 /// #             assert!(f1err.find_cause::<ChainError<Func2Error>>().is_some());
@@ -1038,7 +1013,6 @@ macro_rules! strerr {
 /// #     } else {
 /// #         unreachable!();
 /// #     }
-/// # }
 /// ```
 #[macro_export]
 macro_rules! derive_str_cherr {
@@ -1070,8 +1044,8 @@ macro_rules! derive_str_cherr {
 /// # Examples
 ///
 /// ```rust
-/// use std::io;
 /// use chainerror::*;
+/// use std::io;
 ///
 /// fn do_some_io(_f: &str) -> std::result::Result<(), io::Error> {
 ///     return Err(io::Error::from(io::ErrorKind::NotFound));

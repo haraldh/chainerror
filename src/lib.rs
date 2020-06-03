@@ -49,6 +49,7 @@
 //! }
 //!
 //! if let Err(e) = func1() {
+//! #   #[cfg(not(feature = "no-debug-cause"))]
 //!     #[cfg(not(windows))]
 //!     assert_eq!(
 //!         format!("\n{:?}\n", e),
@@ -143,6 +144,7 @@
 //!         eprintln!("\nThe root cause was: std::io::Error: {:#?}", io_error);
 //!     }
 //!
+//! #   #[cfg(not(feature = "no-debug-cause"))]
 //!     #[cfg(not(windows))]
 //!     assert_eq!(
 //!         format!("\n{:?}\n", e),
@@ -848,6 +850,7 @@ macro_rules! cherr {
 /// }
 ///
 /// #     if let Err(e) = func1() {
+/// #         #[cfg(not(feature = "no-debug-cause"))]
 /// #         #[cfg(not(windows))]
 /// #         assert_eq!(
 /// #             format!("\n{:?}\n", e), r#"

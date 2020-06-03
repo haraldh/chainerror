@@ -1,6 +1,7 @@
 # chainerror
-
+[![Rust](https://github.com/haraldh/chainerror/workflows/Rust/badge.svg)](https://github.com/haraldh/chainerror/actions?query=workflow%3ARust)
 [![Build Status](https://travis-ci.org/haraldh/chainerror.svg?branch=master)](https://travis-ci.org/haraldh/chainerror)
+[![Coverage Status](https://coveralls.io/repos/github/haraldh/chainerror/badge.svg?branch=master)](https://coveralls.io/github/haraldh/chainerror?branch=master)
 [![Crate](https://img.shields.io/crates/v/chainerror.svg)](https://crates.io/crates/chainerror)
 [![Rust Documentation](https://img.shields.io/badge/api-rustdoc-blue.svg)](https://docs.rs/chainerror/)
 

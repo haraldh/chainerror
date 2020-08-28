@@ -47,6 +47,7 @@
 //! examples/example.rs:14:18: Error reading 'foo.txt'
 //! Caused by:
 //! Kind(NotFound)
+//!
 //! Alternative Debug Error:
 //! ChainError<example::Func1Error> {
 //!     occurrence: Some(

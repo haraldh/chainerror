@@ -1,4 +1,4 @@
-use chainerror::*;
+use chainerror::prelude::v1::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;
@@ -12,14 +12,14 @@ derive_str_cherr!(Func2Error);
 
 fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
-    do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
+    do_some_io().cherr(Func2Error(format!("Error reading '{}'", filename)))?;
     Ok(())
 }
 
 derive_str_cherr!(Func1Error);
 
 fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-    func2().map_err(mstrerr!(Func1Error, "func1 error"))?;
+    func2().cherr(Func1Error(format!("func1 error")))?;
     Ok(())
 }
 

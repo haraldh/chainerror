@@ -1,7 +1,7 @@
 pub mod mycrate {
     use std::io;
 
-    use chainerror::*;
+    use chainerror::prelude::v1::*;
 
     fn do_some_io(_f: &str) -> std::result::Result<(), io::Error> {
         Err(io::Error::from(io::ErrorKind::NotFound))?;
@@ -12,8 +12,7 @@ pub mod mycrate {
 
     fn func2() -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let filename = "foo.txt";
-        do_some_io(filename)
-            .map_err(|e| cherr!(e, Func2Error(format!("Error reading '{}'", filename))))?;
+        do_some_io(filename).cherr(Func2Error(format!("Error reading '{}'", filename)))?;
         Ok(())
     }
 
@@ -82,21 +81,19 @@ pub mod mycrate {
     }
 
     pub fn func1() -> Result<()> {
-        func2().map_err(|e| cherr!(e, ErrorKind::from(&e)))?;
+        func2().map_err(|e| ErrorKind::from(&e))?;
 
         let filename = "bar.txt";
 
-        do_some_io(filename)
-            .map_err(|e| cherr!(e, ErrorKind::from_io_error(&e, filename.into())))?;
-        do_some_io(filename).map_err(|e| cherr!(e, ErrorKind::IO(filename.into())))?;
-        do_some_io(filename).map_err(|e| cherr!(e, ErrorKind::from(&e)))?;
-        do_some_io(filename).map_err(minto_cherr!(ErrorKind))?;
+        do_some_io(filename).map_cherr(|e| ErrorKind::from_io_error(&e, filename.into()))?;
+        do_some_io(filename).map_cherr(|_| ErrorKind::IO(filename.into()))?;
+        do_some_io(filename).map_cherr(|e| ErrorKind::from(e))?;
 
         Ok(())
     }
 
     pub fn super_func1() -> Result<()> {
-        func1().map_err(minto_cherr!(ErrorKind))?;
+        func1().map_cherr(|e| ErrorKind::from(e))?;
         Ok(())
     }
 }

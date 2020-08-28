@@ -1,5 +1,5 @@
 pub mod mycrate {
-    use chainerror::*;
+    use chainerror::prelude::v1::*;
     use std::io;
 
     fn do_some_io() -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -11,7 +11,7 @@ pub mod mycrate {
 
     fn func2() -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let filename = "foo.txt";
-        do_some_io().map_err(mstrerr!(Func2Error, "Error reading '{}'", filename))?;
+        do_some_io().cherr(Func2Error(format!("Error reading '{}'", filename)))?;
         Ok(())
     }
 
@@ -35,9 +35,9 @@ pub mod mycrate {
     }
 
     pub fn func1() -> Result<()> {
-        func2().map_err(|e| cherr!(e, ErrorKind::Func2))?;
+        func2().cherr(ErrorKind::Func2)?;
         let filename = String::from("bar.txt");
-        do_some_io().map_err(|e| cherr!(e, ErrorKind::IO(filename)))?;
+        do_some_io().cherr(ErrorKind::IO(filename))?;
         Ok(())
     }
 }

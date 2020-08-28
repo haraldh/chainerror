@@ -1,4 +1,4 @@
-use chainerror::*;
+use chainerror::prelude::v1::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;
@@ -10,12 +10,12 @@ fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 
 fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
-    do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
+    do_some_io().cherr(format!("Error reading '{}'", filename))?;
     Ok(())
 }
 
 fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-    func2().map_err(mstrerr!("func1 error"))?;
+    func2().cherr("func1 error")?;
     Ok(())
 }
 

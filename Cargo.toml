@@ -1,6 +1,6 @@
 [package]
 name = "chainerror"
-version = "0.5.0"
+version = "0.6.0-alpha.0"
 authors = ["Harald Hoyer <harald@redhat.com>"]
 edition = "2018"
 license = "MIT/Apache-2.0"
@@ -16,10 +16,14 @@ exclude = [ ".gitignore", "examples/*", "booksrc/*", "book.toml",
             "theme/*", "git-deploy-branch.sh", ".travis.yml" ]
 
 [badges]
-travis-ci = { repository = "haraldh/chainerror" }
+# See https://doc.rust-lang.org/cargo/reference/manifest.html#the-badges-section
+github = { repository = "haraldh/chainerror", workflow = "rust" }
+maintenance = { status = "actively-developed" }
+is-it-maintained-issue-resolution = { repository = "haraldh/chainerror" }
+is-it-maintained-open-issues = { repository = "haraldh/chainerror" }
 
 [features]
-default = [ ]
-no-fileline = []
+default = [ "location", "debug-cause" ]
+location = []
 display-cause = []
-no-debug-cause = []
+debug-cause = []

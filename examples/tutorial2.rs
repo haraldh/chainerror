@@ -1,4 +1,4 @@
-use chainerror::*;
+use chainerror::prelude::v1::*;
 
 use std::error::Error;
 use std::io;
@@ -11,14 +11,14 @@ fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 
 fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     if let Err(e) = do_some_io() {
-        Err(cherr!(e, "func2 error"))?;
+        Err(e).cherr("func2 error")?;
     }
     Ok(())
 }
 
 fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
     if let Err(e) = func2() {
-        Err(cherr!(e, "func1 error"))?;
+        Err(e).cherr("func1 error")?;
     }
     Ok(())
 }

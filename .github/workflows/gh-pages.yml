@@ -35,6 +35,12 @@ jobs:
       - name: Build mdbook
         run: cargo install mdbook
 
+      - name: Build cargo-readme
+        run: cargo install cargo-readme
+
+      - name: Build README.md
+        run: cargo readme > README.md
+
       - name: Build
         run: mdbook build
 

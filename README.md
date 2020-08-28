@@ -1,69 +1,148 @@
-# chainerror
-[![Rust](https://github.com/haraldh/chainerror/workflows/Rust/badge.svg)](https://github.com/haraldh/chainerror/actions?query=workflow%3ARust)
-[![Build Status](https://travis-ci.org/haraldh/chainerror.svg?branch=master)](https://travis-ci.org/haraldh/chainerror)
-[![Coverage Status](https://coveralls.io/repos/github/haraldh/chainerror/badge.svg?branch=master)](https://coveralls.io/github/haraldh/chainerror?branch=master)
-[![Crate](https://img.shields.io/crates/v/chainerror.svg)](https://crates.io/crates/chainerror)
-[![Rust Documentation](https://img.shields.io/badge/api-rustdoc-blue.svg)](https://docs.rs/chainerror/)
+[![Workflow Status](https://github.com/haraldh/chainerror/workflows/rust/badge.svg)](https://github.com/haraldh/chainerror/actions?query=workflow%3A%22rust%22)
+[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/haraldh/chainerror.svg)](https://isitmaintained.com/project/haraldh/chainerror "Average time to resolve an issue")
+[![Percentage of issues still open](https://isitmaintained.com/badge/open/haraldh/chainerror.svg)](https://isitmaintained.com/project/haraldh/chainerror "Percentage of issues still open")
+![Maintenance](https://img.shields.io/badge/maintenance-activly--developed-brightgreen.svg)
 
-`chainerror` provides an error backtrace like `failure` without doing a real backtrace, so even after you `strip` your
+# chainerror
+
+`chainerror` provides an error backtrace without doing a real backtrace, so even after you `strip` your
 binaries, you still have the error backtrace.
 
 `chainerror` has no dependencies!
 
-`chainerror` uses `.source()` of `std::error::Error` along with `line()!` and `file()!` to provide a nice debug error backtrace.
+`chainerror` uses `.source()` of `std::error::Error` along with `#[track_caller]` and `Location` to provide a nice debug error backtrace.
 It encapsulates all types, which have `Display + Debug` and can store the error cause internally.
 
 Along with the `ChainError<T>` struct, `chainerror` comes with some useful helper macros to save a lot of typing.
 
 Debug information is worth it!
 
-Now continue reading the
-[Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
+### Features
 
-## Example:
-Output:
+`default = [ "location", "debug-cause" ]`
 
-~~~
+`location`
+: store the error location
+
+`display-cause`
+: turn on printing a backtrace of the errors in `Display`
+
+`debug-cause`
+: print a backtrace of the errors in `Debug`
+
+
+## Tutorial
+
+Read the [Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
+
+## Examples
+
+```console
 $ cargo run -q --example example
 Main Error Report: func1 error calling func2
 
 Error reported by Func2Error: func2 error: calling func3
-
 The root cause was: std::io::Error: Kind(
     NotFound
 )
 
 Debug Error:
-examples/example.rs:45: func1 error calling func2
+examples/example.rs:46:13: func1 error calling func2
 Caused by:
-examples/example.rs:20: Func2Error(func2 error: calling func3)
+examples/example.rs:21:13: Func2Error(func2 error: calling func3)
 Caused by:
-examples/example.rs:13: Error reading 'foo.txt'
+examples/example.rs:14:18: Error reading 'foo.txt'
 Caused by:
 Kind(NotFound)
-~~~
+Alternative Debug Error:
+ChainError<example::Func1Error> {
+    occurrence: Some(
+        "examples/example.rs:46:13",
+    ),
+    kind: func1 error calling func2,
+    source: Some(
+        ChainError<example::Func2Error> {
+            occurrence: Some(
+                "examples/example.rs:21:13",
+            ),
+            kind: Func2Error(func2 error: calling func3),
+            source: Some(
+                ChainError<alloc::string::String> {
+                    occurrence: Some(
+                        "examples/example.rs:14:18",
+                    ),
+                    kind: "Error reading \'foo.txt\'",
+                    source: Some(
+                        Kind(
+                            NotFound,
+                        ),
+                    ),
+                },
+            ),
+        },
+    ),
+}
+```
 
-~~~rust,ignore
-use chainerror::*;
+```rust
+use chainerror::prelude::v1::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;
 
-fn do_some_io() -> Result<(), Box<Error + Send + Sync>> {
+fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
-fn func3() -> Result<(), Box<Error + Send + Sync>> {
+fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
-    do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
+    do_some_io().cherr(format!("Error reading '{}'", filename))?;
+    Ok(())
+}
+
+fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
+    func2().cherr("func1 error")?;
+    Ok(())
+}
+
+if let Err(e) = func1() {
+    #[cfg(not(windows))]
+    assert_eq!(
+        format!("\n{:?}\n", e),
+        r#"
+src/lib.rs:21:13: func1 error
+Caused by:
+src/lib.rs:16:18: Error reading 'foo.txt'
+Caused by:
+Kind(NotFound)
+"#
+    );
+}
+```
+
+
+```rust
+use chainerror::prelude::v1::*;
+use std::error::Error;
+use std::io;
+use std::result::Result;
+
+fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
+    Err(io::Error::from(io::ErrorKind::NotFound))?;
+    Ok(())
+}
+
+fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
+    let filename = "foo.txt";
+    do_some_io().cherr(format!("Error reading '{}'", filename))?;
     Ok(())
 }
 
 derive_str_cherr!(Func2Error);
 
 fn func2() -> ChainResult<(), Func2Error> {
-    func3().map_err(mstrerr!(Func2Error, "func2 error: calling func3"))?;
+    func3().cherr(Func2Error("func2 error: calling func3".into()))?;
     Ok(())
 }
 
@@ -88,43 +167,51 @@ impl ::std::fmt::Debug for Func1Error {
 }
 
 fn func1() -> ChainResult<(), Func1Error> {
-    func2().map_err(|e| cherr!(e, Func1Error::Func2))?;
+    func2().cherr(Func1Error::Func2)?;
     let filename = String::from("bar.txt");
-    do_some_io().map_err(|e| cherr!(e, Func1Error::IO(filename)))?;
+    do_some_io().cherr(Func1Error::IO(filename))?;
     Ok(())
 }
 
-fn main() {
-    if let Err(e) = func1() {
-        match e.kind() {
-            Func1Error::Func2 => eprintln!("Main Error Report: func1 error calling func2"),
-            Func1Error::IO(filename) => {
-                eprintln!("Main Error Report: func1 error reading '{}'", filename)
-            }
+if let Err(e) = func1() {
+    assert!(match e.kind() {
+        Func1Error::Func2 => {
+            eprintln!("Main Error Report: func1 error calling func2");
+            true
         }
-
-        if let Some(e) = e.find_chain_cause::<Func2Error>() {
-            eprintln!("\nError reported by Func2Error: {}", e)
+        Func1Error::IO(filename) => {
+            eprintln!("Main Error Report: func1 error reading '{}'", filename);
+            false
         }
+    });
 
-        if let Some(e) = e.root_cause() {
-            let ioerror = e.downcast_ref::<io::Error>().unwrap();
-            eprintln!("\nThe root cause was: std::io::Error: {:#?}", ioerror);
-        }
+    assert!(e.find_chain_cause::<Func2Error>().is_some());
 
-        eprintln!("\nDebug Error:\n{:?}", e);
+    if let Some(e) = e.find_chain_cause::<Func2Error>() {
+        eprintln!("\nError reported by Func2Error: {}", e)
     }
+
+    assert!(e.root_cause().is_some());
+
+    if let Some(e) = e.root_cause() {
+        let io_error = e.downcast_ref::<io::Error>().unwrap();
+        eprintln!("\nThe root cause was: std::io::Error: {:#?}", io_error);
+    }
+
+    #[cfg(not(windows))]
+    assert_eq!(
+        format!("\n{:?}\n", e),
+        r#"
+src/lib.rs:48:13: func1 error calling func2
+Caused by:
+src/lib.rs:23:13: Func2Error(func2 error: calling func3)
+Caused by:
+src/lib.rs:16:18: Error reading 'foo.txt'
+Caused by:
+Kind(NotFound)
+"#
+    );
 }
+```
 
-~~~
-
-## Features
-
-`no-fileline`
-: completely turn off storing filename and line
-
-`display-cause`
-: turn on printing a backtrace of the errors in `Display`
-
-`no-debug-cause`
-: turn off printing a backtrace of the errors in `Debug`
+License: MIT/Apache-2.0

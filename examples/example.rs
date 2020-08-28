@@ -2,7 +2,7 @@ use std::error::Error;
 use std::io;
 use std::result::Result;
 
-use chainerror::*;
+use chainerror::prelude::v1::*;
 
 fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
@@ -11,14 +11,14 @@ fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 
 fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
-    do_some_io().map_err(mstrerr!("Error reading '{}'", filename))?;
+    do_some_io().cherr(format!("Error reading '{}'", filename))?;
     Ok(())
 }
 
 derive_str_cherr!(Func2Error);
 
 fn func2() -> ChainResult<(), Func2Error> {
-    func3().map_err(mstrerr!(Func2Error, "func2 error: calling func3"))?;
+    func3().cherr(Func2Error(format!("func2 error: calling func3")))?;
     Ok(())
 }
 
@@ -43,9 +43,9 @@ impl ::std::fmt::Debug for Func1Error {
 }
 
 fn func1() -> ChainResult<(), Func1Error> {
-    func2().map_err(|e| cherr!(e, Func1Error::Func2))?;
+    func2().cherr(Func1Error::Func2)?;
     let filename = String::from("bar.txt");
-    do_some_io().map_err(|e| cherr!(e, Func1Error::IO(filename)))?;
+    do_some_io().cherr(Func1Error::IO(filename))?;
     Ok(())
 }
 
@@ -68,5 +68,7 @@ fn main() {
         }
 
         eprintln!("\nDebug Error:\n{:?}", e);
+
+        eprintln!("\nAlternative Debug Error:\n{:#?}", e);
     }
 }

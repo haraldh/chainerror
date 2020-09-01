@@ -21,8 +21,8 @@
 //!
 //! # Examples
 //!
-//! examples/examples.rs:
-//! ```rust,no_run
+//! examples/example.rs:
+//! ```rust,ignore
 //! // […]
 //! fn main() {
 //!    if let Err(e) = func1() {

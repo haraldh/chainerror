@@ -8,11 +8,11 @@ fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Ok(())
 }
 
-derive_str_cherr!(Func2Error);
+derive_str_context!(Func2Error);
 
 fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
-    do_some_io().cherr(Func2Error(format!("Error reading '{}'", filename)))?;
+    do_some_io().context(Func2Error(format!("Error reading '{}'", filename)))?;
     Ok(())
 }
 
@@ -39,9 +39,9 @@ impl ::std::fmt::Debug for Func1ErrorKind {
 impl ::std::error::Error for Func1ErrorKind {}
 
 fn func1() -> ChainResult<(), Func1ErrorKind> {
-    func2().cherr(Func1ErrorKind::Func2)?;
+    func2().context(Func1ErrorKind::Func2)?;
     let filename = String::from("bar.txt");
-    do_some_io().cherr(Func1ErrorKind::IO(filename))?;
+    do_some_io().context(Func1ErrorKind::IO(filename))?;
     Ok(())
 }
 
@@ -70,6 +70,8 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         }
 
         eprintln!("\nDebug Error:\n{:?}", e);
+
+        std::process::exit(1);
     }
     Ok(())
 }

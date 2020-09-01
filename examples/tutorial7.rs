@@ -10,12 +10,12 @@ fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 
 fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
-    do_some_io().cherr(format!("Error reading '{}'", filename))?;
+    do_some_io().context(format!("Error reading '{}'", filename))?;
     Ok(())
 }
 
 fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-    func2().cherr(format!("func1 error"))?;
+    func2().context(format!("func1 error"))?;
     Ok(())
 }
 
@@ -36,6 +36,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 eprintln!("The root cause was: std::io::Error: {:#?}", ioerror);
             }
         }
+        std::process::exit(1);
     }
     Ok(())
 }

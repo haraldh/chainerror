@@ -7,11 +7,11 @@ pub mod mycrate {
         Ok(())
     }
 
-    derive_str_cherr!(Func2Error);
+    derive_str_context!(Func2Error);
 
     fn func2() -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let filename = "foo.txt";
-        do_some_io().cherr(Func2Error(format!("Error reading '{}'", filename)))?;
+        do_some_io().context(Func2Error(format!("Error reading '{}'", filename)))?;
         Ok(())
     }
 
@@ -35,9 +35,9 @@ pub mod mycrate {
     }
 
     pub fn func1() -> Result<()> {
-        func2().cherr(ErrorKind::Func2)?;
+        func2().context(ErrorKind::Func2)?;
         let filename = String::from("bar.txt");
-        do_some_io().cherr(ErrorKind::IO(filename))?;
+        do_some_io().context(ErrorKind::IO(filename))?;
         Ok(())
     }
 }
@@ -72,6 +72,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
 
         eprintln!("\nDebug Error:\n{:?}", e);
+
+        std::process::exit(1);
     }
     Ok(())
 }

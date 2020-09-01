@@ -1,6 +1,6 @@
 # Mapping Errors
 
-Now let's get more rust idiomatic by using `.map_err()`.
+Now let's get more rust idiomatic by using `.context()` directly on the previous `Result`.
 
 ~~~rust
 {{#include ../examples/tutorial3.rs}}

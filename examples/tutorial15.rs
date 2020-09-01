@@ -8,11 +8,11 @@ pub mod mycrate {
         Ok(())
     }
 
-    derive_str_cherr!(Func2Error);
+    derive_str_context!(Func2Error);
 
     fn func2() -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let filename = "foo.txt";
-        do_some_io(filename).cherr(Func2Error(format!("Error reading '{}'", filename)))?;
+        do_some_io(filename).context(Func2Error(format!("Error reading '{}'", filename)))?;
         Ok(())
     }
 
@@ -85,15 +85,15 @@ pub mod mycrate {
 
         let filename = "bar.txt";
 
-        do_some_io(filename).map_cherr(|e| ErrorKind::from_io_error(&e, filename.into()))?;
-        do_some_io(filename).map_cherr(|_| ErrorKind::IO(filename.into()))?;
-        do_some_io(filename).map_cherr(|e| ErrorKind::from(e))?;
+        do_some_io(filename).map_context(|e| ErrorKind::from_io_error(&e, filename.into()))?;
+        do_some_io(filename).map_context(|_| ErrorKind::IO(filename.into()))?;
+        do_some_io(filename).map_context(|e| ErrorKind::from(e))?;
 
         Ok(())
     }
 
     pub fn super_func1() -> Result<()> {
-        func1().map_cherr(|e| ErrorKind::from(e))?;
+        func1().map_context(|e| ErrorKind::from(e))?;
         Ok(())
     }
 }
@@ -130,6 +130,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
 
         eprintln!("\nDebug Error:\n{:?}", e);
+
+        std::process::exit(1);
     }
     Ok(())
 }

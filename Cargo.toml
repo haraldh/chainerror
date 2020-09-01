@@ -23,7 +23,5 @@ is-it-maintained-issue-resolution = { repository = "haraldh/chainerror" }
 is-it-maintained-open-issues = { repository = "haraldh/chainerror" }
 
 [features]
-default = [ "location", "debug-cause" ]
-location = []
+default = []
 display-cause = []
-debug-cause = []

@@ -27,7 +27,7 @@ pub mod mycrate {
             }
         }
 
-        macro_rules! mcherr {
+        macro_rules! mcontext {
             ( $k:expr ) => {{
                 |e| {
                     Error(
@@ -92,7 +92,7 @@ pub mod mycrate {
 
         pub fn func2() -> std::result::Result<(), Error> {
             let filename = "foo.txt";
-            do_some_io().map_err(mcherr!(ErrorKind::IO(format!(
+            do_some_io().map_err(mcontext!(ErrorKind::IO(format!(
                 "Error reading '{}'",
                 filename
             ))))?;
@@ -115,7 +115,7 @@ pub mod mycrate {
         }
     }
 
-    macro_rules! mcherr {
+    macro_rules! mcontext {
         ( $k:expr ) => {{
             |e| {
                 Error(
@@ -175,9 +175,9 @@ pub mod mycrate {
     pub type Result<T> = std::result::Result<T, Error>;
 
     pub fn func1() -> Result<()> {
-        func2().map_err(mcherr!(ErrorKind::Func2))?;
+        func2().map_err(mcontext!(ErrorKind::Func2))?;
         let filename = String::from("bar.txt");
-        do_some_io().map_err(mcherr!(ErrorKind::IO(filename)))?;
+        do_some_io().map_err(mcontext!(ErrorKind::IO(filename)))?;
         Ok(())
     }
 }
@@ -212,6 +212,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
 
         eprintln!("\nDebug Error:\n{:?}", e);
+
+        std::process::exit(1);
     }
     Ok(())
 }

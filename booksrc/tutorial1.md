@@ -9,7 +9,7 @@ this only
 prints out the last `Error`.
 
 ~~~
-Error: StringError("func1 error")
+Error: "func1 error"
 ~~~
 
 The next chapters of this tutorial show how `chainerror` adds more information

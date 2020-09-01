@@ -1,7 +1,7 @@
 # Simple Chained String Errors
 
-With relatively small changes and the help of the `cherr!` macro of the `chainerror` crate
-the `String` errors are now chained together.
+With relatively small changes and the help of the `context()` method of the `chainerror` crate
+the `&str` errors are now chained together.
 
 Press the play button in the upper right corner and see the nice debug output.
 
@@ -19,14 +19,13 @@ Press the play button in the upper right corner and see the nice debug output.
 {{#include ../examples/tutorial2.rs:13:15}}
 ~~~
 
-The macro `cherr!(olderror, newerror)` stores `olderror` as the source/cause of `newerror` 
-along with the filename (`file!()`) and line number (`line!()`)
-and returns `newerror`.
+The function `context(newerror)` stores `olderror` as the source/cause of `newerror` 
+along with the `Location` of the `context()` call and returns `Err(newerror)`.
 
-`Err()?` then returns the inner error applying `.into()`, so that we
+`?` then returns the inner error applying `.into()`, so that we
 again have a `Err(Box<Error + Send + Sync>)` as a result.
 
-The `Debug` implementation of `ChainError<T>` (which is returned by `cherr!()`)
+The `Debug` implementation of `ChainError<T>` (which is returned by `context()`)
 prints the `Debug` of `T` prefixed with the stored filename and line number.
 
-`ChainError<T>` in our case is `ChainError<String>`.
+`ChainError<T>` in our case is `ChainError<&str>`.

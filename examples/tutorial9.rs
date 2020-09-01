@@ -8,21 +8,21 @@ fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Ok(())
 }
 
-derive_str_cherr!(Func2Error);
+derive_str_context!(Func2Error);
 
 fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
-    do_some_io().cherr(Func2Error(format!("Error reading '{}'", filename)))?;
+    do_some_io().context(Func2Error(format!("Error reading '{}'", filename)))?;
     Ok(())
 }
 
-derive_str_cherr!(Func1ErrorFunc2);
-derive_str_cherr!(Func1ErrorIO);
+derive_str_context!(Func1ErrorFunc2);
+derive_str_context!(Func1ErrorIO);
 
 fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-    func2().cherr(Func1ErrorFunc2(format!("func1 error calling func2")))?;
+    func2().context(Func1ErrorFunc2(format!("func1 error calling func2")))?;
     let filename = "bar.txt";
-    do_some_io().cherr(Func1ErrorIO(format!("Error reading '{}'", filename)))?;
+    do_some_io().context(Func1ErrorIO(format!("Error reading '{}'", filename)))?;
     Ok(())
 }
 
@@ -35,6 +35,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         if let Some(s) = e.downcast_chain_ref::<Func1ErrorFunc2>() {
             eprintln!("Func1ErrorFunc2:\n{:?}", s);
         }
+        std::process::exit(1);
     }
     Ok(())
 }

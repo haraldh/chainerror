@@ -10,7 +10,7 @@ fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 
 fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
-    do_some_io().cherr(format!("Error reading '{}'", filename))?;
+    do_some_io().context(format!("Error reading '{}'", filename))?;
     Ok(())
 }
 
@@ -18,7 +18,7 @@ fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
     if let Err(e) = func2() {
         if let Some(s) = e.source() {
             eprintln!("func2 failed because of '{}'", s);
-            Err(e).cherr("func1 error")?;
+            Err(e).context("func1 error")?;
         }
     }
     Ok(())
@@ -27,6 +27,7 @@ fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     if let Err(e) = func1() {
         eprintln!("{}", e);
+        std::process::exit(1);
     }
     Ok(())
 }

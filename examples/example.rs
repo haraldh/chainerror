@@ -11,14 +11,14 @@ fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
 
 fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
-    do_some_io().cherr(format!("Error reading '{}'", filename))?;
+    do_some_io().context(format!("Error reading '{}'", filename))?;
     Ok(())
 }
 
-derive_str_cherr!(Func2Error);
+derive_str_context!(Func2Error);
 
 fn func2() -> ChainResult<(), Func2Error> {
-    func3().cherr(Func2Error(format!("func2 error: calling func3")))?;
+    func3().context(Func2Error(format!("func2 error: calling func3")))?;
     Ok(())
 }
 
@@ -43,9 +43,9 @@ impl ::std::fmt::Debug for Func1Error {
 }
 
 fn func1() -> ChainResult<(), Func1Error> {
-    func2().cherr(Func1Error::Func2)?;
+    func2().context(Func1Error::Func2)?;
     let filename = String::from("bar.txt");
-    do_some_io().cherr(Func1Error::IO(filename))?;
+    do_some_io().context(Func1Error::IO(filename))?;
     Ok(())
 }
 

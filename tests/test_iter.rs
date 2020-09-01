@@ -7,12 +7,12 @@ use std::io;
 fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
     use std::fmt::Write;
     let err: Result<(), _> = Err(io::Error::from(io::ErrorKind::NotFound));
-    let err = err.cherr("1");
-    let err = err.cherr("2");
-    let err = err.cherr("3");
-    let err = err.cherr("4");
-    let err = err.cherr("5");
-    let err = err.cherr("6");
+    let err = err.context("1");
+    let err = err.context("2");
+    let err = err.context("3");
+    let err = err.context("4");
+    let err = err.context("5");
+    let err = err.context("6");
     let err = err.err().unwrap();
 
     let mut res = String::new();
@@ -36,12 +36,12 @@ fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
 #[test]
 fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
     let err: Result<(), _> = Err(io::Error::from(io::ErrorKind::NotFound));
-    let err = err.cherr("1");
-    let err = err.cherr("2");
-    let err = err.cherr("3");
-    let err = err.cherr("4");
-    let err = err.cherr("5");
-    let err = err.cherr("6");
+    let err = err.context("1");
+    let err = err.context("2");
+    let err = err.context("3");
+    let err = err.context("4");
+    let err = err.context("5");
+    let err = err.context("6");
     let err = err.err().unwrap();
 
     let res = err.to_string();
@@ -61,12 +61,12 @@ fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
 #[test]
 fn test_find_cause() -> Result<(), Box<dyn Error + Send + Sync>> {
     let err: Result<(), _> = Err(io::Error::from(io::ErrorKind::NotFound));
-    let err = err.cherr("1");
-    let err = err.cherr("2");
-    let err = err.cherr("3");
-    let err = err.cherr("4");
-    let err = err.cherr("5");
-    let err = err.cherr("6");
+    let err = err.context("1");
+    let err = err.context("2");
+    let err = err.context("3");
+    let err = err.context("4");
+    let err = err.context("5");
+    let err = err.context("6");
     let err = err.err().unwrap();
 
     let io_error: Option<&io::Error> = err.find_cause::<io::Error>();
@@ -79,12 +79,12 @@ fn test_find_cause() -> Result<(), Box<dyn Error + Send + Sync>> {
 #[test]
 fn test_root_cause() -> Result<(), Box<dyn Error + Send + Sync>> {
     let err: Result<(), _> = Err(io::Error::from(io::ErrorKind::NotFound));
-    let err = err.cherr("1");
-    let err = err.cherr("2");
-    let err = err.cherr("3");
-    let err = err.cherr("4");
-    let err = err.cherr("5");
-    let err = err.cherr("6");
+    let err = err.context("1");
+    let err = err.context("2");
+    let err = err.context("3");
+    let err = err.context("4");
+    let err = err.context("5");
+    let err = err.context("6");
     let err = err.err().unwrap();
 
     let err: Option<&(dyn std::error::Error + 'static)> = err.root_cause();

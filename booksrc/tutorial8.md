@@ -4,8 +4,8 @@ To distinguish the errors occuring in various places, we can define named string
 "new type" pattern.
 
 ~~~rust,ignore
-derive_str_cherr!(Func2Error);
-derive_str_cherr!(Func1Error);
+derive_str_context!(Func2Error);
+derive_str_context!(Func1Error);
 ~~~
 
 Instead of `ChainError<String>` we now have `struct Func1Error(String)` and `ChainError<Func1Error>`.

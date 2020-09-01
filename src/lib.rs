@@ -1,12 +1,95 @@
 //! `chainerror` provides an error backtrace without doing a real backtrace, so even after you `strip` your
 //! binaries, you still have the error backtrace.
 //!
-//! `chainerror` has no dependencies!
+//! Having nested function returning errors, the output doesn't tell where the error originates from.
+//!
+//! ```rust
+//! use std::path::PathBuf;
+//!
+//! type BoxedError = Box<dyn std::error::Error + Send + Sync>;
+//! fn read_config_file(path: PathBuf) -> Result<(), BoxedError> {
+//!     // do stuff, return other errors
+//!     let _buf = std::fs::read_to_string(&path)?;
+//!     // do stuff, return other errors
+//!     Ok(())
+//! }
+//!
+//! fn process_config_file() -> Result<(), BoxedError> {
+//!     // do stuff, return other errors
+//!     let _buf = read_config_file("foo.txt".into())?;
+//!     // do stuff, return other errors
+//!     Ok(())
+//! }
+//!
+//! fn main() {
+//!     if let Err(e) = process_config_file() {
+//!         eprintln!("Error:\n{:?}", e);
+//!     }
+//! }
+//! ```
+//!
+//! This gives the output:
+//! ```console
+//! Error:
+//! Os { code: 2, kind: NotFound, message: "No such file or directory" }
+//! ```
+//! and you have no idea where it comes from.
+//!
+//!
+//! With `chainerror`, you can supply a context and get a nice error backtrace:
+//!
+//! ```rust
+//! use chainerror::prelude::v1::*;
+//! use std::path::PathBuf;
+//!
+//! type BoxedError = Box<dyn std::error::Error + Send + Sync>;
+//! fn read_config_file(path: PathBuf) -> Result<(), BoxedError> {
+//!     // do stuff, return other errors
+//!     let _buf = std::fs::read_to_string(&path).context(format!("Reading file: {:?}", &path))?;
+//!     // do stuff, return other errors
+//!     Ok(())
+//! }
+//!
+//! fn process_config_file() -> Result<(), BoxedError> {
+//!     // do stuff, return other errors
+//!     let _buf = read_config_file("foo.txt".into()).context("read the config file")?;
+//!     // do stuff, return other errors
+//!     Ok(())
+//! }
+//!
+//! fn main() {
+//!     if let Err(e) = process_config_file() {
+//!         eprintln!("Error:\n{:?}", e);
+//! #       assert_eq!(
+//! #           format!("{:?}\n", e),
+//! #           "\
+//! # src/lib.rs:16:51: read the config file\n\
+//! # Caused by:\n\
+//! # src/lib.rs:9:47: Reading file: \"foo.txt\"\n\
+//! # Caused by:\n\
+//! # Os { code: 2, kind: NotFound, message: \"No such file or directory\" }\n\
+//! #            ",
+//! #        );
+//!     }
+//! }
+//! ```
+//!
+//! with the output:
+//! ```console
+//! Error:
+//! examples/simple.rs:14:51: read the config file
+//! Caused by:
+//! examples/simple.rs:7:47: Reading file: "foo.txt"
+//! Caused by:
+//! Os { code: 2, kind: NotFound, message: "No such file or directory" }
+//! ```
 //!
 //! `chainerror` uses `.source()` of `std::error::Error` along with `#[track_caller]` and `Location` to provide a nice debug error backtrace.
 //! It encapsulates all types, which have `Display + Debug` and can store the error cause internally.
 //!
 //! Along with the `ChainError<T>` struct, `chainerror` comes with some useful helper macros to save a lot of typing.
+//!
+//! `chainerror` has no dependencies!
 //!
 //! Debug information is worth it!
 //!
@@ -18,200 +101,10 @@
 //! # Tutorial
 //!
 //! Read the [Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
-//!
-//! # Examples
-//!
-//! examples/example.rs:
-//! ```rust,ignore
-//! // […]
-//! fn main() {
-//!    if let Err(e) = func1() {
-//!        eprintln!("\nDebug Error {{:?}}:\n{:?}", e);
-//!        eprintln!("\nAlternative Debug Error {{:#?}}:\n{:#?}\n", e);
-//!        // […]
-//!   }
-//! }
-//! ```
-//!
-//! ```console
-//! $ cargo run -q --example example
-//! Debug Error {:?}:
-//! examples/example.rs:46:13: func1 error calling func2
-//! Caused by:
-//! examples/example.rs:21:13: Func2Error(func2 error: calling func3)
-//! Caused by:
-//! examples/example.rs:14:18: Error reading 'foo.txt'
-//! Caused by:
-//! Kind(NotFound)
-//!
-//! Alternative Debug Error {:#?}:
-//! ChainError<example::Func1Error> {
-//!     occurrence: Some(
-//!         "examples/example.rs:46:13",
-//!     ),
-//!     kind: func1 error calling func2,
-//!     source: Some(
-//!         ChainError<example::Func2Error> {
-//!             occurrence: Some(
-//!                 "examples/example.rs:21:13",
-//!             ),
-//!             kind: Func2Error(func2 error: calling func3),
-//!             source: Some(
-//!                 ChainError<alloc::string::String> {
-//!                     occurrence: Some(
-//!                         "examples/example.rs:14:18",
-//!                    ),
-//!                    kind: "Error reading \'foo.txt\'",
-//!                     source: Some(
-//!                         Kind(
-//!                             NotFound,
-//!                         ),
-//!                     ),
-//!                 },
-//!             ),
-//!         },
-//!     ),
-//! }
-//! ```
-//!
-//! ```rust
-//! use chainerror::prelude::v1::*;
-//! use std::error::Error;
-//! use std::io;
-//! use std::result::Result;
-//!
-//! fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
-//!     Err(io::Error::from(io::ErrorKind::NotFound))?;
-//!     Ok(())
-//! }
-//!
-//! fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
-//!     let filename = "foo.txt";
-//!     do_some_io().context(format!("Error reading '{}'", filename))?;
-//!     Ok(())
-//! }
-//!
-//! fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-//!     func2().context("func1 error")?;
-//!     Ok(())
-//! }
-//!
-//! if let Err(e) = func1() {
-//!     #[cfg(not(windows))]
-//!     assert_eq!(
-//!         format!("\n{:?}\n", e),
-//!         r#"
-//! src/lib.rs:21:13: func1 error
-//! Caused by:
-//! src/lib.rs:16:18: Error reading 'foo.txt'
-//! Caused by:
-//! Kind(NotFound)
-//! "#
-//!     );
-//! }
-//! #    else {
-//! #        unreachable!();
-//! #    }
-//! ```
-//!
-//!
-//! ```rust
-//! use chainerror::prelude::v1::*;
-//! use std::error::Error;
-//! use std::io;
-//! use std::result::Result;
-//!
-//! fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
-//!     Err(io::Error::from(io::ErrorKind::NotFound))?;
-//!     Ok(())
-//! }
-//!
-//! fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
-//!     let filename = "foo.txt";
-//!     do_some_io().context(format!("Error reading '{}'", filename))?;
-//!     Ok(())
-//! }
-//!
-//! derive_str_context!(Func2Error);
-//!
-//! fn func2() -> ChainResult<(), Func2Error> {
-//!     func3().context(Func2Error("func2 error: calling func3".into()))?;
-//!     Ok(())
-//! }
-//!
-//! enum Func1Error {
-//!     Func2,
-//!     IO(String),
-//! }
-//!
-//! impl ::std::fmt::Display for Func1Error {
-//!     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-//!         match self {
-//!             Func1Error::Func2 => write!(f, "func1 error calling func2"),
-//!             Func1Error::IO(filename) => write!(f, "Error reading '{}'", filename),
-//!         }
-//!     }
-//! }
-//!
-//! impl ::std::fmt::Debug for Func1Error {
-//!     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-//!         write!(f, "{}", self)
-//!     }
-//! }
-//!
-//! fn func1() -> ChainResult<(), Func1Error> {
-//!     func2().context(Func1Error::Func2)?;
-//!     let filename = String::from("bar.txt");
-//!     do_some_io().context(Func1Error::IO(filename))?;
-//!     Ok(())
-//! }
-//!
-//! if let Err(e) = func1() {
-//!     assert!(match e.kind() {
-//!         Func1Error::Func2 => {
-//!             eprintln!("Main Error Report: func1 error calling func2");
-//!             true
-//!         }
-//!         Func1Error::IO(filename) => {
-//!             eprintln!("Main Error Report: func1 error reading '{}'", filename);
-//!             false
-//!         }
-//!     });
-//!
-//!     assert!(e.find_chain_cause::<Func2Error>().is_some());
-//!
-//!     if let Some(e) = e.find_chain_cause::<Func2Error>() {
-//!         eprintln!("\nError reported by Func2Error: {}", e)
-//!     }
-//!
-//!     assert!(e.root_cause().is_some());
-//!
-//!     if let Some(e) = e.root_cause() {
-//!         let io_error = e.downcast_ref::<io::Error>().unwrap();
-//!         eprintln!("\nThe root cause was: std::io::Error: {:#?}", io_error);
-//!     }
-//!
-//!     #[cfg(not(windows))]
-//!     assert_eq!(
-//!         format!("\n{:?}\n", e),
-//!         r#"
-//! src/lib.rs:48:13: func1 error calling func2
-//! Caused by:
-//! src/lib.rs:23:13: Func2Error(func2 error: calling func3)
-//! Caused by:
-//! src/lib.rs:16:18: Error reading 'foo.txt'
-//! Caused by:
-//! Kind(NotFound)
-//! "#
-//!     );
-//! }
-//! #    else {
-//! #        unreachable!();
-//! #    }
-//! ```
 
 #![deny(clippy::all)]
 #![deny(clippy::integer_arithmetic)]
+#![allow(clippy::needless_doctest_main)]
 #![deny(missing_docs)]
 
 use std::any::TypeId;

@@ -31,7 +31,7 @@ Read the [Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
 
 ## Examples
 
-examples/examples.rs:
+examples/example.rs:
 ```rust
 // […]
 fn main() {

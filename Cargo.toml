@@ -1,6 +1,6 @@
 [package]
 name = "chainerror"
-version = "0.6.1"
+version = "0.6.2-alpha.0"
 authors = ["Harald Hoyer <harald@redhat.com>"]
 edition = "2018"
 license = "MIT/Apache-2.0"

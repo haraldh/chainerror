@@ -5,13 +5,24 @@
         <meta charset="UTF-8">
         <title>Deref for the ErrorKind - chainerror</title>
         
+        
+
+
+        <!-- Custom HTML head -->
+        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="A tutorial for the chainerror rust crate.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
         <link rel="shortcut icon" href="favicon.png">
+        
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
@@ -19,8 +30,9 @@
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -36,7 +48,7 @@
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -80,8 +92,8 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded affix "><a href="index.html">chainerror</a></li><li class="expanded "><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li class="expanded "><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li class="expanded "><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li class="expanded "><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li class="expanded "><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li class="expanded "><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li class="expanded "><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li class="expanded "><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li class="expanded "><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li class="expanded "><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li class="expanded "><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="expanded "><a href="tutorial12.html" class="active"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li class="expanded "><a href="tutorial13.html"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="expanded "><a href="tutorial14.html"><strong aria-hidden="true">14.</strong> Going back to std</a></li><li class="expanded affix "><a href="end.html">The End</a></li></ol>
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">chainerror</a></li><li class="chapter-item expanded "><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li class="chapter-item expanded "><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li class="chapter-item expanded "><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li class="chapter-item expanded "><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> More Information</a></li><li class="chapter-item expanded "><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li class="chapter-item expanded "><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li class="chapter-item expanded "><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li class="chapter-item expanded "><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li class="chapter-item expanded "><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li class="chapter-item expanded "><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li class="chapter-item expanded "><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="chapter-item expanded "><a href="tutorial12.html" class="active"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li class="chapter-item expanded "><a href="tutorial13.html"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="chapter-item expanded "><a href="tutorial14.html"><strong aria-hidden="true">14.</strong> Going back to std</a></li><li class="chapter-item expanded affix "><a href="end.html">The End</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -90,37 +102,36 @@
 
             <div class="page">
                 
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
 
-                        <h1 class="menu-title">chainerror</h1>
+                    <h1 class="menu-title">chainerror</h1>
 
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
                     </div>
                 </div>
 
@@ -151,7 +162,7 @@
                         <h1><a class="header" href="#deref-for-the-errorkind" id="deref-for-the-errorkind">Deref for the ErrorKind</a></h1>
 <p>Because ChainError<T> implements Deref to &amp;T, we can also match on <code>*e</code> instead of <code>e.kind()</code>
 or call a function with <code>&amp;e</code></p>
-<pre><pre class="playpen"><code class="language-rust">use chainerror::*;
+<pre><pre class="playground"><code class="language-rust">use chainerror::prelude::v1::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;
@@ -161,11 +172,11 @@ fn do_some_io() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
     Ok(())
 }
 
-derive_str_cherr!(Func2Error);
+derive_str_context!(Func2Error);
 
 fn func2() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
     let filename = &quot;foo.txt&quot;;
-    do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
+    do_some_io().context(Func2Error(format!(&quot;Error reading '{}'&quot;, filename)))?;
     Ok(())
 }
 
@@ -192,9 +203,9 @@ impl ::std::fmt::Debug for Func1ErrorKind {
 impl ::std::error::Error for Func1ErrorKind {}
 
 fn func1() -&gt; ChainResult&lt;(), Func1ErrorKind&gt; {
-    func2().map_err(|e| cherr!(e, Func1ErrorKind::Func2))?;
+    func2().context(Func1ErrorKind::Func2)?;
     let filename = String::from(&quot;bar.txt&quot;);
-    do_some_io().map_err(|e| cherr!(e, Func1ErrorKind::IO(filename)))?;
+    do_some_io().context(Func1ErrorKind::IO(filename))?;
     Ok(())
 }
 
@@ -223,6 +234,8 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
         }
 
         eprintln!(&quot;\nDebug Error:\n{:?}&quot;, e);
+
+        std::process::exit(1);
     }
     Ok(())
 }
@@ -233,22 +246,17 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">//!
 </span><span class="boring">//! `chainerror` has no dependencies!
 </span><span class="boring">//!
-</span><span class="boring">//! `chainerror` uses `.source()` of `std::error::Error` along with `line()!` and `file()!` to provide a nice debug error backtrace.
+</span><span class="boring">//! `chainerror` uses `.source()` of `std::error::Error` along with `#[track_caller]` and `Location` to provide a nice debug error backtrace.
 </span><span class="boring">//! It encapsulates all types, which have `Display + Debug` and can store the error cause internally.
 </span><span class="boring">//!
 </span><span class="boring">//! Along with the `ChainError&lt;T&gt;` struct, `chainerror` comes with some useful helper macros to save a lot of typing.
 </span><span class="boring">//!
-</span><span class="boring">//! ## Features
+</span><span class="boring">//! Debug information is worth it!
 </span><span class="boring">//!
-</span><span class="boring">//! `no-fileline`
-</span><span class="boring">//! : completely turn off storing filename and line
+</span><span class="boring">//! ## Features
 </span><span class="boring">//!
 </span><span class="boring">//! `display-cause`
 </span><span class="boring">//! : turn on printing a backtrace of the errors in `Display`
-</span><span class="boring">//!
-</span><span class="boring">//! `no-debug-cause`
-</span><span class="boring">//! : turn off printing a backtrace of the errors in `Debug`
-</span><span class="boring">//!
 </span><span class="boring">//!
 </span><span class="boring">//! # Tutorial
 </span><span class="boring">//!
@@ -256,8 +264,61 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">//!
 </span><span class="boring">//! # Examples
 </span><span class="boring">//!
+</span><span class="boring">//! examples/example.rs:
+</span><span class="boring">//! ```rust,ignore
+</span><span class="boring">//! // […]
+</span><span class="boring">//! fn main() {
+</span><span class="boring">//!    if let Err(e) = func1() {
+</span><span class="boring">//!        eprintln!(&quot;\nDebug Error {{:?}}:\n{:?}&quot;, e);
+</span><span class="boring">//!        eprintln!(&quot;\nAlternative Debug Error {{:#?}}:\n{:#?}\n&quot;, e);
+</span><span class="boring">//!        // […]
+</span><span class="boring">//!   }
+</span><span class="boring">//! }
+</span><span class="boring">//! ```
+</span><span class="boring">//!
+</span><span class="boring">//! ```console
+</span><span class="boring">//! $ cargo run -q --example example
+</span><span class="boring">//! Debug Error {:?}:
+</span><span class="boring">//! examples/example.rs:46:13: func1 error calling func2
+</span><span class="boring">//! Caused by:
+</span><span class="boring">//! examples/example.rs:21:13: Func2Error(func2 error: calling func3)
+</span><span class="boring">//! Caused by:
+</span><span class="boring">//! examples/example.rs:14:18: Error reading 'foo.txt'
+</span><span class="boring">//! Caused by:
+</span><span class="boring">//! Kind(NotFound)
+</span><span class="boring">//!
+</span><span class="boring">//! Alternative Debug Error {:#?}:
+</span><span class="boring">//! ChainError&lt;example::Func1Error&gt; {
+</span><span class="boring">//!     occurrence: Some(
+</span><span class="boring">//!         &quot;examples/example.rs:46:13&quot;,
+</span><span class="boring">//!     ),
+</span><span class="boring">//!     kind: func1 error calling func2,
+</span><span class="boring">//!     source: Some(
+</span><span class="boring">//!         ChainError&lt;example::Func2Error&gt; {
+</span><span class="boring">//!             occurrence: Some(
+</span><span class="boring">//!                 &quot;examples/example.rs:21:13&quot;,
+</span><span class="boring">//!             ),
+</span><span class="boring">//!             kind: Func2Error(func2 error: calling func3),
+</span><span class="boring">//!             source: Some(
+</span><span class="boring">//!                 ChainError&lt;alloc::string::String&gt; {
+</span><span class="boring">//!                     occurrence: Some(
+</span><span class="boring">//!                         &quot;examples/example.rs:14:18&quot;,
+</span><span class="boring">//!                    ),
+</span><span class="boring">//!                    kind: &quot;Error reading \'foo.txt\'&quot;,
+</span><span class="boring">//!                     source: Some(
+</span><span class="boring">//!                         Kind(
+</span><span class="boring">//!                             NotFound,
+</span><span class="boring">//!                         ),
+</span><span class="boring">//!                     ),
+</span><span class="boring">//!                 },
+</span><span class="boring">//!             ),
+</span><span class="boring">//!         },
+</span><span class="boring">//!     ),
+</span><span class="boring">//! }
+</span><span class="boring">//! ```
+</span><span class="boring">//!
 </span><span class="boring">//! ```rust
-</span><span class="boring">//! use chainerror::*;
+</span><span class="boring">//! use chainerror::prelude::v1::*;
 </span><span class="boring">//! use std::error::Error;
 </span><span class="boring">//! use std::io;
 </span><span class="boring">//! use std::result::Result;
@@ -269,37 +330,36 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">//!
 </span><span class="boring">//! fn func2() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">//!     let filename = &quot;foo.txt&quot;;
-</span><span class="boring">//!     do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
+</span><span class="boring">//!     do_some_io().context(format!(&quot;Error reading '{}'&quot;, filename))?;
 </span><span class="boring">//!     Ok(())
 </span><span class="boring">//! }
 </span><span class="boring">//!
 </span><span class="boring">//! fn func1() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
-</span><span class="boring">//!     func2().map_err(mstrerr!(&quot;func1 error&quot;))?;
+</span><span class="boring">//!     func2().context(&quot;func1 error&quot;)?;
 </span><span class="boring">//!     Ok(())
 </span><span class="boring">//! }
 </span><span class="boring">//!
-</span><span class="boring">//! fn main() {
-</span><span class="boring">//!     if let Err(e) = func1() {
-</span><span class="boring">//!         #[cfg(not(windows))]
-</span><span class="boring">//!         assert_eq!(
-</span><span class="boring">//!             format!(&quot;\n{:?}\n&quot;, e), r#&quot;
-</span><span class="boring">//! src/lib.rs:20: func1 error
+</span><span class="boring">//! if let Err(e) = func1() {
+</span><span class="boring">//!     #[cfg(not(windows))]
+</span><span class="boring">//!     assert_eq!(
+</span><span class="boring">//!         format!(&quot;\n{:?}\n&quot;, e),
+</span><span class="boring">//!         r#&quot;
+</span><span class="boring">//! src/lib.rs:21:13: func1 error
 </span><span class="boring">//! Caused by:
-</span><span class="boring">//! src/lib.rs:15: Error reading 'foo.txt'
+</span><span class="boring">//! src/lib.rs:16:18: Error reading 'foo.txt'
 </span><span class="boring">//! Caused by:
 </span><span class="boring">//! Kind(NotFound)
 </span><span class="boring">//! &quot;#
-</span><span class="boring">//!         );
-</span><span class="boring">//!     }
+</span><span class="boring">//!     );
+</span><span class="boring">//! }
 </span><span class="boring">//! #    else {
 </span><span class="boring">//! #        unreachable!();
 </span><span class="boring">//! #    }
-</span><span class="boring">//! }
 </span><span class="boring">//! ```
 </span><span class="boring">//!
 </span><span class="boring">//!
 </span><span class="boring">//! ```rust
-</span><span class="boring">//! use chainerror::*;
+</span><span class="boring">//! use chainerror::prelude::v1::*;
 </span><span class="boring">//! use std::error::Error;
 </span><span class="boring">//! use std::io;
 </span><span class="boring">//! use std::result::Result;
@@ -311,14 +371,14 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">//!
 </span><span class="boring">//! fn func3() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">//!     let filename = &quot;foo.txt&quot;;
-</span><span class="boring">//!     do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
+</span><span class="boring">//!     do_some_io().context(format!(&quot;Error reading '{}'&quot;, filename))?;
 </span><span class="boring">//!     Ok(())
 </span><span class="boring">//! }
 </span><span class="boring">//!
-</span><span class="boring">//! derive_str_cherr!(Func2Error);
+</span><span class="boring">//! derive_str_context!(Func2Error);
 </span><span class="boring">//!
 </span><span class="boring">//! fn func2() -&gt; ChainResult&lt;(), Func2Error&gt; {
-</span><span class="boring">//!     func3().map_err(mstrerr!(Func2Error, &quot;func2 error: calling func3&quot;))?;
+</span><span class="boring">//!     func3().context(Func2Error(&quot;func2 error: calling func3&quot;.into()))?;
 </span><span class="boring">//!     Ok(())
 </span><span class="boring">//! }
 </span><span class="boring">//!
@@ -343,91 +403,79 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">//! }
 </span><span class="boring">//!
 </span><span class="boring">//! fn func1() -&gt; ChainResult&lt;(), Func1Error&gt; {
-</span><span class="boring">//!     func2().map_err(|e| cherr!(e, Func1Error::Func2))?;
+</span><span class="boring">//!     func2().context(Func1Error::Func2)?;
 </span><span class="boring">//!     let filename = String::from(&quot;bar.txt&quot;);
-</span><span class="boring">//!     do_some_io().map_err(|e| cherr!(e, Func1Error::IO(filename)))?;
+</span><span class="boring">//!     do_some_io().context(Func1Error::IO(filename))?;
 </span><span class="boring">//!     Ok(())
 </span><span class="boring">//! }
 </span><span class="boring">//!
-</span><span class="boring">//! fn main() {
-</span><span class="boring">//!     if let Err(e) = func1() {
-</span><span class="boring">//!         assert!(
-</span><span class="boring">//!             match e.kind() {
-</span><span class="boring">//!                 Func1Error::Func2 =&gt; {
-</span><span class="boring">//!                     eprintln!(&quot;Main Error Report: func1 error calling func2&quot;);
-</span><span class="boring">//!                     true
-</span><span class="boring">//!                 }
-</span><span class="boring">//!                 Func1Error::IO(filename) =&gt; {
-</span><span class="boring">//!                     eprintln!(&quot;Main Error Report: func1 error reading '{}'&quot;, filename);
-</span><span class="boring">//!                     false
-</span><span class="boring">//!                 }
-</span><span class="boring">//!             }
-</span><span class="boring">//!         );
-</span><span class="boring">//!
-</span><span class="boring">//!         assert!(e.find_chain_cause::&lt;Func2Error&gt;().is_some());
-</span><span class="boring">//!
-</span><span class="boring">//!         if let Some(e) = e.find_chain_cause::&lt;Func2Error&gt;() {
-</span><span class="boring">//!             eprintln!(&quot;\nError reported by Func2Error: {}&quot;, e)
+</span><span class="boring">//! if let Err(e) = func1() {
+</span><span class="boring">//!     assert!(match e.kind() {
+</span><span class="boring">//!         Func1Error::Func2 =&gt; {
+</span><span class="boring">//!             eprintln!(&quot;Main Error Report: func1 error calling func2&quot;);
+</span><span class="boring">//!             true
 </span><span class="boring">//!         }
-</span><span class="boring">//!
-</span><span class="boring">//!
-</span><span class="boring">//!         assert!(e.root_cause().is_some());
-</span><span class="boring">//!
-</span><span class="boring">//!         if let Some(e) = e.root_cause() {
-</span><span class="boring">//!             let io_error = e.downcast_ref::&lt;io::Error&gt;().unwrap();
-</span><span class="boring">//!             eprintln!(&quot;\nThe root cause was: std::io::Error: {:#?}&quot;, io_error);
+</span><span class="boring">//!         Func1Error::IO(filename) =&gt; {
+</span><span class="boring">//!             eprintln!(&quot;Main Error Report: func1 error reading '{}'&quot;, filename);
+</span><span class="boring">//!             false
 </span><span class="boring">//!         }
+</span><span class="boring">//!     });
 </span><span class="boring">//!
-</span><span class="boring">//!         #[cfg(not(windows))]
-</span><span class="boring">//!         assert_eq!(
-</span><span class="boring">//!             format!(&quot;\n{:?}\n&quot;, e), r#&quot;
-</span><span class="boring">//! src/lib.rs:47: func1 error calling func2
+</span><span class="boring">//!     assert!(e.find_chain_cause::&lt;Func2Error&gt;().is_some());
+</span><span class="boring">//!
+</span><span class="boring">//!     if let Some(e) = e.find_chain_cause::&lt;Func2Error&gt;() {
+</span><span class="boring">//!         eprintln!(&quot;\nError reported by Func2Error: {}&quot;, e)
+</span><span class="boring">//!     }
+</span><span class="boring">//!
+</span><span class="boring">//!     assert!(e.root_cause().is_some());
+</span><span class="boring">//!
+</span><span class="boring">//!     if let Some(e) = e.root_cause() {
+</span><span class="boring">//!         let io_error = e.downcast_ref::&lt;io::Error&gt;().unwrap();
+</span><span class="boring">//!         eprintln!(&quot;\nThe root cause was: std::io::Error: {:#?}&quot;, io_error);
+</span><span class="boring">//!     }
+</span><span class="boring">//!
+</span><span class="boring">//!     #[cfg(not(windows))]
+</span><span class="boring">//!     assert_eq!(
+</span><span class="boring">//!         format!(&quot;\n{:?}\n&quot;, e),
+</span><span class="boring">//!         r#&quot;
+</span><span class="boring">//! src/lib.rs:48:13: func1 error calling func2
 </span><span class="boring">//! Caused by:
-</span><span class="boring">//! src/lib.rs:22: Func2Error(func2 error: calling func3)
+</span><span class="boring">//! src/lib.rs:23:13: Func2Error(func2 error: calling func3)
 </span><span class="boring">//! Caused by:
-</span><span class="boring">//! src/lib.rs:15: Error reading 'foo.txt'
+</span><span class="boring">//! src/lib.rs:16:18: Error reading 'foo.txt'
 </span><span class="boring">//! Caused by:
 </span><span class="boring">//! Kind(NotFound)
 </span><span class="boring">//! &quot;#
-</span><span class="boring">//!         );
-</span><span class="boring">//!     }
+</span><span class="boring">//!     );
+</span><span class="boring">//! }
 </span><span class="boring">//! #    else {
 </span><span class="boring">//! #        unreachable!();
 </span><span class="boring">//! #    }
-</span><span class="boring">//! }
 </span><span class="boring">//! ```
 </span><span class="boring">
-</span><span class="boring">#![deny(
-</span><span class="boring">    warnings,
-</span><span class="boring">    absolute_paths_not_starting_with_crate,
-</span><span class="boring">    deprecated_in_future,
-</span><span class="boring">    keyword_idents,
-</span><span class="boring">    macro_use_extern_crate,
-</span><span class="boring">    missing_debug_implementations,
-</span><span class="boring">    trivial_numeric_casts,
-</span><span class="boring">    unused_extern_crates,
-</span><span class="boring">    unused_import_braces,
-</span><span class="boring">    unused_qualifications,
-</span><span class="boring">    unused_results,
-</span><span class="boring">    unused_labels,
-</span><span class="boring">    unused_lifetimes,
-</span><span class="boring">    unstable_features,
-</span><span class="boring">    unreachable_pub,
-</span><span class="boring">    future_incompatible,
-</span><span class="boring">    missing_copy_implementations,
-</span><span class="boring">    missing_doc_code_examples,
-</span><span class="boring">    rust_2018_idioms,
-</span><span class="boring">    rust_2018_compatibility
-</span><span class="boring">)]
+</span><span class="boring">#![deny(clippy::all)]
+</span><span class="boring">#![deny(clippy::integer_arithmetic)]
+</span><span class="boring">#![deny(missing_docs)]
 </span><span class="boring">
 </span><span class="boring">use std::any::TypeId;
 </span><span class="boring">use std::error::Error;
 </span><span class="boring">use std::fmt::{Debug, Display, Formatter, Result};
+</span><span class="boring">use std::panic::Location;
+</span><span class="boring">
+</span><span class="boring">pub mod prelude {
+</span><span class="boring">    //! convenience prelude
+</span><span class="boring">    pub mod v1 {
+</span><span class="boring">        //! convenience prelude
+</span><span class="boring">        pub use super::super::ChainErrorDown as _;
+</span><span class="boring">        pub use super::super::ResultTrait as _;
+</span><span class="boring">        pub use super::super::{ChainError, ChainResult};
+</span><span class="boring">        pub use crate::{derive_err_kind, derive_str_context};
+</span><span class="boring">    }
+</span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">/// chains an inner error kind `T` with a causing error
 </span><span class="boring">pub struct ChainError&lt;T&gt; {
-</span><span class="boring">    #[cfg(not(feature = &quot;no-fileline&quot;))]
-</span><span class="boring">    occurrence: Option&lt;&amp;'static str&gt;,
+</span><span class="boring">    occurrence: Option&lt;String&gt;,
 </span><span class="boring">    kind: T,
 </span><span class="boring">    error_cause: Option&lt;Box&lt;dyn Error + 'static + Send + Sync&gt;&gt;,
 </span><span class="boring">}
@@ -436,30 +484,18 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">pub type ChainResult&lt;O, E&gt; = std::result::Result&lt;O, ChainError&lt;E&gt;&gt;;
 </span><span class="boring">
 </span><span class="boring">impl&lt;T: 'static + Display + Debug&gt; ChainError&lt;T&gt; {
-</span><span class="boring">    #[cfg(not(feature = &quot;no-fileline&quot;))]
-</span><span class="boring">    /// Use the `cherr!()` or `mstrerr!()` macro instead of calling this directly
+</span><span class="boring">    /// Use the `context()` or `map_context()` Result methods instead of calling this directly
 </span><span class="boring">    #[inline]
 </span><span class="boring">    pub fn new(
 </span><span class="boring">        kind: T,
 </span><span class="boring">        error_cause: Option&lt;Box&lt;dyn Error + 'static + Send + Sync&gt;&gt;,
-</span><span class="boring">        occurrence: Option&lt;&amp;'static str&gt;,
+</span><span class="boring">        occurrence: Option&lt;String&gt;,
 </span><span class="boring">    ) -&gt; Self {
 </span><span class="boring">        Self {
 </span><span class="boring">            occurrence,
 </span><span class="boring">            kind,
 </span><span class="boring">            error_cause,
 </span><span class="boring">        }
-</span><span class="boring">    }
-</span><span class="boring">
-</span><span class="boring">    #[cfg(feature = &quot;no-fileline&quot;)]
-</span><span class="boring">    /// Use the `cherr!()` or `mstrerr!()` macro instead of calling this directly
-</span><span class="boring">    #[inline]
-</span><span class="boring">    pub fn new(
-</span><span class="boring">        kind: T,
-</span><span class="boring">        error_cause: Option&lt;Box&lt;dyn Error + 'static + Send + Sync&gt;&gt;,
-</span><span class="boring">        _occurrence: Option&lt;&amp;'static str&gt;,
-</span><span class="boring">    ) -&gt; Self {
-</span><span class="boring">        Self { kind, error_cause }
 </span><span class="boring">    }
 </span><span class="boring">
 </span><span class="boring">    /// return the root cause of the error chain, if any exists
@@ -472,7 +508,7 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    /// # Examples
 </span><span class="boring">    ///
 </span><span class="boring">    /// ```rust
-</span><span class="boring">    /// use chainerror::*;
+</span><span class="boring">    /// use chainerror::prelude::v1::*;
 </span><span class="boring">    /// use std::error::Error;
 </span><span class="boring">    /// use std::io;
 </span><span class="boring">    ///
@@ -481,37 +517,34 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    ///     Ok(())
 </span><span class="boring">    /// }
 </span><span class="boring">    ///
-</span><span class="boring">    /// derive_str_cherr!(Func2Error);
+</span><span class="boring">    /// derive_str_context!(Func2Error);
 </span><span class="boring">    ///
 </span><span class="boring">    /// fn func2() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    ///     let filename = &quot;foo.txt&quot;;
-</span><span class="boring">    ///     do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
+</span><span class="boring">    ///     do_some_io().context(Func2Error(format!(&quot;Error reading '{}'&quot;, filename)))?;
 </span><span class="boring">    ///     Ok(())
 </span><span class="boring">    /// }
 </span><span class="boring">    ///
-</span><span class="boring">    /// derive_str_cherr!(Func1Error);
+</span><span class="boring">    /// derive_str_context!(Func1Error);
 </span><span class="boring">    ///
 </span><span class="boring">    /// fn func1() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
-</span><span class="boring">    ///     func2().map_err(mstrerr!(Func1Error, &quot;func1 error&quot;))?;
+</span><span class="boring">    ///     func2().context(Func1Error(&quot;func1 error&quot;.into()))?;
 </span><span class="boring">    ///     Ok(())
 </span><span class="boring">    /// }
 </span><span class="boring">    ///
-</span><span class="boring">    /// fn main() {
-</span><span class="boring">    ///     if let Err(e) = func1() {
-</span><span class="boring">    ///         if let Some(f1err) = e.downcast_chain_ref::&lt;Func1Error&gt;() {
+</span><span class="boring">    /// if let Err(e) = func1() {
+</span><span class="boring">    ///     if let Some(f1err) = e.downcast_chain_ref::&lt;Func1Error&gt;() {
+</span><span class="boring">    ///         assert!(f1err.find_cause::&lt;io::Error&gt;().is_some());
 </span><span class="boring">    ///
-</span><span class="boring">    ///             assert!(f1err.find_cause::&lt;io::Error&gt;().is_some());
-</span><span class="boring">    ///
-</span><span class="boring">    ///             assert!(f1err.find_chain_cause::&lt;Func2Error&gt;().is_some());
-</span><span class="boring">    ///         }
+</span><span class="boring">    ///         assert!(f1err.find_chain_cause::&lt;Func2Error&gt;().is_some());
+</span><span class="boring">    ///     }
 </span><span class="boring">    /// #        else {
 </span><span class="boring">    /// #            panic!();
 </span><span class="boring">    /// #        }
-</span><span class="boring">    ///     }
+</span><span class="boring">    /// }
 </span><span class="boring">    /// #    else {
 </span><span class="boring">    /// #         unreachable!();
 </span><span class="boring">    /// #    }
-</span><span class="boring">    /// }
 </span><span class="boring">    /// ```
 </span><span class="boring">    #[inline]
 </span><span class="boring">    pub fn find_cause&lt;U: Error + 'static&gt;(&amp;self) -&gt; Option&lt;&amp;U&gt; {
@@ -525,8 +558,8 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    /// # Examples
 </span><span class="boring">    ///
 </span><span class="boring">    /// ```rust
-</span><span class="boring">    /// # use chainerror::*;
-</span><span class="boring">    /// # derive_str_cherr!(FooError);
+</span><span class="boring">    /// # use chainerror::prelude::v1::*;
+</span><span class="boring">    /// # derive_str_context!(FooError);
 </span><span class="boring">    /// # let err = ChainError::new(String::new(), None, None);
 </span><span class="boring">    /// // Instead of writing
 </span><span class="boring">    /// err.find_cause::&lt;ChainError&lt;FooError&gt;&gt;();
@@ -548,8 +581,8 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    /// # Examples
 </span><span class="boring">    ///
 </span><span class="boring">    /// ```rust
-</span><span class="boring">    /// # use chainerror::*;
-</span><span class="boring">    /// # derive_str_cherr!(FooErrorKind);
+</span><span class="boring">    /// # use chainerror::prelude::v1::*;
+</span><span class="boring">    /// # derive_str_context!(FooErrorKind);
 </span><span class="boring">    /// # let err = ChainError::new(String::new(), None, None);
 </span><span class="boring">    /// // Instead of writing
 </span><span class="boring">    /// err.find_cause::&lt;ChainError&lt;FooErrorKind&gt;&gt;();
@@ -577,7 +610,7 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    /// # Examples
 </span><span class="boring">    ///
 </span><span class="boring">    /// ```rust
-</span><span class="boring">    /// use chainerror::*;
+</span><span class="boring">    /// use chainerror::prelude::v1::*;
 </span><span class="boring">    /// use std::error::Error;
 </span><span class="boring">    /// use std::io;
 </span><span class="boring">    ///
@@ -586,11 +619,11 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    ///     Ok(())
 </span><span class="boring">    /// }
 </span><span class="boring">    ///
-</span><span class="boring">    /// derive_str_cherr!(Func2Error);
+</span><span class="boring">    /// derive_str_context!(Func2Error);
 </span><span class="boring">    ///
 </span><span class="boring">    /// fn func2() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    ///     let filename = &quot;foo.txt&quot;;
-</span><span class="boring">    ///     do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
+</span><span class="boring">    ///     do_some_io().context(Func2Error(format!(&quot;Error reading '{}'&quot;, filename)))?;
 </span><span class="boring">    ///     Ok(())
 </span><span class="boring">    /// }
 </span><span class="boring">    ///
@@ -611,22 +644,20 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    /// # }
 </span><span class="boring">    ///
 </span><span class="boring">    /// fn func1() -&gt; ChainResult&lt;(), Func1ErrorKind&gt; {
-</span><span class="boring">    ///     func2().map_err(|e| cherr!(e, Func1ErrorKind::Func2))?;
-</span><span class="boring">    ///     do_some_io().map_err(|e| cherr!(e, Func1ErrorKind::IO(&quot;bar.txt&quot;.into())))?;
+</span><span class="boring">    ///     func2().context(Func1ErrorKind::Func2)?;
+</span><span class="boring">    ///     do_some_io().context(Func1ErrorKind::IO(&quot;bar.txt&quot;.into()))?;
 </span><span class="boring">    ///     Ok(())
 </span><span class="boring">    /// }
 </span><span class="boring">    ///
-</span><span class="boring">    /// fn main() {
-</span><span class="boring">    ///     if let Err(e) = func1() {
-</span><span class="boring">    ///         match e.kind() {
-</span><span class="boring">    ///             Func1ErrorKind::Func2 =&gt; {}
-</span><span class="boring">    ///             Func1ErrorKind::IO(filename) =&gt; panic!(),
-</span><span class="boring">    ///         }
+</span><span class="boring">    /// if let Err(e) = func1() {
+</span><span class="boring">    ///     match e.kind() {
+</span><span class="boring">    ///         Func1ErrorKind::Func2 =&gt; {}
+</span><span class="boring">    ///         Func1ErrorKind::IO(filename) =&gt; panic!(),
 </span><span class="boring">    ///     }
+</span><span class="boring">    /// }
 </span><span class="boring">    /// #    else {
 </span><span class="boring">    /// #         unreachable!();
 </span><span class="boring">    /// #    }
-</span><span class="boring">    /// }
 </span><span class="boring">    /// ```
 </span><span class="boring">    #[inline]
 </span><span class="boring">    pub fn kind(&amp;self) -&gt; &amp;T {
@@ -636,8 +667,6 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    /// Returns an Iterator over all error causes/sources
 </span><span class="boring">    ///
 </span><span class="boring">    /// # Example
-</span><span class="boring">    ///
-</span><span class="boring">    ///
 </span><span class="boring">    #[inline]
 </span><span class="boring">    pub fn iter(&amp;self) -&gt; impl Iterator&lt;Item = &amp;(dyn Error + 'static)&gt; {
 </span><span class="boring">        ErrorIter {
@@ -646,7 +675,60 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
-</span><span class="boring">struct ErrorIter&lt;'a&gt; {
+</span><span class="boring">/// Convenience methods for `Result&lt;&gt;` to turn the error into a decorated ChainError
+</span><span class="boring">pub trait ResultTrait&lt;O, E: Into&lt;Box&lt;dyn Error + 'static + Send + Sync&gt;&gt;&gt; {
+</span><span class="boring">    /// Decorate the error with a `kind` of type `T` and the source `Location`
+</span><span class="boring">    fn context&lt;T: 'static + Display + Debug&gt;(
+</span><span class="boring">        self,
+</span><span class="boring">        kind: T,
+</span><span class="boring">    ) -&gt; std::result::Result&lt;O, ChainError&lt;T&gt;&gt;;
+</span><span class="boring">
+</span><span class="boring">    /// Decorate the `error` with a `kind` of type `T` produced with a `FnOnce(&amp;error)` and the source `Location`
+</span><span class="boring">    fn map_context&lt;T: 'static + Display + Debug, F: FnOnce(&amp;E) -&gt; T&gt;(
+</span><span class="boring">        self,
+</span><span class="boring">        op: F,
+</span><span class="boring">    ) -&gt; std::result::Result&lt;O, ChainError&lt;T&gt;&gt;;
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">impl&lt;O, E: Into&lt;Box&lt;dyn Error + 'static + Send + Sync&gt;&gt;&gt; ResultTrait&lt;O, E&gt;
+</span><span class="boring">    for std::result::Result&lt;O, E&gt;
+</span><span class="boring">{
+</span><span class="boring">    #[track_caller]
+</span><span class="boring">    fn context&lt;T: 'static + Display + Debug&gt;(
+</span><span class="boring">        self,
+</span><span class="boring">        kind: T,
+</span><span class="boring">    ) -&gt; std::result::Result&lt;O, ChainError&lt;T&gt;&gt; {
+</span><span class="boring">        match self {
+</span><span class="boring">            Ok(t) =&gt; Ok(t),
+</span><span class="boring">            Err(error_cause) =&gt; Err(ChainError::new(
+</span><span class="boring">                kind,
+</span><span class="boring">                Some(error_cause.into()),
+</span><span class="boring">                Some(Location::caller().to_string()),
+</span><span class="boring">            )),
+</span><span class="boring">        }
+</span><span class="boring">    }
+</span><span class="boring">
+</span><span class="boring">    #[track_caller]
+</span><span class="boring">    fn map_context&lt;T: 'static + Display + Debug, F: FnOnce(&amp;E) -&gt; T&gt;(
+</span><span class="boring">        self,
+</span><span class="boring">        op: F,
+</span><span class="boring">    ) -&gt; std::result::Result&lt;O, ChainError&lt;T&gt;&gt; {
+</span><span class="boring">        match self {
+</span><span class="boring">            Ok(t) =&gt; Ok(t),
+</span><span class="boring">            Err(error_cause) =&gt; {
+</span><span class="boring">                let kind = op(&amp;error_cause);
+</span><span class="boring">                Err(ChainError::new(
+</span><span class="boring">                    kind,
+</span><span class="boring">                    Some(error_cause.into()),
+</span><span class="boring">                    Some(Location::caller().to_string()),
+</span><span class="boring">                ))
+</span><span class="boring">            }
+</span><span class="boring">        }
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">
+</span><span class="boring">/// An iterator over all error causes/sources
+</span><span class="boring">pub struct ErrorIter&lt;'a&gt; {
 </span><span class="boring">    current: Option&lt;&amp;'a (dyn Error + 'static)&gt;,
 </span><span class="boring">}
 </span><span class="boring">
@@ -887,40 +969,47 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">impl&lt;T: 'static + Display + Debug&gt; Debug for ChainError&lt;T&gt; {
 </span><span class="boring">    #[inline]
 </span><span class="boring">    fn fmt(&amp;self, f: &amp;mut Formatter&lt;'_&gt;) -&gt; Result {
-</span><span class="boring">        #[cfg(not(feature = &quot;no-fileline&quot;))]
-</span><span class="boring">        {
-</span><span class="boring">            if let Some(ref o) = self.occurrence {
-</span><span class="boring">                Display::fmt(o, f)?;
-</span><span class="boring">            }
-</span><span class="boring">        }
+</span><span class="boring">        if f.alternate() {
+</span><span class="boring">            let mut f = f.debug_struct(&amp;format!(&quot;ChainError&lt;{}&gt;&quot;, std::any::type_name::&lt;T&gt;()));
 </span><span class="boring">
-</span><span class="boring">        if self.is_chain::&lt;String&gt;() {
-</span><span class="boring">            Display::fmt(&amp;self.kind, f)?;
+</span><span class="boring">            let f = f
+</span><span class="boring">                .field(&quot;occurrence&quot;, &amp;self.occurrence)
+</span><span class="boring">                .field(&quot;kind&quot;, &amp;self.kind)
+</span><span class="boring">                .field(&quot;source&quot;, &amp;self.source());
+</span><span class="boring">
+</span><span class="boring">            f.finish()
 </span><span class="boring">        } else {
-</span><span class="boring">            Debug::fmt(&amp;self.kind, f)?;
-</span><span class="boring">        }
+</span><span class="boring">            if let Some(ref o) = self.occurrence {
+</span><span class="boring">                write!(f, &quot;{}: &quot;, o)?;
+</span><span class="boring">            }
 </span><span class="boring">
-</span><span class="boring">        #[cfg(not(feature = &quot;no-debug-cause&quot;))]
-</span><span class="boring">        {
+</span><span class="boring">            if TypeId::of::&lt;String&gt;() == TypeId::of::&lt;T&gt;()
+</span><span class="boring">                || TypeId::of::&lt;&amp;str&gt;() == TypeId::of::&lt;T&gt;()
+</span><span class="boring">            {
+</span><span class="boring">                Display::fmt(&amp;self.kind, f)?;
+</span><span class="boring">            } else {
+</span><span class="boring">                Debug::fmt(&amp;self.kind, f)?;
+</span><span class="boring">            }
+</span><span class="boring">
 </span><span class="boring">            if let Some(e) = self.source() {
 </span><span class="boring">                writeln!(f, &quot;\nCaused by:&quot;)?;
 </span><span class="boring">                Debug::fmt(&amp;e, f)?;
 </span><span class="boring">            }
+</span><span class="boring">            Ok(())
 </span><span class="boring">        }
-</span><span class="boring">        Ok(())
 </span><span class="boring">    }
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">/// `ChainErrorFrom&lt;T&gt;` is similar to `From&lt;T&gt;`
 </span><span class="boring">pub trait ChainErrorFrom&lt;T&gt;: Sized {
 </span><span class="boring">    /// similar to From&lt;T&gt;::from()
-</span><span class="boring">    fn chain_error_from(from: T, line_filename: Option&lt;&amp;'static str&gt;) -&gt; ChainError&lt;Self&gt;;
+</span><span class="boring">    fn chain_error_from(from: T, line_filename: Option&lt;String&gt;) -&gt; ChainError&lt;Self&gt;;
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">/// `IntoChainError&lt;T&gt;` is similar to `Into&lt;T&gt;`
 </span><span class="boring">pub trait IntoChainError&lt;T&gt;: Sized {
 </span><span class="boring">    /// similar to Into&lt;T&gt;::into()
-</span><span class="boring">    fn into_chain_error(self, line_filename: Option&lt;&amp;'static str&gt;) -&gt; ChainError&lt;T&gt;;
+</span><span class="boring">    fn into_chain_error(self, line_filename: Option&lt;String&gt;) -&gt; ChainError&lt;T&gt;;
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">impl&lt;T, U&gt; IntoChainError&lt;U&gt; for T
@@ -928,7 +1017,7 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    U: ChainErrorFrom&lt;T&gt;,
 </span><span class="boring">{
 </span><span class="boring">    #[inline]
-</span><span class="boring">    fn into_chain_error(self, line_filename: Option&lt;&amp;'static str&gt;) -&gt; ChainError&lt;U&gt; {
+</span><span class="boring">    fn into_chain_error(self, line_filename: Option&lt;String&gt;) -&gt; ChainError&lt;U&gt; {
 </span><span class="boring">        U::chain_error_from(self, line_filename)
 </span><span class="boring">    }
 </span><span class="boring">}
@@ -939,295 +1028,10 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">    U: 'static + Display + Debug,
 </span><span class="boring">{
 </span><span class="boring">    #[inline]
-</span><span class="boring">    fn chain_error_from(t: T, line_filename: Option&lt;&amp;'static str&gt;) -&gt; ChainError&lt;Self&gt; {
+</span><span class="boring">    fn chain_error_from(t: T, line_filename: Option&lt;String&gt;) -&gt; ChainError&lt;Self&gt; {
 </span><span class="boring">        let e: U = t.into();
 </span><span class="boring">        ChainError::new(e, None, line_filename)
 </span><span class="boring">    }
-</span><span class="boring">}
-</span><span class="boring">
-</span><span class="boring">/*
-</span><span class="boring">impl&lt;T, U&gt; ChainErrorFrom&lt;T&gt; for U
-</span><span class="boring">    where
-</span><span class="boring">        T: 'static + Error + Into&lt;Box&lt;T&gt;&gt; + Clone,
-</span><span class="boring">        U: 'static + Display + Debug + From&lt;T&gt;,
-</span><span class="boring">{
-</span><span class="boring">    #[inline]
-</span><span class="boring">    fn chain_error_from(t: T, line_filename: Option&lt;&amp;'static str&gt;) -&gt; ChainError&lt;Self&gt; {
-</span><span class="boring">        ChainError::new(U::from(t.clone()), Some(Box::from(t)), line_filename)
-</span><span class="boring">    }
-</span><span class="boring">}
-</span><span class="boring">*/
-</span><span class="boring">
-</span><span class="boring">/// map into `ChainError&lt;T&gt;` with `T::from(err)`
-</span><span class="boring">///
-</span><span class="boring">/// adds `line!()` and `file!()` information
-</span><span class="boring">#[macro_export]
-</span><span class="boring">macro_rules! minto_cherr {
-</span><span class="boring">    ( $k:ident ) =&gt; (
-</span><span class="boring">        |e| $crate::cherr!(e, $k::from(&amp;e))
-</span><span class="boring">    );
-</span><span class="boring">    ( $enum:ident $(:: $enum_path:ident)* ) =&gt; (
-</span><span class="boring">        |e| $crate::cherr!(e, $enum $(:: $enum_path)*::from(&amp;e))
-</span><span class="boring">    );
-</span><span class="boring">}
-</span><span class="boring">
-</span><span class="boring">/// Creates a new `ChainError&lt;T&gt;`
-</span><span class="boring">///
-</span><span class="boring">/// # Examples
-</span><span class="boring">///
-</span><span class="boring">/// Create a new ChainError&lt;FooError&gt;, where `FooError` must implement `Display` and `Debug`.
-</span><span class="boring">/// ```rust
-</span><span class="boring">/// # use chainerror::*;
-</span><span class="boring">/// # #[derive(Debug)]
-</span><span class="boring">/// enum FooError {
-</span><span class="boring">///     Bar,
-</span><span class="boring">///     Baz(&amp;'static str),
-</span><span class="boring">/// }
-</span><span class="boring">/// # impl ::std::fmt::Display for FooError {
-</span><span class="boring">/// #     fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
-</span><span class="boring">/// #         match self {
-</span><span class="boring">/// #             FooError::Bar =&gt; write!(f, &quot;Bar Error&quot;),
-</span><span class="boring">/// #             FooError::Baz(s) =&gt; write!(f, &quot;Baz Error: '{}'&quot;, s),
-</span><span class="boring">/// #         }
-</span><span class="boring">/// #     }
-</span><span class="boring">/// # }
-</span><span class="boring">///
-</span><span class="boring">/// //  impl ::std::fmt::Display for FooError
-</span><span class="boring">///
-</span><span class="boring">/// fn do_some_stuff() -&gt; bool {
-</span><span class="boring">///     false
-</span><span class="boring">/// }
-</span><span class="boring">///
-</span><span class="boring">/// fn func() -&gt; ChainResult&lt;(), FooError&gt; {
-</span><span class="boring">///     if ! do_some_stuff() {
-</span><span class="boring">///         Err(cherr!(FooError::Baz(&quot;Error&quot;)))?;
-</span><span class="boring">///     }
-</span><span class="boring">///     Ok(())
-</span><span class="boring">/// }
-</span><span class="boring">/// # pub fn main() {
-</span><span class="boring">/// #     match func().unwrap_err().kind() {
-</span><span class="boring">/// #         FooError::Baz(s) if s == &amp;&quot;Error&quot; =&gt; {}
-</span><span class="boring">/// #         _ =&gt; panic!(),
-</span><span class="boring">/// #     }
-</span><span class="boring">/// # }
-</span><span class="boring">/// ```
-</span><span class="boring">///
-</span><span class="boring">/// Additionally an error cause can be added.
-</span><span class="boring">///
-</span><span class="boring">/// ```rust
-</span><span class="boring">/// # use chainerror::*;
-</span><span class="boring">/// # use std::io;
-</span><span class="boring">/// # use std::error::Error;
-</span><span class="boring">/// # #[derive(Debug)]
-</span><span class="boring">/// # enum FooError {
-</span><span class="boring">/// #     Bar,
-</span><span class="boring">/// #     Baz(&amp;'static str),
-</span><span class="boring">/// # }
-</span><span class="boring">/// # impl ::std::fmt::Display for FooError {
-</span><span class="boring">/// #     fn fmt(&amp;self, f: &amp;mut ::std::fmt::Formatter) -&gt; ::std::fmt::Result {
-</span><span class="boring">/// #         match self {
-</span><span class="boring">/// #             FooError::Bar =&gt; write!(f, &quot;Bar Error&quot;),
-</span><span class="boring">/// #             FooError::Baz(s) =&gt; write!(f, &quot;Baz Error: '{}'&quot;, s),
-</span><span class="boring">/// #         }
-</span><span class="boring">/// #     }
-</span><span class="boring">/// # }
-</span><span class="boring">/// fn do_some_stuff() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
-</span><span class="boring">///     Err(io::Error::from(io::ErrorKind::NotFound))?;
-</span><span class="boring">///     Ok(())
-</span><span class="boring">/// }
-</span><span class="boring">///
-</span><span class="boring">/// fn func() -&gt; ChainResult&lt;(), FooError&gt; {
-</span><span class="boring">///     do_some_stuff().map_err(
-</span><span class="boring">///         |e| cherr!(e, FooError::Baz(&quot;Error&quot;))
-</span><span class="boring">///     )?;
-</span><span class="boring">///     Ok(())
-</span><span class="boring">/// }
-</span><span class="boring">/// # pub fn main() {
-</span><span class="boring">/// #     match func().unwrap_err().kind() {
-</span><span class="boring">/// #         FooError::Baz(s) if s == &amp;&quot;Error&quot; =&gt; {}
-</span><span class="boring">/// #         _ =&gt; panic!(),
-</span><span class="boring">/// #     }
-</span><span class="boring">/// # }
-</span><span class="boring">/// ```
-</span><span class="boring">#[macro_export]
-</span><span class="boring">macro_rules! cherr {
-</span><span class="boring">    ( $k:expr ) =&gt; ({
-</span><span class="boring">        $crate::ChainError::new($k, None, Some(concat!(file!(), &quot;:&quot;, line!(), &quot;: &quot;)))
-</span><span class="boring">    });
-</span><span class="boring">    ( None, $k:expr ) =&gt; ({
-</span><span class="boring">        $crate::ChainError::new($k, None, Some(concat!(file!(), &quot;:&quot;, line!(), &quot;: &quot;)))
-</span><span class="boring">    });
-</span><span class="boring">    ( None, $fmt:expr, $($arg:tt)+ ) =&gt; ({
-</span><span class="boring">        $crate::cherr!(None, format!($fmt, $($arg)+ ))
-</span><span class="boring">    });
-</span><span class="boring">    ( None, $fmt:expr, $($arg:tt)+ ) =&gt; ({
-</span><span class="boring">        $crate::cherr!(None, format!($fmt, $($arg)+ ))
-</span><span class="boring">    });
-</span><span class="boring">    ( $e:path, $k:expr ) =&gt; ({
-</span><span class="boring">        $crate::ChainError::new($k, Some(Box::from($e)), Some(concat!(file!(), &quot;:&quot;, line!(), &quot;: &quot;)))
-</span><span class="boring">    });
-</span><span class="boring">    ( $e:path, $fmt:expr, $($arg:tt)+ ) =&gt; ({
-</span><span class="boring">        $crate::cherr!($e, format!($fmt, $($arg)+ ))
-</span><span class="boring">    });
-</span><span class="boring">}
-</span><span class="boring">
-</span><span class="boring">/// Convenience macro for `|e| cherr!(e, format!(…))`
-</span><span class="boring">///
-</span><span class="boring">/// # Examples
-</span><span class="boring">///
-</span><span class="boring">/// ```rust
-</span><span class="boring">/// # use crate::chainerror::*;
-</span><span class="boring">/// # use std::error::Error;
-</span><span class="boring">/// # use std::io;
-</span><span class="boring">/// # use std::result::Result;
-</span><span class="boring">/// # fn do_some_io() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
-</span><span class="boring">/// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
-</span><span class="boring">/// #     Ok(())
-</span><span class="boring">/// # }
-</span><span class="boring">/// fn func2() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
-</span><span class="boring">///     let filename = &quot;foo.txt&quot;;
-</span><span class="boring">///     do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
-</span><span class="boring">///     Ok(())
-</span><span class="boring">/// }
-</span><span class="boring">///
-</span><span class="boring">/// fn func1() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
-</span><span class="boring">///     func2().map_err(mstrerr!(&quot;func1 error&quot;))?;
-</span><span class="boring">///     Ok(())
-</span><span class="boring">/// }
-</span><span class="boring">///
-</span><span class="boring">/// # fn main() {
-</span><span class="boring">/// #     if let Err(e) = func1() {
-</span><span class="boring">/// #         #[cfg(not(windows))]
-</span><span class="boring">/// #         assert_eq!(
-</span><span class="boring">/// #             format!(&quot;\n{:?}\n&quot;, e), r#&quot;
-</span><span class="boring">/// # src/lib.rs:18: func1 error
-</span><span class="boring">/// # Caused by:
-</span><span class="boring">/// # src/lib.rs:13: Error reading 'foo.txt'
-</span><span class="boring">/// # Caused by:
-</span><span class="boring">/// # Kind(NotFound)
-</span><span class="boring">/// # &quot;#
-</span><span class="boring">/// #         );
-</span><span class="boring">/// #     } else {
-</span><span class="boring">/// #         unreachable!();
-</span><span class="boring">/// #     }
-</span><span class="boring">/// # }
-</span><span class="boring">/// ```
-</span><span class="boring">///
-</span><span class="boring">/// `mstrerr!()` can also be used to map a new `ChainError&lt;T&gt;`, where T was defined with
-</span><span class="boring">/// `derive_str_cherr!(T)`
-</span><span class="boring">///
-</span><span class="boring">/// ```rust
-</span><span class="boring">/// # use crate::chainerror::*;
-</span><span class="boring">/// # use std::error::Error;
-</span><span class="boring">/// # use std::io;
-</span><span class="boring">/// # use std::result::Result;
-</span><span class="boring">/// # fn do_some_io() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
-</span><span class="boring">/// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
-</span><span class="boring">/// #     Ok(())
-</span><span class="boring">/// # }
-</span><span class="boring">/// derive_str_cherr!(Func2Error);
-</span><span class="boring">///
-</span><span class="boring">/// fn func2() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
-</span><span class="boring">///     let filename = &quot;foo.txt&quot;;
-</span><span class="boring">///     do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
-</span><span class="boring">///     Ok(())
-</span><span class="boring">/// }
-</span><span class="boring">///
-</span><span class="boring">/// derive_str_cherr!(Func1Error);
-</span><span class="boring">///
-</span><span class="boring">/// fn func1() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
-</span><span class="boring">///     func2().map_err(mstrerr!(Func1Error, &quot;func1 error&quot;))?;
-</span><span class="boring">///     Ok(())
-</span><span class="boring">/// }
-</span><span class="boring">/// # fn main() {
-</span><span class="boring">/// #     if let Err(e) = func1() {
-</span><span class="boring">/// #         if let Some(f1err) = e.downcast_chain_ref::&lt;Func1Error&gt;() {
-</span><span class="boring">/// #             assert!(f1err.find_cause::&lt;ChainError&lt;Func2Error&gt;&gt;().is_some());
-</span><span class="boring">/// #             assert!(f1err.find_chain_cause::&lt;Func2Error&gt;().is_some());
-</span><span class="boring">/// #         } else {
-</span><span class="boring">/// #             panic!();
-</span><span class="boring">/// #         }
-</span><span class="boring">/// #     } else {
-</span><span class="boring">/// #         unreachable!();
-</span><span class="boring">/// #     }
-</span><span class="boring">/// # }
-</span><span class="boring">/// ```
-</span><span class="boring">#[macro_export]
-</span><span class="boring">macro_rules! mstrerr {
-</span><span class="boring">    ( $t:path, $msg:expr ) =&gt; ({
-</span><span class="boring">        |e| $crate::cherr!(e, $t ($msg.to_string()))
-</span><span class="boring">    });
-</span><span class="boring">    ( $t:path, $msg:expr, ) =&gt; ({
-</span><span class="boring">        |e| $crate::cherr!(e, $t ($msg.to_string()))
-</span><span class="boring">    });
-</span><span class="boring">    ( $t:path, $fmt:expr, $($arg:tt)+ ) =&gt; ({
-</span><span class="boring">        |e| $crate::cherr!(e, $t (format!($fmt, $($arg)+ )))
-</span><span class="boring">    });
-</span><span class="boring">    ($msg:expr) =&gt; ({
-</span><span class="boring">        |e| $crate::cherr!(e, $msg.to_string())
-</span><span class="boring">    });
-</span><span class="boring">    ($msg:expr, ) =&gt; ({
-</span><span class="boring">        |e| $crate::cherr!(e, $msg.to_string())
-</span><span class="boring">    });
-</span><span class="boring">    ($fmt:expr, $($arg:tt)+) =&gt; ({
-</span><span class="boring">        |e| $crate::cherr!(e, format!($fmt, $($arg)+ ))
-</span><span class="boring">    });
-</span><span class="boring">}
-</span><span class="boring">
-</span><span class="boring">/// Convenience macro for `cherr!(T(format!(…)))` where `T(String)`
-</span><span class="boring">///
-</span><span class="boring">/// # Examples
-</span><span class="boring">///
-</span><span class="boring">/// ```rust
-</span><span class="boring">/// # use crate::chainerror::*;
-</span><span class="boring">/// # use std::error::Error;
-</span><span class="boring">/// # use std::result::Result;
-</span><span class="boring">/// derive_str_cherr!(Func2Error);
-</span><span class="boring">///
-</span><span class="boring">/// fn func2() -&gt; ChainResult&lt;(), Func2Error&gt; {
-</span><span class="boring">///     let filename = &quot;foo.txt&quot;;
-</span><span class="boring">///     Err(strerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))
-</span><span class="boring">/// }
-</span><span class="boring">///
-</span><span class="boring">/// derive_str_cherr!(Func1Error);
-</span><span class="boring">///
-</span><span class="boring">/// fn func1() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-</span><span class="boring">///     func2().map_err(mstrerr!(Func1Error, &quot;func1 error&quot;))?;
-</span><span class="boring">///     Ok(())
-</span><span class="boring">/// }
-</span><span class="boring">/// # fn main() {
-</span><span class="boring">/// #     if let Err(e) = func1() {
-</span><span class="boring">/// #         if let Some(f1err) = e.downcast_chain_ref::&lt;Func1Error&gt;() {
-</span><span class="boring">/// #             assert!(f1err.find_cause::&lt;ChainError&lt;Func2Error&gt;&gt;().is_some());
-</span><span class="boring">/// #             assert!(f1err.find_chain_cause::&lt;Func2Error&gt;().is_some());
-</span><span class="boring">/// #         } else {
-</span><span class="boring">/// #             panic!();
-</span><span class="boring">/// #         }
-</span><span class="boring">/// #     } else {
-</span><span class="boring">/// #         unreachable!();
-</span><span class="boring">/// #     }
-</span><span class="boring">/// # }
-</span><span class="boring">/// ```
-</span><span class="boring">#[macro_export]
-</span><span class="boring">macro_rules! strerr {
-</span><span class="boring">    ( $t:path, $msg:expr ) =&gt; ({
-</span><span class="boring">        $crate::cherr!($t ($msg.to_string()))
-</span><span class="boring">    });
-</span><span class="boring">    ( $t:path, $msg:expr, ) =&gt; ({
-</span><span class="boring">        $crate::cherr!($t ($msg.to_string()))
-</span><span class="boring">    });
-</span><span class="boring">    ( $t:path, $fmt:expr, $($arg:tt)+ ) =&gt; ({
-</span><span class="boring">        $crate::cherr!($t (format!($fmt, $($arg)+ )))
-</span><span class="boring">    });
-</span><span class="boring">    ($msg:expr) =&gt; ({
-</span><span class="boring">        $crate::cherr!($msg.to_string())
-</span><span class="boring">    });
-</span><span class="boring">    ($msg:expr, ) =&gt; ({
-</span><span class="boring">        $crate::cherr!($msg.to_string())
-</span><span class="boring">    });
-</span><span class="boring">    ($fmt:expr, $($arg:tt)+) =&gt; ({
-</span><span class="boring">        $crate::cherr!(format!($fmt, $($arg)+ ))
-</span><span class="boring">    });
 </span><span class="boring">}
 </span><span class="boring">
 </span><span class="boring">/// Convenience macro to create a &quot;new type&quot; T(String) and implement Display + Debug for T
@@ -1243,21 +1047,20 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">/// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 </span><span class="boring">/// #     Ok(())
 </span><span class="boring">/// # }
-</span><span class="boring">/// derive_str_cherr!(Func2Error);
+</span><span class="boring">/// derive_str_context!(Func2Error);
 </span><span class="boring">///
 </span><span class="boring">/// fn func2() -&gt; ChainResult&lt;(), Func2Error&gt; {
 </span><span class="boring">///     let filename = &quot;foo.txt&quot;;
-</span><span class="boring">///     do_some_io().map_err(mstrerr!(Func2Error, &quot;Error reading '{}'&quot;, filename))?;
+</span><span class="boring">///     do_some_io().context(Func2Error(format!(&quot;Error reading '{}'&quot;, filename)))?;
 </span><span class="boring">///     Ok(())
 </span><span class="boring">/// }
 </span><span class="boring">///
-</span><span class="boring">/// derive_str_cherr!(Func1Error);
+</span><span class="boring">/// derive_str_context!(Func1Error);
 </span><span class="boring">///
 </span><span class="boring">/// fn func1() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
-</span><span class="boring">///     func2().map_err(mstrerr!(Func1Error, &quot;func1 error&quot;))?;
+</span><span class="boring">///     func2().context(Func1Error(&quot;func1 error&quot;.into()))?;
 </span><span class="boring">///     Ok(())
 </span><span class="boring">/// }
-</span><span class="boring">/// # fn main() {
 </span><span class="boring">/// #     if let Err(e) = func1() {
 </span><span class="boring">/// #         if let Some(f1err) = e.downcast_chain_ref::&lt;Func1Error&gt;() {
 </span><span class="boring">/// #             assert!(f1err.find_cause::&lt;ChainError&lt;Func2Error&gt;&gt;().is_some());
@@ -1268,10 +1071,9 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">/// #     } else {
 </span><span class="boring">/// #         unreachable!();
 </span><span class="boring">/// #     }
-</span><span class="boring">/// # }
 </span><span class="boring">/// ```
 </span><span class="boring">#[macro_export]
-</span><span class="boring">macro_rules! derive_str_cherr {
+</span><span class="boring">macro_rules! derive_str_context {
 </span><span class="boring">    ($e:ident) =&gt; {
 </span><span class="boring">        #[derive(Clone)]
 </span><span class="boring">        pub struct $e(pub String);
@@ -1300,8 +1102,8 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">/// # Examples
 </span><span class="boring">///
 </span><span class="boring">/// ```rust
+</span><span class="boring">/// use chainerror::prelude::v1::*;
 </span><span class="boring">/// use std::io;
-</span><span class="boring">/// use chainerror::*;
 </span><span class="boring">///
 </span><span class="boring">/// fn do_some_io(_f: &amp;str) -&gt; std::result::Result&lt;(), io::Error&gt; {
 </span><span class="boring">///     return Err(io::Error::from(io::ErrorKind::NotFound));
@@ -1347,11 +1149,9 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">/// pub fn func1() -&gt; std::result::Result&lt;(), Error&gt; {
 </span><span class="boring">///     let filename = &quot;bar.txt&quot;;
 </span><span class="boring">///
-</span><span class="boring">///     do_some_io(filename)
-</span><span class="boring">///         .map_err(|e| cherr!(e, ErrorKind::from_io_error(&amp;e, filename.into())))?;
-</span><span class="boring">///     do_some_io(filename).map_err(|e| cherr!(e, ErrorKind::IO(filename.into())))?;
-</span><span class="boring">///     do_some_io(filename).map_err(|e| cherr!(e, ErrorKind::from(&amp;e)))?;
-</span><span class="boring">///     do_some_io(filename).map_err(minto_cherr!(ErrorKind))?;
+</span><span class="boring">///     do_some_io(filename).map_context(|e| ErrorKind::from_io_error(e, filename.into()))?;
+</span><span class="boring">///     do_some_io(filename).map_context(|e| ErrorKind::IO(filename.into()))?;
+</span><span class="boring">///     do_some_io(filename).map_context(|e| ErrorKind::from(e))?;
 </span><span class="boring">///     Ok(())
 </span><span class="boring">/// }
 </span><span class="boring">/// ```
@@ -1384,19 +1184,6 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 </span><span class="boring">        {
 </span><span class="boring">            fn from(e: &amp;$e) -&gt; Self {
 </span><span class="boring">                e.kind().clone()
-</span><span class="boring">            }
-</span><span class="boring">        }
-</span><span class="boring">
-</span><span class="boring">        impl $crate::ChainErrorFrom&lt;$e&gt; for $k
-</span><span class="boring">        where
-</span><span class="boring">            $k: Clone,
-</span><span class="boring">        {
-</span><span class="boring">            #[inline]
-</span><span class="boring">            fn chain_error_from(
-</span><span class="boring">                t: $e,
-</span><span class="boring">                line_filename: Option&lt;&amp;'static str&gt;,
-</span><span class="boring">            ) -&gt; $crate::ChainError&lt;$k&gt; {
-</span><span class="boring">                $crate::ChainError::new((*t.kind()).clone(), Some(Box::from(t)), line_filename)
 </span><span class="boring">            }
 </span><span class="boring">        }
 </span><span class="boring">
@@ -1445,13 +1232,13 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="tutorial11.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="tutorial11.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="tutorial13.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="tutorial13.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
@@ -1464,10 +1251,10 @@ fn main() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
         
 
         
-        
+
         
         <script type="text/javascript">
-            window.playpen_copyable = true;
+            window.playground_copyable = true;
         </script>
         
 

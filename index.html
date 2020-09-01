@@ -5,13 +5,24 @@
         <meta charset="UTF-8">
         <title>chainerror - chainerror</title>
         
+        
+
+
+        <!-- Custom HTML head -->
+        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="A tutorial for the chainerror rust crate.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
         <link rel="shortcut icon" href="favicon.png">
+        
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
@@ -19,8 +30,9 @@
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -36,7 +48,7 @@
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -80,8 +92,8 @@
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded affix "><a href="index.html" class="active">chainerror</a></li><li class="expanded "><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li class="expanded "><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li class="expanded "><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li class="expanded "><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> Saving coding chars</a></li><li class="expanded "><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li class="expanded "><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li class="expanded "><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li class="expanded "><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li class="expanded "><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li class="expanded "><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li class="expanded "><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="expanded "><a href="tutorial12.html"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li class="expanded "><a href="tutorial13.html"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="expanded "><a href="tutorial14.html"><strong aria-hidden="true">14.</strong> Going back to std</a></li><li class="expanded affix "><a href="end.html">The End</a></li></ol>
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html" class="active">chainerror</a></li><li class="chapter-item expanded "><a href="tutorial1.html"><strong aria-hidden="true">1.</strong> Simple String Errors</a></li><li class="chapter-item expanded "><a href="tutorial2.html"><strong aria-hidden="true">2.</strong> Simple Chained String Errors</a></li><li class="chapter-item expanded "><a href="tutorial3.html"><strong aria-hidden="true">3.</strong> Mapping Errors</a></li><li class="chapter-item expanded "><a href="tutorial4.html"><strong aria-hidden="true">4.</strong> More Information</a></li><li class="chapter-item expanded "><a href="tutorial5.html"><strong aria-hidden="true">5.</strong> The source() of Errors</a></li><li class="chapter-item expanded "><a href="tutorial6.html"><strong aria-hidden="true">6.</strong> Downcast the Errors</a></li><li class="chapter-item expanded "><a href="tutorial7.html"><strong aria-hidden="true">7.</strong> The root cause of all Errors</a></li><li class="chapter-item expanded "><a href="tutorial8.html"><strong aria-hidden="true">8.</strong> Finding an Error cause</a></li><li class="chapter-item expanded "><a href="tutorial9.html"><strong aria-hidden="true">9.</strong> Selective Error Handling</a></li><li class="chapter-item expanded "><a href="tutorial10.html"><strong aria-hidden="true">10.</strong> ErrorKind to the rescue</a></li><li class="chapter-item expanded "><a href="tutorial11.html"><strong aria-hidden="true">11.</strong> Debug for the ErrorKind</a></li><li class="chapter-item expanded "><a href="tutorial12.html"><strong aria-hidden="true">12.</strong> Deref for the ErrorKind</a></li><li class="chapter-item expanded "><a href="tutorial13.html"><strong aria-hidden="true">13.</strong> Writing a library</a></li><li class="chapter-item expanded "><a href="tutorial14.html"><strong aria-hidden="true">14.</strong> Going back to std</a></li><li class="chapter-item expanded affix "><a href="end.html">The End</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -90,37 +102,36 @@
 
             <div class="page">
                 
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
 
-                        <h1 class="menu-title">chainerror</h1>
+                    <h1 class="menu-title">chainerror</h1>
 
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
                     </div>
                 </div>
 
@@ -148,59 +159,138 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#chainerror" id="chainerror">chainerror</a></h1>
-<p><a href="https://travis-ci.org/haraldh/chainerror"><img src="https://travis-ci.org/haraldh/chainerror.svg?branch=master" alt="Build Status" /></a>
-<a href="https://crates.io/crates/chainerror"><img src="https://img.shields.io/crates/v/chainerror.svg" alt="Crate" /></a>
-<a href="https://docs.rs/chainerror/"><img src="https://img.shields.io/badge/api-rustdoc-blue.svg" alt="Rust Documentation" /></a></p>
-<p><code>chainerror</code> provides an error backtrace like <code>failure</code> without doing a real backtrace, so even after you <code>strip</code> your
+                        <p><a href="https://crates.io/crates/chainerror"><img src="https://img.shields.io/crates/v/chainerror.svg" alt="Crate" /></a>
+<a href="https://docs.rs/chainerror/"><img src="https://img.shields.io/badge/api-rustdoc-blue.svg" alt="Rust Documentation" /></a>
+<a href="https://coveralls.io/github/haraldh/chainerror?branch=master"><img src="https://coveralls.io/repos/github/haraldh/chainerror/badge.svg?branch=master" alt="Coverage Status" /></a>
+<a href="https://github.com/haraldh/chainerror/actions?query=workflow%3A%22Rust%22"><img src="https://github.com/haraldh/chainerror/workflows/Rust/badge.svg" alt="Workflow Status" /></a>
+<a href="https://isitmaintained.com/project/haraldh/chainerror" title="Average time to resolve an issue"><img src="https://isitmaintained.com/badge/resolution/haraldh/chainerror.svg" alt="Average time to resolve an issue" /></a>
+<a href="https://isitmaintained.com/project/haraldh/chainerror" title="Percentage of issues still open"><img src="https://isitmaintained.com/badge/open/haraldh/chainerror.svg" alt="Percentage of issues still open" /></a>
+<img src="https://img.shields.io/badge/maintenance-activly--developed-brightgreen.svg" alt="Maintenance" /></p>
+<h1><a class="header" href="#chainerror" id="chainerror">chainerror</a></h1>
+<p><code>chainerror</code> provides an error backtrace without doing a real backtrace, so even after you <code>strip</code> your
 binaries, you still have the error backtrace.</p>
 <p><code>chainerror</code> has no dependencies!</p>
-<p><code>chainerror</code> uses <code>.source()</code> of <code>std::error::Error</code> along with <code>line()!</code> and <code>file()!</code> to provide a nice debug error backtrace.
+<p><code>chainerror</code> uses <code>.source()</code> of <code>std::error::Error</code> along with <code>#[track_caller]</code> and <code>Location</code> to provide a nice debug error backtrace.
 It encapsulates all types, which have <code>Display + Debug</code> and can store the error cause internally.</p>
 <p>Along with the <code>ChainError&lt;T&gt;</code> struct, <code>chainerror</code> comes with some useful helper macros to save a lot of typing.</p>
 <p>Debug information is worth it!</p>
-<p>Now continue reading the
-<a href="https://haraldh.github.io/chainerror/tutorial1.html">Tutorial</a></p>
-<h2><a class="header" href="#example" id="example">Example:</a></h2>
-<p>Output:</p>
-<pre><code>$ cargo run -q --example example
-Main Error Report: func1 error calling func2
-
-Error reported by Func2Error: func2 error: calling func3
-
-The root cause was: std::io::Error: Kind(
-    NotFound
-)
-
-Debug Error:
-examples/example.rs:45: func1 error calling func2
+<h3><a class="header" href="#features" id="features">Features</a></h3>
+<p><code>display-cause</code>
+: turn on printing a backtrace of the errors in <code>Display</code></p>
+<h2><a class="header" href="#tutorial" id="tutorial">Tutorial</a></h2>
+<p>Read the <a href="https://haraldh.github.io/chainerror/tutorial1.html">Tutorial</a></p>
+<h2><a class="header" href="#examples" id="examples">Examples</a></h2>
+<p>examples/example.rs:</p>
+<pre><pre class="playground"><code class="language-rust">// […]
+fn main() {
+   if let Err(e) = func1() {
+       eprintln!(&quot;\nDebug Error {{:?}}:\n{:?}&quot;, e);
+       eprintln!(&quot;\nAlternative Debug Error {{:#?}}:\n{:#?}\n&quot;, e);
+       // […]
+  }
+}
+</code></pre></pre>
+<pre><code class="language-console">$ cargo run -q --example example
+Debug Error {:?}:
+examples/example.rs:46:13: func1 error calling func2
 Caused by:
-examples/example.rs:20: Func2Error(func2 error: calling func3)
+examples/example.rs:21:13: Func2Error(func2 error: calling func3)
 Caused by:
-examples/example.rs:13: Error reading 'foo.txt'
+examples/example.rs:14:18: Error reading 'foo.txt'
 Caused by:
 Kind(NotFound)
+
+Alternative Debug Error {:#?}:
+ChainError&lt;example::Func1Error&gt; {
+    occurrence: Some(
+        &quot;examples/example.rs:46:13&quot;,
+    ),
+    kind: func1 error calling func2,
+    source: Some(
+        ChainError&lt;example::Func2Error&gt; {
+            occurrence: Some(
+                &quot;examples/example.rs:21:13&quot;,
+            ),
+            kind: Func2Error(func2 error: calling func3),
+            source: Some(
+                ChainError&lt;alloc::string::String&gt; {
+                    occurrence: Some(
+                        &quot;examples/example.rs:14:18&quot;,
+                   ),
+                   kind: &quot;Error reading \'foo.txt\'&quot;,
+                    source: Some(
+                        Kind(
+                            NotFound,
+                        ),
+                    ),
+                },
+            ),
+        },
+    ),
+}
 </code></pre>
-<pre><code class="language-rust ignore">use chainerror::*;
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use chainerror::prelude::v1::*;
 use std::error::Error;
 use std::io;
 use std::result::Result;
 
-fn do_some_io() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
+fn do_some_io() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
-fn func3() -&gt; Result&lt;(), Box&lt;Error + Send + Sync&gt;&gt; {
+fn func2() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
     let filename = &quot;foo.txt&quot;;
-    do_some_io().map_err(mstrerr!(&quot;Error reading '{}'&quot;, filename))?;
+    do_some_io().context(format!(&quot;Error reading '{}'&quot;, filename))?;
     Ok(())
 }
 
-derive_str_cherr!(Func2Error);
+fn func1() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
+    func2().context(&quot;func1 error&quot;)?;
+    Ok(())
+}
+
+if let Err(e) = func1() {
+    #[cfg(not(windows))]
+    assert_eq!(
+        format!(&quot;\n{:?}\n&quot;, e),
+        r#&quot;
+src/lib.rs:21:13: func1 error
+Caused by:
+src/lib.rs:16:18: Error reading 'foo.txt'
+Caused by:
+Kind(NotFound)
+&quot;#
+    );
+}
+<span class="boring">}
+</span></code></pre></pre>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use chainerror::prelude::v1::*;
+use std::error::Error;
+use std::io;
+use std::result::Result;
+
+fn do_some_io() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
+    Err(io::Error::from(io::ErrorKind::NotFound))?;
+    Ok(())
+}
+
+fn func3() -&gt; Result&lt;(), Box&lt;dyn Error + Send + Sync&gt;&gt; {
+    let filename = &quot;foo.txt&quot;;
+    do_some_io().context(format!(&quot;Error reading '{}'&quot;, filename))?;
+    Ok(())
+}
+
+derive_str_context!(Func2Error);
 
 fn func2() -&gt; ChainResult&lt;(), Func2Error&gt; {
-    func3().map_err(mstrerr!(Func2Error, &quot;func2 error: calling func3&quot;))?;
+    func3().context(Func2Error(&quot;func2 error: calling func3&quot;.into()))?;
     Ok(())
 }
 
@@ -225,42 +315,65 @@ impl ::std::fmt::Debug for Func1Error {
 }
 
 fn func1() -&gt; ChainResult&lt;(), Func1Error&gt; {
-    func2().map_err(|e| cherr!(e, Func1Error::Func2))?;
+    func2().context(Func1Error::Func2)?;
     let filename = String::from(&quot;bar.txt&quot;);
-    do_some_io().map_err(|e| cherr!(e, Func1Error::IO(filename)))?;
+    do_some_io().context(Func1Error::IO(filename))?;
     Ok(())
 }
 
-fn main() {
-    if let Err(e) = func1() {
-        match e.kind() {
-            Func1Error::Func2 =&gt; eprintln!(&quot;Main Error Report: func1 error calling func2&quot;),
-            Func1Error::IO(filename) =&gt; {
-                eprintln!(&quot;Main Error Report: func1 error reading '{}'&quot;, filename)
-            }
+if let Err(e) = func1() {
+    assert!(match e.kind() {
+        Func1Error::Func2 =&gt; {
+            eprintln!(&quot;Main Error Report: func1 error calling func2&quot;);
+            true
         }
-
-        if let Some(e) = e.find_chain_cause::&lt;Func2Error&gt;() {
-            eprintln!(&quot;\nError reported by Func2Error: {}&quot;, e)
+        Func1Error::IO(filename) =&gt; {
+            eprintln!(&quot;Main Error Report: func1 error reading '{}'&quot;, filename);
+            false
         }
+    });
 
-        if let Some(e) = e.root_cause() {
-            let ioerror = e.downcast_ref::&lt;io::Error&gt;().unwrap();
-            eprintln!(&quot;\nThe root cause was: std::io::Error: {:#?}&quot;, ioerror);
-        }
+    assert!(e.find_chain_cause::&lt;Func2Error&gt;().is_some());
 
-        eprintln!(&quot;\nDebug Error:\n{:?}&quot;, e);
+    if let Some(e) = e.find_chain_cause::&lt;Func2Error&gt;() {
+        eprintln!(&quot;\nError reported by Func2Error: {}&quot;, e)
     }
-}
 
-</code></pre>
-<h2><a class="header" href="#features" id="features">Features</a></h2>
-<p><code>no-fileline</code>
-: completely turn off storing filename and line</p>
-<p><code>display-cause</code>
-: turn on printing a backtrace of the errors in <code>Display</code></p>
-<p><code>no-debug-cause</code>
-: turn off printing a backtrace of the errors in <code>Debug</code></p>
+    assert!(e.root_cause().is_some());
+
+    if let Some(e) = e.root_cause() {
+        let io_error = e.downcast_ref::&lt;io::Error&gt;().unwrap();
+        eprintln!(&quot;\nThe root cause was: std::io::Error: {:#?}&quot;, io_error);
+    }
+
+    #[cfg(not(windows))]
+    assert_eq!(
+        format!(&quot;\n{:?}\n&quot;, e),
+        r#&quot;
+src/lib.rs:48:13: func1 error calling func2
+Caused by:
+src/lib.rs:23:13: Func2Error(func2 error: calling func3)
+Caused by:
+src/lib.rs:16:18: Error reading 'foo.txt'
+Caused by:
+Kind(NotFound)
+&quot;#
+    );
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#license" id="license">License</a></h2>
+<p>Licensed under either of</p>
+<ul>
+<li>Apache License, Version 2.0, (<a href="LICENSE-APACHE">LICENSE-APACHE</a> or https://www.apache.org/licenses/LICENSE-2.0)</li>
+<li>MIT license (<a href="LICENSE-MIT">LICENSE-MIT</a> or https://opensource.org/licenses/MIT)</li>
+</ul>
+<p>at your option.</p>
+<h3><a class="header" href="#contribution" id="contribution">Contribution</a></h3>
+<p>Unless you explicitly state otherwise, any contribution intentionally
+submitted for inclusion in the work by you, as defined in the Apache-2.0
+license, shall be dual licensed as above, without any additional terms or
+conditions.</p>
 
                     </main>
 
@@ -283,7 +396,7 @@ fn main() {
                 
 
                 
-                    <a href="tutorial1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="tutorial1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
@@ -296,10 +409,10 @@ fn main() {
         
 
         
-        
+
         
         <script type="text/javascript">
-            window.playpen_copyable = true;
+            window.playground_copyable = true;
         </script>
         
 

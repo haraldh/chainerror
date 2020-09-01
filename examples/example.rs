@@ -51,6 +51,10 @@ fn func1() -> ChainResult<(), Func1Error> {
 
 fn main() {
     if let Err(e) = func1() {
+        eprintln!("\nDebug Error {{:?}}:\n{:?}", e);
+
+        eprintln!("\nAlternative Debug Error {{:#?}}:\n{:#?}\n", e);
+
         match e.kind() {
             Func1Error::Func2 => eprintln!("Main Error Report: func1 error calling func2"),
             Func1Error::IO(filename) => {
@@ -66,9 +70,5 @@ fn main() {
             let ioerror = e.downcast_ref::<io::Error>().unwrap();
             eprintln!("\nThe root cause was: std::io::Error: {:#?}", ioerror);
         }
-
-        eprintln!("\nDebug Error:\n{:?}", e);
-
-        eprintln!("\nAlternative Debug Error:\n{:#?}", e);
     }
 }

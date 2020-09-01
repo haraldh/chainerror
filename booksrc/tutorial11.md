@@ -1,6 +1,6 @@
 # Debug for the ErrorKind
 
-One small improvement at the end of the tutorial is to fix the debug output of
+One small improvement is to fix the debug output of
 `Func1ErrorKind`. As you probably noticed, the output doesn't say much of the enum.
 
 ~~~

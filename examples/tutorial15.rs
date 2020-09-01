@@ -1,7 +1,6 @@
 pub mod mycrate {
-    use std::io;
-
     use chainerror::prelude::v1::*;
+    use std::io;
 
     fn do_some_io(_f: &str) -> std::result::Result<(), io::Error> {
         Err(io::Error::from(io::ErrorKind::NotFound))?;

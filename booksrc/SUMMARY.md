@@ -5,7 +5,7 @@
 - [Simple String Errors](tutorial1.md)
 - [Simple Chained String Errors](tutorial2.md)
 - [Mapping Errors](tutorial3.md)
-- [Saving coding chars](tutorial4.md)
+- [More Information](tutorial4.md)
 - [The source() of Errors](tutorial5.md)
 - [Downcast the Errors](tutorial6.md)
 - [The root cause of all Errors](tutorial7.md)

@@ -1,7 +1,7 @@
 pub mod mycrate {
     use std::error::Error as StdError;
 
-    use func2mod::{do_some_io, func2};
+    use self::func2mod::{do_some_io, func2};
 
     pub mod func2mod {
         use std::error::Error as StdError;

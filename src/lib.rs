@@ -21,16 +21,21 @@
 //!
 //! # Examples
 //!
+//! examples/examples.rs:
+//! ```rust,no_run
+//! // […]
+//! fn main() {
+//!    if let Err(e) = func1() {
+//!        eprintln!("\nDebug Error {{:?}}:\n{:?}", e);
+//!        eprintln!("\nAlternative Debug Error {{:#?}}:\n{:#?}\n", e);
+//!        // […]
+//!   }
+//! }
+//! ```
+//!
 //! ```console
 //! $ cargo run -q --example example
-//! Main Error Report: func1 error calling func2
-//!
-//! Error reported by Func2Error: func2 error: calling func3
-//! The root cause was: std::io::Error: Kind(
-//!     NotFound
-//! )
-//!
-//! Debug Error:
+//! Debug Error {:?}:
 //! examples/example.rs:46:13: func1 error calling func2
 //! Caused by:
 //! examples/example.rs:21:13: Func2Error(func2 error: calling func3)
@@ -39,7 +44,7 @@
 //! Caused by:
 //! Kind(NotFound)
 //!
-//! Alternative Debug Error:
+//! Alternative Debug Error {:#?}:
 //! ChainError<example::Func1Error> {
 //!     occurrence: Some(
 //!         "examples/example.rs:46:13",
@@ -55,8 +60,8 @@
 //!                 ChainError<alloc::string::String> {
 //!                     occurrence: Some(
 //!                         "examples/example.rs:14:18",
-//!                     ),
-//!                     kind: "Error reading \'foo.txt\'",
+//!                    ),
+//!                    kind: "Error reading \'foo.txt\'",
 //!                     source: Some(
 //!                         Kind(
 //!                             NotFound,
@@ -430,7 +435,10 @@ impl<T: 'static + Display + Debug> ChainError<T> {
 /// Convenience methods for `Result<>` to turn the error into a decorated ChainError
 pub trait ResultTrait<O, E: Into<Box<dyn Error + 'static + Send + Sync>>> {
     /// Decorate the error with a `kind` of type `T` and the source `Location`
-    fn context<T: 'static + Display + Debug>(self, kind: T) -> std::result::Result<O, ChainError<T>>;
+    fn context<T: 'static + Display + Debug>(
+        self,
+        kind: T,
+    ) -> std::result::Result<O, ChainError<T>>;
 
     /// Decorate the `error` with a `kind` of type `T` produced with a `FnOnce(&error)` and the source `Location`
     fn map_context<T: 'static + Display + Debug, F: FnOnce(&E) -> T>(
@@ -443,7 +451,10 @@ impl<O, E: Into<Box<dyn Error + 'static + Send + Sync>>> ResultTrait<O, E>
     for std::result::Result<O, E>
 {
     #[track_caller]
-    fn context<T: 'static + Display + Debug>(self, kind: T) -> std::result::Result<O, ChainError<T>> {
+    fn context<T: 'static + Display + Debug>(
+        self,
+        kind: T,
+    ) -> std::result::Result<O, ChainError<T>> {
         match self {
             Ok(t) => Ok(t),
             Err(error_cause) => Err(ChainError::new(
@@ -895,8 +906,7 @@ macro_rules! derive_str_context {
 /// pub fn func1() -> std::result::Result<(), Error> {
 ///     let filename = "bar.txt";
 ///
-///     do_some_io(filename)
-///         .map_context(|e| ErrorKind::from_io_error(e, filename.into()))?;
+///     do_some_io(filename).map_context(|e| ErrorKind::from_io_error(e, filename.into()))?;
 ///     do_some_io(filename).map_context(|e| ErrorKind::IO(filename.into()))?;
 ///     do_some_io(filename).map_context(|e| ErrorKind::from(e))?;
 ///     Ok(())

@@ -31,16 +31,21 @@ Read the [Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
 
 ## Examples
 
+examples/examples.rs:
+```rust
+// […]
+fn main() {
+   if let Err(e) = func1() {
+       eprintln!("\nDebug Error {{:?}}:\n{:?}", e);
+       eprintln!("\nAlternative Debug Error {{:#?}}:\n{:#?}\n", e);
+       // […]
+  }
+}
+```
+
 ```console
 $ cargo run -q --example example
-Main Error Report: func1 error calling func2
-
-Error reported by Func2Error: func2 error: calling func3
-The root cause was: std::io::Error: Kind(
-    NotFound
-)
-
-Debug Error:
+Debug Error {:?}:
 examples/example.rs:46:13: func1 error calling func2
 Caused by:
 examples/example.rs:21:13: Func2Error(func2 error: calling func3)
@@ -49,7 +54,7 @@ examples/example.rs:14:18: Error reading 'foo.txt'
 Caused by:
 Kind(NotFound)
 
-Alternative Debug Error:
+Alternative Debug Error {:#?}:
 ChainError<example::Func1Error> {
     occurrence: Some(
         "examples/example.rs:46:13",
@@ -65,8 +70,8 @@ ChainError<example::Func1Error> {
                 ChainError<alloc::string::String> {
                     occurrence: Some(
                         "examples/example.rs:14:18",
-                    ),
-                    kind: "Error reading \'foo.txt\'",
+                   ),
+                   kind: "Error reading \'foo.txt\'",
                     source: Some(
                         Kind(
                             NotFound,

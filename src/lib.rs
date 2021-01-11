@@ -582,15 +582,6 @@ impl<T: 'static + Display + Debug> Error for ChainError<T> {
     }
 }
 
-impl<T: 'static + Display + Debug> Error for &ChainError<T> {
-    #[inline]
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        self.error_cause
-            .as_ref()
-            .map(|e| e.as_ref() as &(dyn Error + 'static))
-    }
-}
-
 impl<T: 'static + Display + Debug> Error for &mut ChainError<T> {
     #[inline]
     fn source(&self) -> Option<&(dyn Error + 'static)> {

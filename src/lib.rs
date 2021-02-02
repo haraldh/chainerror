@@ -339,6 +339,7 @@ impl<O, E: Into<Box<dyn Error + 'static + Send + Sync>>> ResultTrait<O, E>
     for std::result::Result<O, E>
 {
     #[track_caller]
+    #[inline]
     fn context<T: 'static + Display + Debug>(
         self,
         kind: T,
@@ -354,6 +355,7 @@ impl<O, E: Into<Box<dyn Error + 'static + Send + Sync>>> ResultTrait<O, E>
     }
 
     #[track_caller]
+    #[inline]
     fn map_context<T: 'static + Display + Debug, F: FnOnce(&E) -> T>(
         self,
         op: F,

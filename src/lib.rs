@@ -636,40 +636,16 @@ impl<T: 'static + Display + Debug> Debug for ChainError<T> {
     }
 }
 
-/// `ChainErrorFrom<T>` is similar to `From<T>`
-pub trait ChainErrorFrom<T>: Sized {
-    /// similar to From<T>::from()
-    fn chain_error_from(from: T, line_filename: Option<String>) -> ChainError<Self>;
-}
-
-/// `IntoChainError<T>` is similar to `Into<T>`
-pub trait IntoChainError<T>: Sized {
-    /// similar to Into<T>::into()
-    fn into_chain_error(self, line_filename: Option<String>) -> ChainError<T>;
-}
-
-impl<T, U> IntoChainError<U> for T
+impl<T> From<T> for ChainError<T>
 where
-    U: ChainErrorFrom<T>,
+    T: 'static + Display + Debug,
 {
+    #[track_caller]
     #[inline]
-    fn into_chain_error(self, line_filename: Option<String>) -> ChainError<U> {
-        U::chain_error_from(self, line_filename)
+    fn from(e: T) -> ChainError<T> {
+        ChainError::new(e, None, Some(Location::caller().to_string()))
     }
 }
-
-impl<T, U> ChainErrorFrom<T> for U
-where
-    T: Into<U>,
-    U: 'static + Display + Debug,
-{
-    #[inline]
-    fn chain_error_from(t: T, line_filename: Option<String>) -> ChainError<Self> {
-        let e: U = t.into();
-        ChainError::new(e, None, line_filename)
-    }
-}
-
 /// Convenience macro to create a "new type" T(String) and implement Display + Debug for T
 ///
 /// # Examples

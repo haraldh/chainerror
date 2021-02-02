@@ -92,11 +92,6 @@
 //!
 //! Debug information is worth it!
 //!
-//! ## Features
-//!
-//! `display-cause`
-//! : turn on printing a backtrace of the errors in `Display`
-//!
 //! # Tutorial
 //!
 //! Read the [Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
@@ -596,13 +591,12 @@ impl<T: 'static + Display + Debug> Display for ChainError<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "{}", self.kind)?;
 
-        #[cfg(feature = "display-cause")]
-        {
+        if f.alternate() {
             if let Some(e) = self.source() {
-                writeln!(f, "\nCaused by:")?;
-                Display::fmt(&e, f)?;
+                write!(f, "\nCaused by:\n  {:#}", &e)?;
             }
         }
+
         Ok(())
     }
 }
@@ -633,8 +627,7 @@ impl<T: 'static + Display + Debug> Debug for ChainError<T> {
             }
 
             if let Some(e) = self.source() {
-                writeln!(f, "\nCaused by:")?;
-                Debug::fmt(&e, f)?;
+                write!(f, "\nCaused by:\n{:?}", &e)?;
             }
             Ok(())
         }

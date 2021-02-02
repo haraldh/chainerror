@@ -2,7 +2,6 @@ use chainerror::prelude::v1::*;
 use std::error::Error;
 use std::io;
 
-#[cfg(not(feature = "display-cause"))]
 #[test]
 fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
     use std::fmt::Write;
@@ -32,9 +31,8 @@ fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
     Ok(())
 }
 
-#[cfg(feature = "display-cause")]
 #[test]
-fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
+fn test_iter_alternate() -> Result<(), Box<dyn Error + Send + Sync>> {
     let err: Result<(), _> = Err(io::Error::from(io::ErrorKind::NotFound));
     let err = err.context("1");
     let err = err.context("2");
@@ -44,9 +42,9 @@ fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
     let err = err.context("6");
     let err = err.err().unwrap();
 
-    let res = err.to_string();
+    let res = format!("{:#}", err);
 
-    assert_eq!(res, "6\nCaused by:\n5\nCaused by:\n4\nCaused by:\n3\nCaused by:\n2\nCaused by:\n1\nCaused by:\nentity not found");
+    assert_eq!(res, format!("6\nCaused by:\n  5\nCaused by:\n  4\nCaused by:\n  3\nCaused by:\n  2\nCaused by:\n  1\nCaused by:\n  {:#}", io::Error::from(io::ErrorKind::NotFound)));
 
     let io_error: Option<&io::Error> = err
         .iter()

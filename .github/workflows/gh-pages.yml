@@ -11,27 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set CURRENT_TWO_WEEKS for use in cache keys
-        run: echo "::set-env name=CURRENT_TWO_WEEKS::$(($(date +%V) / 2))"
-
-      - name: Cache cargo registry
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ env.CURRENT_TWO_WEEKS }}
-
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ env.CURRENT_TWO_WEEKS }}
-
-      - name: Cache mdbook binary
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/bin/mdbook
-          key: ${{ runner.os }}-cargo-mdbook-${{ env.CURRENT_TWO_WEEKS }}
-
       - name: Build mdbook
         run: cargo install mdbook
 

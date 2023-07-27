@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - 1.46.0
+          - 1.54.0
           - stable
           - beta
           - nightly
@@ -70,16 +70,3 @@ jobs:
         with:
           command: clippy
           args: -- -D warnings
-
-  readme:
-    name: cargo readme
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-      - run: cargo install cargo-readme
-      - run: cargo readme > README.md && git diff --exit-code

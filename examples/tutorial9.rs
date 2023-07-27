@@ -20,7 +20,7 @@ derive_str_context!(Func1ErrorFunc2);
 derive_str_context!(Func1ErrorIO);
 
 fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-    func2().context(Func1ErrorFunc2(format!("func1 error calling func2")))?;
+    func2().context(Func1ErrorFunc2("func1 error calling func2".to_string()))?;
     let filename = "bar.txt";
     do_some_io().context(Func1ErrorIO(format!("Error reading '{}'", filename)))?;
     Ok(())

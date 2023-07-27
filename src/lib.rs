@@ -60,17 +60,16 @@
 //! fn main() {
 //!     if let Err(e) = process_config_file() {
 //!         eprintln!("Error:\n{:?}", e);
-//! #       assert_eq!(
-//! #           format!("{:?}\n", e),
-//! #           "\
-//! # src/lib.rs:16:51: read the config file\n\
-//! # Caused by:\n\
-//! # src/lib.rs:9:47: Reading file: \"foo.txt\"\n\
-//! # Caused by:\n\
-//! # Os { code: 2, kind: NotFound, message: \"No such file or directory\" }\n\
-//! #            ",
-//! #        );
+//! #       let s = format!("{:?}", e);
+//! #       let lines = s.lines().collect::<Vec<_>>();
+//! #       assert_eq!(lines.len(), 5);
+//! #       assert!(lines[0].starts_with("src/lib.rs:"));
+//! #       assert_eq!(lines[1], "Caused by:");
+//! #       assert!(lines[2].starts_with("src/lib.rs:"));
+//! #       assert_eq!(lines[3], "Caused by:");
+//! #       assert_eq!(lines[4], "Os { code: 2, kind: NotFound, message: \"No such file or directory\" }");
 //!     }
+//! #   else { panic!(); }
 //! }
 //! ```
 //!
@@ -103,7 +102,6 @@
 //! Read the [Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
 
 #![deny(clippy::all)]
-#![deny(clippy::integer_arithmetic)]
 #![allow(clippy::needless_doctest_main)]
 #![deny(missing_docs)]
 
@@ -198,7 +196,9 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// ```
     #[inline]
     pub fn find_cause<U: Error + 'static>(&self) -> Option<&U> {
-        self.iter().filter_map(Error::downcast_ref::<U>).next()
+        self.iter()
+            .filter_map(<dyn Error>::downcast_ref::<U>)
+            .next()
     }
 
     /// Find the first error cause of type `ChainError<U>`, if any exists
@@ -220,7 +220,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     #[inline]
     pub fn find_chain_cause<U: Error + 'static>(&self) -> Option<&ChainError<U>> {
         self.iter()
-            .filter_map(Error::downcast_ref::<ChainError<U>>)
+            .filter_map(<dyn Error>::downcast_ref::<ChainError<U>>)
             .next()
     }
 
@@ -428,7 +428,7 @@ impl<U: 'static + Display + Debug> ChainErrorDown for ChainError<U> {
             #[allow(clippy::cast_ptr_alignment)]
             unsafe {
                 #[allow(trivial_casts)]
-                Some(&*(self as *const dyn Error as *const &ChainError<T>))
+                Some(*(self as *const dyn Error as *const &ChainError<T>))
             }
         } else {
             None

@@ -18,7 +18,7 @@ fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
 derive_str_context!(Func2Error);
 
 fn func2() -> ChainResult<(), Func2Error> {
-    func3().context(Func2Error(format!("func2 error: calling func3")))?;
+    func3().context(Func2Error("func2 error: calling func3".to_string()))?;
     Ok(())
 }
 

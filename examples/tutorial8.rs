@@ -19,7 +19,7 @@ fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
 derive_str_context!(Func1Error);
 
 fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-    func2().context(Func1Error(format!("func1 error")))?;
+    func2().context(Func1Error("func1 error".to_string()))?;
     Ok(())
 }
 

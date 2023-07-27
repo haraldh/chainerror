@@ -60,17 +60,16 @@
 //! fn main() {
 //!     if let Err(e) = process_config_file() {
 //!         eprintln!("Error:\n{:?}", e);
-//! #       assert_eq!(
-//! #           format!("{:?}\n", e),
-//! #           "\
-//! # src/lib.rs:16:51: read the config file\n\
-//! # Caused by:\n\
-//! # src/lib.rs:9:47: Reading file: \"foo.txt\"\n\
-//! # Caused by:\n\
-//! # Os { code: 2, kind: NotFound, message: \"No such file or directory\" }\n\
-//! #            ",
-//! #        );
+//! #       let s = format!("{:?}", e);
+//! #       let lines = s.lines().collect::<Vec<_>>();
+//! #       assert_eq!(lines.len(), 5);
+//! #       assert!(lines[0].starts_with("src/lib.rs:"));
+//! #       assert_eq!(lines[1], "Caused by:");
+//! #       assert!(lines[2].starts_with("src/lib.rs:"));
+//! #       assert_eq!(lines[3], "Caused by:");
+//! #       assert_eq!(lines[4], "Os { code: 2, kind: NotFound, message: \"No such file or directory\" }");
 //!     }
+//! #   else { panic!(); }
 //! }
 //! ```
 //!

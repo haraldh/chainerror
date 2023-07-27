@@ -103,7 +103,6 @@
 //! Read the [Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
 
 #![deny(clippy::all)]
-#![deny(clippy::integer_arithmetic)]
 #![allow(clippy::needless_doctest_main)]
 #![deny(missing_docs)]
 
@@ -198,7 +197,9 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     /// ```
     #[inline]
     pub fn find_cause<U: Error + 'static>(&self) -> Option<&U> {
-        self.iter().filter_map(Error::downcast_ref::<U>).next()
+        self.iter()
+            .filter_map(<dyn Error>::downcast_ref::<U>)
+            .next()
     }
 
     /// Find the first error cause of type `ChainError<U>`, if any exists
@@ -220,7 +221,7 @@ impl<T: 'static + Display + Debug> ChainError<T> {
     #[inline]
     pub fn find_chain_cause<U: Error + 'static>(&self) -> Option<&ChainError<U>> {
         self.iter()
-            .filter_map(Error::downcast_ref::<ChainError<U>>)
+            .filter_map(<dyn Error>::downcast_ref::<ChainError<U>>)
             .next()
     }
 
@@ -428,7 +429,7 @@ impl<U: 'static + Display + Debug> ChainErrorDown for ChainError<U> {
             #[allow(clippy::cast_ptr_alignment)]
             unsafe {
                 #[allow(trivial_casts)]
-                Some(&*(self as *const dyn Error as *const &ChainError<T>))
+                Some(*(self as *const dyn Error as *const &ChainError<T>))
             }
         } else {
             None

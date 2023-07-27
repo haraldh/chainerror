@@ -15,7 +15,7 @@ fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
 }
 
 fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-    func2().context(format!("func1 error"))?;
+    func2().context("func1 error")?;
     Ok(())
 }
 

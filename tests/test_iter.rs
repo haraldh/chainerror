@@ -18,13 +18,13 @@ fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut res = String::new();
 
     for e in err.iter() {
-        write!(res, "{}", e.to_string())?;
+        write!(res, "{}", e)?;
     }
     assert_eq!(res, "654321entity not found");
 
     let io_error: Option<&io::Error> = err
         .iter()
-        .filter_map(Error::downcast_ref::<io::Error>)
+        .filter_map(<dyn Error>::downcast_ref::<io::Error>)
         .next();
 
     assert_eq!(io_error.unwrap().kind(), io::ErrorKind::NotFound);
@@ -50,7 +50,7 @@ fn test_iter() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     let io_error: Option<&io::Error> = err
         .iter()
-        .filter_map(Error::downcast_ref::<io::Error>)
+        .filter_map(<dyn Error>::downcast_ref::<io::Error>)
         .next();
 
     assert_eq!(io_error.unwrap().kind(), io::ErrorKind::NotFound);
@@ -88,7 +88,7 @@ fn test_root_cause() -> Result<(), Box<dyn Error + Send + Sync>> {
     let err = err.err().unwrap();
 
     let err: Option<&(dyn std::error::Error + 'static)> = err.root_cause();
-    let io_error: Option<&io::Error> = err.and_then(Error::downcast_ref::<io::Error>);
+    let io_error: Option<&io::Error> = err.and_then(<dyn Error>::downcast_ref::<io::Error>);
 
     assert_eq!(io_error.unwrap().kind(), io::ErrorKind::NotFound);
 

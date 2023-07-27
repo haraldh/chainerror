@@ -84,7 +84,7 @@ pub mod mycrate {
 
         let filename = "bar.txt";
 
-        do_some_io(filename).map_context(|e| ErrorKind::from_io_error(&e, filename.into()))?;
+        do_some_io(filename).map_context(|e| ErrorKind::from_io_error(e, filename.into()))?;
         do_some_io(filename).map_context(|_| ErrorKind::IO(filename.into()))?;
         do_some_io(filename).map_context(|e| ErrorKind::from(e))?;
 

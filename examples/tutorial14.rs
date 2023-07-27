@@ -1,3 +1,6 @@
+#![allow(clippy::single_match)]
+#![allow(clippy::redundant_pattern_matching)]
+
 pub mod mycrate {
     use std::error::Error as StdError;
 

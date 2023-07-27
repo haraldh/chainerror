@@ -1,9 +1,6 @@
 [![Crate](https://img.shields.io/crates/v/chainerror.svg)](https://crates.io/crates/chainerror)
 [![Rust Documentation](https://img.shields.io/badge/api-rustdoc-blue.svg)](https://docs.rs/chainerror/)
-[![Coverage Status](https://coveralls.io/repos/github/haraldh/chainerror/badge.svg?branch=master)](https://coveralls.io/github/haraldh/chainerror?branch=master)
-[![Workflow Status](https://github.com/haraldh/chainerror/workflows/Rust/badge.svg)](https://github.com/haraldh/chainerror/actions?query=workflow%3A%22Rust%22)
-[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/haraldh/chainerror.svg)](https://isitmaintained.com/project/haraldh/chainerror "Average time to resolve an issue")
-[![Percentage of issues still open](https://isitmaintained.com/badge/open/haraldh/chainerror.svg)](https://isitmaintained.com/project/haraldh/chainerror "Percentage of issues still open")
+[![Coverage Status](https://codecov.io/gh/haraldh/chainerror/branch/master/graph/badge.svg?token=HGLJFGA11B)](https://codecov.io/gh/haraldh/chainerror)
 ![Maintenance](https://img.shields.io/badge/maintenance-activly--developed-brightgreen.svg)
 
 # chainerror
@@ -92,11 +89,6 @@ Along with the `ChainError<T>` struct, `chainerror` comes with some useful helpe
 `chainerror` has no dependencies!
 
 Debug information is worth it!
-
-### Features
-
-`display-cause`
-: turn on printing a backtrace of the errors in `Display`
 
 ## Tutorial
 

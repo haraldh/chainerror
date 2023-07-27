@@ -51,6 +51,10 @@ fn func1() -> ChainResult<(), Func1Error> {
 
 fn main() {
     if let Err(e) = func1() {
+        eprintln!("\nDisplay Error {{}}:\n{}", e);
+
+        eprintln!("\nAlternative Display Error {{:#}}:\n{:#}", e);
+
         eprintln!("\nDebug Error {{:?}}:\n{:?}", e);
 
         eprintln!("\nAlternative Debug Error {{:#?}}:\n{:#?}\n", e);

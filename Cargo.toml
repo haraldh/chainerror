@@ -21,7 +21,3 @@ github = { repository = "haraldh/chainerror", workflow = "Rust" }
 maintenance = { status = "actively-developed" }
 is-it-maintained-issue-resolution = { repository = "haraldh/chainerror" }
 is-it-maintained-open-issues = { repository = "haraldh/chainerror" }
-
-[features]
-default = []
-display-cause = []

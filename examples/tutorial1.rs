@@ -1,3 +1,6 @@
+#![allow(clippy::single_match)]
+#![allow(clippy::redundant_pattern_matching)]
+
 use std::error::Error;
 use std::io;
 use std::result::Result;

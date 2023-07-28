@@ -1,4 +1,4 @@
-use chainerror::ResultTrait;
+use chainerror::Context;
 
 #[test]
 fn test_basic() {

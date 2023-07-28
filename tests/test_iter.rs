@@ -1,4 +1,4 @@
-use chainerror::ResultTrait;
+use chainerror::Context;
 use std::error::Error;
 use std::io;
 

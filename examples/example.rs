@@ -1,8 +1,7 @@
+use chainerror::prelude::v2::*;
 use std::error::Error;
+use std::fmt;
 use std::io;
-use std::result::Result;
-
-use chainerror::prelude::v1::*;
 
 fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
@@ -15,9 +14,9 @@ fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
     Ok(())
 }
 
-derive_str_context!(Func2Error);
+chainerror::str_context!(Func2Error);
 
-fn func2() -> ChainResult<(), Func2Error> {
+fn func2() -> chainerror::Result<(), Func2Error> {
     func3().context(Func2Error("func2 error: calling func3".to_string()))?;
     Ok(())
 }
@@ -27,8 +26,8 @@ enum Func1Error {
     IO(String),
 }
 
-impl ::std::fmt::Display for Func1Error {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+impl fmt::Display for Func1Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Func1Error::Func2 => write!(f, "func1 error calling func2"),
             Func1Error::IO(filename) => write!(f, "Error reading '{}'", filename),
@@ -36,13 +35,13 @@ impl ::std::fmt::Display for Func1Error {
     }
 }
 
-impl ::std::fmt::Debug for Func1Error {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+impl fmt::Debug for Func1Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self)
     }
 }
 
-fn func1() -> ChainResult<(), Func1Error> {
+fn func1() -> chainerror::Result<(), Func1Error> {
     func2().context(Func1Error::Func2)?;
     let filename = String::from("bar.txt");
     do_some_io().context(Func1Error::IO(filename))?;

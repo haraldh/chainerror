@@ -46,7 +46,7 @@ and you have no idea where it comes from.
 With `chainerror`, you can supply a context and get a nice error backtrace:
 
 ```rust
-use chainerror::prelude::v1::*;
+use chainerror::Context as _;
 use std::path::PathBuf;
 
 type BoxedError = Box<dyn std::error::Error + Send + Sync>;

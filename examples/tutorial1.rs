@@ -3,7 +3,6 @@
 
 use std::error::Error;
 use std::io;
-use std::result::Result;
 
 fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;

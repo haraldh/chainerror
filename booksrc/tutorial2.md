@@ -25,7 +25,7 @@ along with the `Location` of the `context()` call and returns `Err(newerror)`.
 `?` then returns the inner error applying `.into()`, so that we
 again have a `Err(Box<Error + Send + Sync>)` as a result.
 
-The `Debug` implementation of `ChainError<T>` (which is returned by `context()`)
+The `Debug` implementation of `chainerror::Error<T>` (which is returned by `context()`)
 prints the `Debug` of `T` prefixed with the stored filename and line number.
 
-`ChainError<T>` in our case is `ChainError<&str>`.
+`chainerror::Error<T>` in our case is `chainerror::Error<&str>`.

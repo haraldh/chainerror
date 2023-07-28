@@ -14,13 +14,13 @@ If you compare the output to the previous example, you will see,
 that:
 
 ~~~
-Error: src/main.rs:19: "func1 error"
+Error: examples/tutorial2.rs:20:16: func1 error
 ~~~
 
 changed to just:
 
 ~~~
-src/main.rs:16: "func1 error"
+examples/tutorial3.rs:17:13: func1 error
 ~~~
 
 This is, because we caught the error of `func1()` in `main()` and print it out ourselves.

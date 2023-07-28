@@ -4,15 +4,15 @@
 
 ~~~rust,ignore
 fn is_chain<T: 'static + Display + Debug>(&self) -> bool
-fn downcast_chain_ref<T: 'static + Display + Debug>(&self) -> Option<&ChainError<T>>
-fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut ChainError<T>>
+fn downcast_chain_ref<T: 'static + Display + Debug>(&self) -> Option<&chainerror::Error<T>>
+fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut chainerror::Error<T>>
 fn root_cause(&self) -> Option<&(dyn Error + 'static)>
 fn find_cause<U: Error + 'static>(&self) -> Option<&U>
-fn find_chain_cause<U: Error + 'static>(&self) -> Option<&ChainError<U>>
+fn find_chain_cause<U: Error + 'static>(&self) -> Option<&chainerror::Error<U>>
 fn kind<'a>(&'a self) -> &'a T
 ~~~
 
-Using `downcast_chain_ref::<String>()` gives a `ChainError<String>`, which can be used
+Using `downcast_chain_ref::<String>()` gives a `chainerror::Error<String>`, which can be used
 to call `.find_cause::<io::Error>()`. 
 
 ~~~rust,ignore

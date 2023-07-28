@@ -1,14 +1,14 @@
 # Finding an Error cause
 
-To distinguish the errors occuring in various places, we can define named string errors with the
+To distinguish the errors occurring in various places, we can define named string errors with the
 "new type" pattern.
 
 ~~~rust,ignore
-derive_str_context!(Func2Error);
-derive_str_context!(Func1Error);
+chainerror::str_context!(Func2Error);
+chainerror::str_context!(Func1Error);
 ~~~
 
-Instead of `ChainError<String>` we now have `struct Func1Error(String)` and `ChainError<Func1Error>`.
+Instead of `chainerror::Error<String>` we now have `struct Func1Error(String)` and `chainerror::Error<Func1Error>`.
 
 In the `main` function you can see, how we can match the different errors.
 
@@ -18,9 +18,9 @@ Also see:
 ~~~
 as a shortcut to
 ~~~rust,ignore
-            if let Some(f2err) = f1err.find_cause::<ChainError<Func2Error>>() {
+            if let Some(f2err) = f1err.find_cause::<chainerror::Error<Func2Error>>() {
 ~~~
-hiding the `ChainError<T>` implementation detail.
+hiding the `chainerror::Error<T>` implementation detail.
 
 ~~~rust
 {{#include ../examples/tutorial8.rs}}

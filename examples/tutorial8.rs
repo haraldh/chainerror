@@ -1,14 +1,14 @@
-use chainerror::prelude::v1::*;
+use chainerror::{Context as _, ErrorDown as _};
+
 use std::error::Error;
 use std::io;
-use std::result::Result;
 
 fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
-derive_str_context!(Func2Error);
+chainerror::str_context!(Func2Error);
 
 fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
@@ -16,7 +16,7 @@ fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     Ok(())
 }
 
-derive_str_context!(Func1Error);
+chainerror::str_context!(Func1Error);
 
 fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
     func2().context(Func1Error("func1 error".to_string()))?;
@@ -28,7 +28,7 @@ fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
             eprintln!("Func1Error: {}", f1err);
 
-            if let Some(f2err) = f1err.find_cause::<ChainError<Func2Error>>() {
+            if let Some(f2err) = f1err.find_cause::<chainerror::Error<Func2Error>>() {
                 eprintln!("Func2Error: {}", f2err);
             }
 

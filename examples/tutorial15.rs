@@ -2,7 +2,8 @@
 #![allow(clippy::redundant_pattern_matching)]
 
 pub mod mycrate {
-    use chainerror::prelude::v1::*;
+    use chainerror::{Context as _, ErrorDown as _};
+
     use std::io;
 
     fn do_some_io(_f: &str) -> std::result::Result<(), io::Error> {
@@ -10,7 +11,7 @@ pub mod mycrate {
         Ok(())
     }
 
-    derive_str_context!(Func2Error);
+    chainerror::str_context!(Func2Error);
 
     fn func2() -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let filename = "foo.txt";
@@ -26,7 +27,7 @@ pub mod mycrate {
         Unknown,
     }
 
-    derive_err_kind!(Error, ErrorKind);
+    chainerror::err_kind!(Error, ErrorKind);
     pub type Result<T> = std::result::Result<T, Error>;
 
     impl std::fmt::Display for ErrorKind {

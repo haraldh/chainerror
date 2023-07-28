@@ -1,14 +1,14 @@
-use chainerror::prelude::v1::*;
+use chainerror::Context as _;
+
 use std::error::Error;
 use std::io;
-use std::result::Result;
 
 fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Err(io::Error::from(io::ErrorKind::NotFound))?;
     Ok(())
 }
 
-derive_str_context!(Func2Error);
+chainerror::str_context!(Func2Error);
 
 fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
@@ -32,7 +32,7 @@ impl ::std::fmt::Display for Func1ErrorKind {
 }
 impl ::std::error::Error for Func1ErrorKind {}
 
-fn func1() -> ChainResult<(), Func1ErrorKind> {
+fn func1() -> chainerror::Result<(), Func1ErrorKind> {
     func2().context(Func1ErrorKind::Func2)?;
     let filename = String::from("bar.txt");
     do_some_io().context(Func1ErrorKind::IO(filename))?;

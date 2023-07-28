@@ -14,5 +14,4 @@ Sometimes you want to inspect the `source()` of an `Error`.
 Note, that because we changed the output of the error in `main()` from 
 `Debug` to `Display`, we don't see the error backtrace with filename and line number.
 
-To enable the `Display` backtrace, you have to enable the feature `display-cause` for `chainerror`.
- 
+To use the `Display` backtrace, you have to use the alternative display format output `{:#}`.

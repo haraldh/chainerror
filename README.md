@@ -46,7 +46,7 @@ and you have no idea where it comes from.
 With `chainerror`, you can supply a context and get a nice error backtrace:
 
 ```rust
-use chainerror::prelude::v1::*;
+use chainerror::Context as _;
 use std::path::PathBuf;
 
 type BoxedError = Box<dyn std::error::Error + Send + Sync>;
@@ -89,6 +89,81 @@ Along with the `Error<T>` struct, `chainerror` comes with some useful helper mac
 `chainerror` has no dependencies!
 
 Debug information is worth it!
+
+## Multiple Output Formats
+
+`chainerror` supports multiple output formats, which can be selected with the different format specifiers:
+
+* `{}`: Display
+```text
+func1 error calling func2
+```
+
+* `{:#}`: Alternative Display
+```text
+func1 error calling func2
+Caused by:
+  func2 error: calling func3
+Caused by:
+  (passed error)
+Caused by:
+  Error reading 'foo.txt'
+Caused by:
+  entity not found
+```
+
+* `{:?}`: Debug
+```text
+examples/example.rs:50:13: func1 error calling func2
+Caused by:
+examples/example.rs:25:13: Func2Error(func2 error: calling func3)
+Caused by:
+examples/example.rs:18:13: (passed error)
+Caused by:
+examples/example.rs:13:18: Error reading 'foo.txt'
+Caused by:
+Kind(NotFound)
+
+```
+
+* `{:#?}`: Alternative Debug
+```text
+Error<example::Func1Error> {
+    occurrence: Some(
+        "examples/example.rs:50:13",
+    ),
+    kind: func1 error calling func2,
+    source: Some(
+        Error<example::Func2Error> {
+            occurrence: Some(
+                "examples/example.rs:25:13",
+            ),
+            kind: Func2Error(func2 error: calling func3),
+            source: Some(
+                Error<chainerror::AnnotatedError> {
+                    occurrence: Some(
+                        "examples/example.rs:18:13",
+                    ),
+                    kind: (passed error),
+                    source: Some(
+                        Error<alloc::string::String> {
+                            occurrence: Some(
+                                "examples/example.rs:13:18",
+                            ),
+                            kind: "Error reading 'foo.txt'",
+                            source: Some(
+                                Kind(
+                                    NotFound,
+                                ),
+                            ),
+                        },
+                    ),
+                },
+            ),
+        },
+    ),
+}
+```
 
 ## Tutorial
 

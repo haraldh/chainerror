@@ -1,4 +1,4 @@
-use chainerror::prelude::v1::*;
+use chainerror::Context;
 use std::error::Error;
 use std::io;
 

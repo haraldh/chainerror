@@ -8,18 +8,6 @@ use std::error::Error as StdError;
 use std::fmt::{Debug, Display, Formatter};
 use std::panic::Location;
 
-pub mod prelude {
-    //! convenience prelude
-    pub mod v1 {
-        //! convenience prelude
-        pub use super::super::ChainErrorDown as _;
-        pub use super::super::Error as ChainError;
-        pub use super::super::Result as ChainResult;
-        pub use super::super::ResultTrait as _;
-        pub use crate::{derive_err_kind, derive_str_context};
-    }
-}
-
 /// chains an inner error kind `T` with a causing error
 pub struct Error<T> {
     occurrence: Option<String>,
@@ -55,7 +43,8 @@ impl<T: 'static + Display + Debug> Error<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use chainerror::prelude::v1::*;
+    /// use chainerror::Context as _;
+    /// use chainerror::ErrorDown as _;
     /// use std::error::Error;
     /// use std::io;
     ///
@@ -64,7 +53,7 @@ impl<T: 'static + Display + Debug> Error<T> {
     ///     Ok(())
     /// }
     ///
-    /// derive_str_context!(Func2Error);
+    /// chainerror::str_context!(Func2Error);
     ///
     /// fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     ///     let filename = "foo.txt";
@@ -72,10 +61,10 @@ impl<T: 'static + Display + Debug> Error<T> {
     ///     Ok(())
     /// }
     ///
-    /// derive_str_context!(Func1Error);
+    /// chainerror::str_context!(Func1Error);
     ///
     /// fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-    ///     func2().context(Func1Error("func1 error".into()))?;
+    ///     func2().context(Func1Error::new("func1 error"))?;
     ///     Ok(())
     /// }
     ///
@@ -107,13 +96,12 @@ impl<T: 'static + Display + Debug> Error<T> {
     /// # Examples
     ///
     /// ```rust
-    /// # use chainerror::prelude::v1::*;
-    /// # derive_str_context!(FooError);
-    /// # let err = ChainError::new(String::new(), None, None);
+    /// # chainerror::str_context!(FooError);
+    /// # let err = chainerror::Error::new(String::new(), None, None);
     /// // Instead of writing
-    /// err.find_cause::<ChainError<FooError>>();
+    /// err.find_cause::<chainerror::Error<FooError>>();
     ///
-    /// // leave out the ChainError<FooError> implementation detail
+    /// // leave out the chainerror::Error<FooError> implementation detail
     /// err.find_chain_cause::<FooError>();
     /// ```
     #[inline]
@@ -130,17 +118,16 @@ impl<T: 'static + Display + Debug> Error<T> {
     /// # Examples
     ///
     /// ```rust
-    /// # use chainerror::prelude::v1::*;
-    /// # derive_str_context!(FooErrorKind);
-    /// # let err = ChainError::new(String::new(), None, None);
+    /// # chainerror::str_context!(FooErrorKind);
+    /// # let err = chainerror::Error::new(String::new(), None, None);
     /// // Instead of writing
-    /// err.find_cause::<ChainError<FooErrorKind>>();
+    /// err.find_cause::<chainerror::Error<FooErrorKind>>();
     /// // and/or
     /// err.find_chain_cause::<FooErrorKind>();
     /// // and/or
     /// err.find_cause::<FooErrorKind>();
     ///
-    /// // leave out the ChainError<FooErrorKind> implementation detail
+    /// // leave out the chainerror::Error<FooErrorKind> implementation detail
     /// err.find_kind_or_cause::<FooErrorKind>();
     /// ```
     #[inline]
@@ -159,7 +146,7 @@ impl<T: 'static + Display + Debug> Error<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use chainerror::prelude::v1::*;
+    /// use chainerror::Context as _;
     /// use std::error::Error;
     /// use std::io;
     ///
@@ -168,7 +155,7 @@ impl<T: 'static + Display + Debug> Error<T> {
     ///     Ok(())
     /// }
     ///
-    /// derive_str_context!(Func2Error);
+    /// chainerror::str_context!(Func2Error);
     ///
     /// fn func2() -> Result<(), Box<dyn Error + Send + Sync>> {
     ///     let filename = "foo.txt";
@@ -192,7 +179,7 @@ impl<T: 'static + Display + Debug> Error<T> {
     /// #     }
     /// # }
     ///
-    /// fn func1() -> ChainResult<(), Func1ErrorKind> {
+    /// fn func1() -> chainerror::Result<(), Func1ErrorKind> {
     ///     func2().context(Func1ErrorKind::Func2)?;
     ///     do_some_io().context(Func1ErrorKind::IO("bar.txt".into()))?;
     ///     Ok(())
@@ -225,9 +212,12 @@ impl<T: 'static + Display + Debug> Error<T> {
 }
 
 /// Convenience methods for `Result<>` to turn the error into a decorated [`Error`](Error)
-pub trait ResultTrait<O, E: Into<Box<dyn StdError + 'static + Send + Sync>>> {
+pub trait Context<O, E: Into<Box<dyn StdError + 'static + Send + Sync>>> {
     /// Decorate the error with a `kind` of type `T` and the source `Location`
     fn context<T: 'static + Display + Debug>(self, kind: T) -> std::result::Result<O, Error<T>>;
+
+    /// Decorate the error just with the source `Location`
+    fn annotate(self) -> std::result::Result<O, Error<AnnotatedError>>;
 
     /// Decorate the `error` with a `kind` of type `T` produced with a `FnOnce(&error)` and the source `Location`
     fn map_context<T: 'static + Display + Debug, F: FnOnce(&E) -> T>(
@@ -236,7 +226,22 @@ pub trait ResultTrait<O, E: Into<Box<dyn StdError + 'static + Send + Sync>>> {
     ) -> std::result::Result<O, Error<T>>;
 }
 
-impl<O, E: Into<Box<dyn StdError + 'static + Send + Sync>>> ResultTrait<O, E>
+/// Convenience type to just decorate the error with the source `Location`
+pub struct AnnotatedError(());
+
+impl Display for AnnotatedError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(passed error)")
+    }
+}
+
+impl Debug for AnnotatedError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(passed error)")
+    }
+}
+
+impl<O, E: Into<Box<dyn StdError + 'static + Send + Sync>>> Context<O, E>
     for std::result::Result<O, E>
 {
     #[track_caller]
@@ -246,6 +251,19 @@ impl<O, E: Into<Box<dyn StdError + 'static + Send + Sync>>> ResultTrait<O, E>
             Ok(t) => Ok(t),
             Err(error_cause) => Err(Error::new(
                 kind,
+                Some(error_cause.into()),
+                Some(Location::caller().to_string()),
+            )),
+        }
+    }
+
+    #[track_caller]
+    #[inline]
+    fn annotate(self) -> std::result::Result<O, Error<AnnotatedError>> {
+        match self {
+            Ok(t) => Ok(t),
+            Err(error_cause) => Err(Error::new(
+                AnnotatedError(()),
                 Some(error_cause.into()),
                 Some(Location::caller().to_string()),
             )),
@@ -298,7 +316,7 @@ impl<T: 'static + Display + Debug> std::ops::Deref for Error<T> {
 }
 
 /// Convenience trait to hide the [`Error<T>`](Error) implementation internals
-pub trait ChainErrorDown {
+pub trait ErrorDown {
     /// Test if of type `Error<T>`
     fn is_chain<T: 'static + Display + Debug>(&self) -> bool;
     /// Downcast to a reference of `Error<T>`
@@ -311,7 +329,7 @@ pub trait ChainErrorDown {
     fn downcast_inner_mut<T: 'static + StdError>(&mut self) -> Option<&mut T>;
 }
 
-impl<U: 'static + Display + Debug> ChainErrorDown for Error<U> {
+impl<U: 'static + Display + Debug> ErrorDown for Error<U> {
     #[inline]
     fn is_chain<T: 'static + Display + Debug>(&self) -> bool {
         TypeId::of::<T>() == TypeId::of::<U>()
@@ -369,7 +387,7 @@ impl<U: 'static + Display + Debug> ChainErrorDown for Error<U> {
     }
 }
 
-impl ChainErrorDown for dyn StdError + 'static {
+impl ErrorDown for dyn StdError + 'static {
     #[inline]
     fn is_chain<T: 'static + Display + Debug>(&self) -> bool {
         self.is::<Error<T>>()
@@ -402,7 +420,7 @@ impl ChainErrorDown for dyn StdError + 'static {
     }
 }
 
-impl ChainErrorDown for dyn StdError + 'static + Send {
+impl ErrorDown for dyn StdError + 'static + Send {
     #[inline]
     fn is_chain<T: 'static + Display + Debug>(&self) -> bool {
         self.is::<Error<T>>()
@@ -435,7 +453,7 @@ impl ChainErrorDown for dyn StdError + 'static + Send {
     }
 }
 
-impl ChainErrorDown for dyn StdError + 'static + Send + Sync {
+impl ErrorDown for dyn StdError + 'static + Send + Sync {
     #[inline]
     fn is_chain<T: 'static + Display + Debug>(&self) -> bool {
         self.is::<Error<T>>()
@@ -549,7 +567,8 @@ where
 /// # Examples
 ///
 /// ```rust
-/// # use chainerror::prelude::v1::*;
+/// # use chainerror::Context as _;
+/// # use chainerror::ErrorDown as _;
 /// # use std::error::Error;
 /// # use std::io;
 /// # use std::result::Result;
@@ -557,23 +576,23 @@ where
 /// #     Err(io::Error::from(io::ErrorKind::NotFound))?;
 /// #     Ok(())
 /// # }
-/// derive_str_context!(Func2Error);
+/// chainerror::str_context!(Func2Error);
 ///
-/// fn func2() -> ChainResult<(), Func2Error> {
+/// fn func2() -> chainerror::Result<(), Func2Error> {
 ///     let filename = "foo.txt";
 ///     do_some_io().context(Func2Error(format!("Error reading '{}'", filename)))?;
 ///     Ok(())
 /// }
 ///
-/// derive_str_context!(Func1Error);
+/// chainerror::str_context!(Func1Error);
 ///
 /// fn func1() -> Result<(), Box<dyn Error>> {
-///     func2().context(Func1Error("func1 error".into()))?;
+///     func2().context(Func1Error::new("func1 error"))?;
 ///     Ok(())
 /// }
 /// #     if let Err(e) = func1() {
 /// #         if let Some(f1err) = e.downcast_chain_ref::<Func1Error>() {
-/// #             assert!(f1err.find_cause::<ChainError<Func2Error>>().is_some());
+/// #             assert!(f1err.find_cause::<chainerror::Error<Func2Error>>().is_some());
 /// #             assert!(f1err.find_chain_cause::<Func2Error>().is_some());
 /// #         } else {
 /// #             panic!();
@@ -583,10 +602,15 @@ where
 /// #     }
 /// ```
 #[macro_export]
-macro_rules! derive_str_context {
+macro_rules! str_context {
     ($e:ident) => {
         #[derive(Clone)]
         pub struct $e(pub String);
+        impl $e {
+            pub fn new<S: Into<String>>(s: S) -> Self {
+                $e(s.into())
+            }
+        }
         impl ::std::fmt::Display for $e {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
                 write!(f, "{}", self.0)
@@ -612,7 +636,7 @@ macro_rules! derive_str_context {
 /// # Examples
 ///
 /// ```rust
-/// use chainerror::prelude::v1::*;
+/// use chainerror::Context as _;
 /// use std::io;
 ///
 /// fn do_some_io(_f: &str) -> std::result::Result<(), io::Error> {
@@ -626,7 +650,7 @@ macro_rules! derive_str_context {
 ///     Unknown,
 /// }
 ///
-/// derive_err_kind!(Error, ErrorKind);
+/// chainerror::err_kind!(Error, ErrorKind);
 ///
 /// impl std::fmt::Display for ErrorKind {
 ///     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> std::fmt::Result {
@@ -666,7 +690,7 @@ macro_rules! derive_str_context {
 /// }
 /// ```
 #[macro_export]
-macro_rules! derive_err_kind {
+macro_rules! err_kind {
     ($e:ident, $k:ident) => {
         pub struct $e($crate::Error<$k>);
 

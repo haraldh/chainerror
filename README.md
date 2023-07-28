@@ -95,12 +95,12 @@ Debug information is worth it!
 `chainerror` supports multiple output formats, which can be selected with the different format specifiers:
 
 * `{}`: Display
-```text
+```console
 func1 error calling func2
 ```
 
 * `{:#}`: Alternative Display
-```text
+```console
 func1 error calling func2
 Caused by:
   func2 error: calling func3
@@ -113,7 +113,7 @@ Caused by:
 ```
 
 * `{:?}`: Debug
-```text
+```console
 examples/example.rs:50:13: func1 error calling func2
 Caused by:
 examples/example.rs:25:13: Func2Error(func2 error: calling func3)
@@ -127,7 +127,7 @@ Kind(NotFound)
 ```
 
 * `{:#?}`: Alternative Debug
-```text
+```console
 Error<example::Func1Error> {
     occurrence: Some(
         "examples/example.rs:50:13",

@@ -1,4 +1,4 @@
-use chainerror::prelude::v2::*;
+use chainerror::Context as _;
 use std::error::Error;
 use std::fmt;
 use std::io;
@@ -8,9 +8,14 @@ fn do_some_io() -> Result<(), Box<dyn Error + Send + Sync>> {
     Ok(())
 }
 
-fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
+fn func4() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filename = "foo.txt";
     do_some_io().context(format!("Error reading '{}'", filename))?;
+    Ok(())
+}
+
+fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
+    func4().annotate()?;
     Ok(())
 }
 

@@ -216,11 +216,29 @@ pub trait Context<O, E: Into<Box<dyn StdError + 'static + Send + Sync>>> {
     /// Decorate the error with a `kind` of type `T` and the source `Location`
     fn context<T: 'static + Display + Debug>(self, kind: T) -> std::result::Result<O, Error<T>>;
 
+    /// Decorate the error just with the source `Location`
+    fn annotate(self) -> std::result::Result<O, Error<AnnotatedError>>;
+
     /// Decorate the `error` with a `kind` of type `T` produced with a `FnOnce(&error)` and the source `Location`
     fn map_context<T: 'static + Display + Debug, F: FnOnce(&E) -> T>(
         self,
         op: F,
     ) -> std::result::Result<O, Error<T>>;
+}
+
+/// Convenience type to just decorate the error with the source `Location`
+pub struct AnnotatedError(());
+
+impl Display for AnnotatedError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(passed error)")
+    }
+}
+
+impl Debug for AnnotatedError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(passed error)")
+    }
 }
 
 impl<O, E: Into<Box<dyn StdError + 'static + Send + Sync>>> Context<O, E>
@@ -233,6 +251,19 @@ impl<O, E: Into<Box<dyn StdError + 'static + Send + Sync>>> Context<O, E>
             Ok(t) => Ok(t),
             Err(error_cause) => Err(Error::new(
                 kind,
+                Some(error_cause.into()),
+                Some(Location::caller().to_string()),
+            )),
+        }
+    }
+
+    #[track_caller]
+    #[inline]
+    fn annotate(self) -> std::result::Result<O, Error<AnnotatedError>> {
+        match self {
+            Ok(t) => Ok(t),
+            Err(error_cause) => Err(Error::new(
+                AnnotatedError(()),
                 Some(error_cause.into()),
                 Some(Location::caller().to_string()),
             )),

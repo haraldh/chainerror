@@ -111,9 +111,9 @@ impl<T: 'static + Display + Debug> Error<T> {
     /// # derive_str_context!(FooError);
     /// # let err = ChainError::new(String::new(), None, None);
     /// // Instead of writing
-    /// err.find_cause::<ChainError<FooError>>();
+    /// err.find_cause::<chainerror::Error<FooError>>();
     ///
-    /// // leave out the ChainError<FooError> implementation detail
+    /// // leave out the chainerror::Error<FooError> implementation detail
     /// err.find_chain_cause::<FooError>();
     /// ```
     #[inline]
@@ -134,13 +134,13 @@ impl<T: 'static + Display + Debug> Error<T> {
     /// # derive_str_context!(FooErrorKind);
     /// # let err = ChainError::new(String::new(), None, None);
     /// // Instead of writing
-    /// err.find_cause::<ChainError<FooErrorKind>>();
+    /// err.find_cause::<chainerror::Error<FooErrorKind>>();
     /// // and/or
     /// err.find_chain_cause::<FooErrorKind>();
     /// // and/or
     /// err.find_cause::<FooErrorKind>();
     ///
-    /// // leave out the ChainError<FooErrorKind> implementation detail
+    /// // leave out the chainerror::Error<FooErrorKind> implementation detail
     /// err.find_kind_or_cause::<FooErrorKind>();
     /// ```
     #[inline]
@@ -192,7 +192,7 @@ impl<T: 'static + Display + Debug> Error<T> {
     /// #     }
     /// # }
     ///
-    /// fn func1() -> ChainResult<(), Func1ErrorKind> {
+    /// fn func1() -> chainerror::Result<(), Func1ErrorKind> {
     ///     func2().context(Func1ErrorKind::Func2)?;
     ///     do_some_io().context(Func1ErrorKind::IO("bar.txt".into()))?;
     ///     Ok(())
@@ -559,7 +559,7 @@ where
 /// # }
 /// derive_str_context!(Func2Error);
 ///
-/// fn func2() -> ChainResult<(), Func2Error> {
+/// fn func2() -> chainerror::Result<(), Func2Error> {
 ///     let filename = "foo.txt";
 ///     do_some_io().context(Func2Error(format!("Error reading '{}'", filename)))?;
 ///     Ok(())

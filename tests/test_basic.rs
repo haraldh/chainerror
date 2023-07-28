@@ -1,4 +1,4 @@
-use chainerror::prelude::v1::*;
+use chainerror::ResultTrait;
 
 #[test]
 fn test_basic() {
@@ -19,7 +19,6 @@ fn test_basic() {
 
     if let Err(e) = process_config_file() {
         let os_notfound_error = std::io::Error::from_raw_os_error(2);
-        eprintln!("Error:\n{:?}", e);
         let s = format!("{:?}", e);
         let lines = s.lines().collect::<Vec<_>>();
         assert_eq!(lines.len(), 5);

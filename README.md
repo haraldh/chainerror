@@ -84,7 +84,7 @@ Os { code: 2, kind: NotFound, message: "No such file or directory" }
 `chainerror` uses `.source()` of `std::error::Error` along with `#[track_caller]` and `Location` to provide a nice debug error backtrace.
 It encapsulates all types, which have `Display + Debug` and can store the error cause internally.
 
-Along with the `ChainError<T>` struct, `chainerror` comes with some useful helper macros to save a lot of typing.
+Along with the `Error<T>` struct, `chainerror` comes with some useful helper macros to save a lot of typing.
 
 `chainerror` has no dependencies!
 
@@ -98,8 +98,8 @@ Read the [Tutorial](https://haraldh.github.io/chainerror/tutorial1.html)
 
 Licensed under either of
 
-* Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or https://www.apache.org/licenses/LICENSE-2.0)
-* MIT license ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT)
+* Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or <https://www.apache.org/licenses/LICENSE-2.0>)
+* MIT license ([LICENSE-MIT](LICENSE-MIT) or <https://opensource.org/licenses/MIT>)
 
 at your option.
 

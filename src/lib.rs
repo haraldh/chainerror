@@ -8,26 +8,6 @@ use std::error::Error as StdError;
 use std::fmt::{Debug, Display, Formatter};
 use std::panic::Location;
 
-pub mod prelude {
-    //! convenience prelude
-    pub mod v1 {
-        //! convenience prelude
-        pub use super::super::Context as _;
-        pub use super::super::Context as ResultTrait;
-        pub use super::super::Error as ChainError;
-        pub use super::super::ErrorDown as _;
-        pub use super::super::ErrorDown as ChainErrorDown;
-        pub use super::super::Result as ChainResult;
-        pub use crate::err_kind as derive_err_kind;
-        pub use crate::str_context as derive_str_context;
-    }
-    pub mod v2 {
-        //! convenience prelude
-        pub use super::super::Context as _;
-        pub use super::super::ErrorDown as _;
-    }
-}
-
 /// chains an inner error kind `T` with a causing error
 pub struct Error<T> {
     occurrence: Option<String>,

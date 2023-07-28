@@ -84,7 +84,7 @@ impl<T: 'static + Display + Debug> Error<T> {
     /// chainerror::str_context!(Func1Error);
     ///
     /// fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-    ///     func2().context(Func1Error("func1 error".into()))?;
+    ///     func2().context(Func1Error::new("func1 error"))?;
     ///     Ok(())
     /// }
     ///
@@ -576,7 +576,7 @@ where
 /// chainerror::str_context!(Func1Error);
 ///
 /// fn func1() -> Result<(), Box<dyn Error>> {
-///     func2().context(Func1Error("func1 error".into()))?;
+///     func2().context(Func1Error::new("func1 error"))?;
 ///     Ok(())
 /// }
 /// #     if let Err(e) = func1() {
@@ -595,6 +595,11 @@ macro_rules! str_context {
     ($e:ident) => {
         #[derive(Clone)]
         pub struct $e(pub String);
+        impl $e {
+            pub fn new<S: Into<String>>(s: S) -> Self {
+                $e(s.into())
+            }
+        }
         impl ::std::fmt::Display for $e {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
                 write!(f, "{}", self.0)

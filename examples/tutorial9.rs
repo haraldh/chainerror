@@ -20,7 +20,7 @@ chainerror::str_context!(Func1ErrorFunc2);
 chainerror::str_context!(Func1ErrorIO);
 
 fn func1() -> Result<(), Box<dyn Error + Send + Sync>> {
-    func2().context(Func1ErrorFunc2("func1 error calling func2".to_string()))?;
+    func2().context(Func1ErrorFunc2::new("func1 error calling func2"))?;
     let filename = "bar.txt";
     do_some_io().context(Func1ErrorIO(format!("Error reading '{}'", filename)))?;
     Ok(())

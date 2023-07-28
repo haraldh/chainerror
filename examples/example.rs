@@ -17,7 +17,7 @@ fn func3() -> Result<(), Box<dyn Error + Send + Sync>> {
 chainerror::str_context!(Func2Error);
 
 fn func2() -> chainerror::Result<(), Func2Error> {
-    func3().context(Func2Error("func2 error: calling func3".to_string()))?;
+    func3().context(Func2Error::new("func2 error: calling func3"))?;
     Ok(())
 }
 

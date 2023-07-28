@@ -100,9 +100,9 @@ impl<T: 'static + Display + Debug> Error<T> {
             .next()
     }
 
-    /// Find the first error cause of type `ChainError<U>`, if any exists
+    /// Find the first error cause of type [`Error<U>`](Error), if any exists
     ///
-    /// Same as `find_cause`, but hides the `ChainError<U>` implementation internals
+    /// Same as `find_cause`, but hides the [`Error<U>`](Error) implementation internals
     ///
     /// # Examples
     ///
@@ -123,9 +123,9 @@ impl<T: 'static + Display + Debug> Error<T> {
             .next()
     }
 
-    /// Find the first error cause of type `ChainError<U>` or `U`, if any exists and return `U`
+    /// Find the first error cause of type [`Error<U>`](Error) or `U`, if any exists and return `U`
     ///
-    /// Same as `find_cause` and `find_chain_cause`, but hides the `ChainError<U>` implementation internals
+    /// Same as `find_cause` and `find_chain_cause`, but hides the [`Error<U>`](Error) implementation internals
     ///
     /// # Examples
     ///
@@ -154,7 +154,7 @@ impl<T: 'static + Display + Debug> Error<T> {
             .next()
     }
 
-    /// Return a reference to T of `ChainError<T>`
+    /// Return a reference to T of [`Error<T>`](Error)
     ///
     /// # Examples
     ///
@@ -224,7 +224,7 @@ impl<T: 'static + Display + Debug> Error<T> {
     }
 }
 
-/// Convenience methods for `Result<>` to turn the error into a decorated ChainError
+/// Convenience methods for `Result<>` to turn the error into a decorated [`Error`](Error)
 pub trait ResultTrait<O, E: Into<Box<dyn StdError + 'static + Send + Sync>>> {
     /// Decorate the error with a `kind` of type `T` and the source `Location`
     fn context<T: 'static + Display + Debug>(self, kind: T) -> std::result::Result<O, Error<T>>;
@@ -297,17 +297,17 @@ impl<T: 'static + Display + Debug> std::ops::Deref for Error<T> {
     }
 }
 
-/// Convenience trait to hide the `ChainError<T>` implementation internals
+/// Convenience trait to hide the [`Error<T>`](Error) implementation internals
 pub trait ChainErrorDown {
-    /// Test if of type `ChainError<T>`
+    /// Test if of type `Error<T>`
     fn is_chain<T: 'static + Display + Debug>(&self) -> bool;
-    /// Downcast to a reference of `ChainError<T>`
+    /// Downcast to a reference of `Error<T>`
     fn downcast_chain_ref<T: 'static + Display + Debug>(&self) -> Option<&Error<T>>;
-    /// Downcast to a mutable reference of `ChainError<T>`
+    /// Downcast to a mutable reference of `Error<T>`
     fn downcast_chain_mut<T: 'static + Display + Debug>(&mut self) -> Option<&mut Error<T>>;
-    /// Downcast to T of `ChainError<T>`
+    /// Downcast to T of `Error<T>`
     fn downcast_inner_ref<T: 'static + StdError>(&self) -> Option<&T>;
-    /// Downcast to T mutable reference of `ChainError<T>`
+    /// Downcast to T mutable reference of `Error<T>`
     fn downcast_inner_mut<T: 'static + StdError>(&mut self) -> Option<&mut T>;
 }
 
@@ -505,7 +505,7 @@ impl<T: 'static + Display + Debug> Debug for Error<T> {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if f.alternate() {
-            let mut f = f.debug_struct(&format!("ChainError<{}>", std::any::type_name::<T>()));
+            let mut f = f.debug_struct(&format!("Error<{}>", std::any::type_name::<T>()));
 
             let f = f
                 .field("occurrence", &self.occurrence)
@@ -601,9 +601,9 @@ macro_rules! derive_str_context {
     };
 }
 
-/// Derive an Error for an ErrorKind, which wraps a `ChainError` and implements a `kind()` method
+/// Derive an Error for an ErrorKind, which wraps a [`Error`](Error) and implements a `kind()` method
 ///
-/// It basically hides `ChainError` to the outside and only exposes the `kind()`
+/// It basically hides [`Error`](Error) to the outside and only exposes the [`kind()`](Error::kind)
 /// method.
 ///
 /// Error::kind() returns the ErrorKind
@@ -682,7 +682,7 @@ macro_rules! derive_err_kind {
             }
         }
 
-        impl From<ChainError<$k>> for $e {
+        impl From<$crate::Error<$k>> for $e {
             fn from(e: $crate::Error<$k>) -> Self {
                 $e(e)
             }

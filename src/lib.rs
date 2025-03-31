@@ -607,6 +607,7 @@ macro_rules! str_context {
         #[derive(Clone)]
         pub struct $e(pub String);
         impl $e {
+            #[allow(dead_code)]
             pub fn new<S: Into<String>>(s: S) -> Self {
                 $e(s.into())
             }
@@ -739,4 +740,138 @@ macro_rules! err_kind {
             }
         }
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Context as _;
+    use super::*;
+    use std::io;
+
+    #[test]
+    fn test_error_chain_with_multiple_causes() {
+        // Create a chain of errors
+        let io_error = io::Error::new(io::ErrorKind::NotFound, "file not found");
+
+        str_context!(Level3Error);
+        str_context!(Level2Error);
+        str_context!(Level1Error);
+
+        let err = Result::<(), _>::Err(io_error.into())
+            .context(Level3Error("level 3".into()))
+            .context(Level2Error("level 2".into()))
+            .context(Level1Error("level 1".into()))
+            .unwrap_err();
+
+        // Test the error chain
+        assert!(err.is_chain::<Level1Error>());
+        assert!(err.find_chain_cause::<Level2Error>().is_some());
+        assert!(err.find_chain_cause::<Level3Error>().is_some());
+        assert!(err.find_chain_cause::<io::Error>().is_some());
+    }
+
+    #[test]
+    fn test_error_root_cause() {
+        let io_error = io::Error::new(io::ErrorKind::NotFound, "file not found");
+
+        str_context!(WrapperError);
+        let err = Result::<(), _>::Err(io_error.into())
+            .context(WrapperError("wrapper".into()))
+            .unwrap_err();
+
+        let root = err.root_cause().unwrap();
+        assert!(root.is_chain::<io::Error>());
+    }
+
+    #[test]
+    fn test_error_display_and_debug() {
+        str_context!(CustomError);
+        let err = Error::new(
+            CustomError("test error".into()),
+            None,
+            Some("src/lib.rs:100".into()),
+        );
+
+        // Test Display formatting
+        assert_eq!(format!("{}", err), "test error");
+
+        // Test alternate Display formatting
+        assert_eq!(format!("{:#}", err), "test error");
+
+        // Test Debug formatting
+        let debug_output = format!("{:?}", err);
+        assert!(debug_output.contains("test error"));
+        assert!(debug_output.contains("src/lib.rs:100"));
+    }
+
+    #[test]
+    fn test_error_annotation() {
+        let io_error = io::Error::new(io::ErrorKind::NotFound, "file not found");
+        let err = Result::<(), _>::Err(io_error.into())
+            .annotate()
+            .unwrap_err();
+
+        assert!(err.source().is_some());
+        err.source()
+            .unwrap()
+            .downcast_inner_ref::<io::Error>()
+            .unwrap();
+    }
+
+    #[test]
+    fn test_map_context() {
+        let io_error = io::Error::new(io::ErrorKind::NotFound, "file not found");
+
+        str_context!(MappedError);
+        let err = Result::<(), _>::Err(io_error.into())
+            .map_context(|e| MappedError(format!("Mapped: {}", e)))
+            .unwrap_err();
+
+        assert!(err.is_chain::<MappedError>());
+        assert!(err.find_chain_cause::<io::Error>().is_some());
+    }
+
+    #[test]
+    fn test_error_downcasting() {
+        str_context!(OriginalError);
+        let original = Error::new(OriginalError("test".into()), None, None);
+
+        let error: Box<dyn StdError + Send + Sync> = Box::new(original);
+
+        // Test downcast_chain_ref
+        assert!(error.is_chain::<OriginalError>());
+        assert!(error.downcast_chain_ref::<OriginalError>().is_some());
+
+        // Test downcast_inner_ref
+        let inner = error.downcast_inner_ref::<OriginalError>();
+        assert!(inner.is_some());
+    }
+
+    #[derive(Debug, Clone)]
+    enum TestErrorKind {
+        Basic(String),
+        Complex { message: String },
+    }
+
+    impl Display for TestErrorKind {
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            match self {
+                TestErrorKind::Basic(msg) => write!(f, "Basic error: {}", msg),
+                TestErrorKind::Complex { message } => write!(f, "Complex error: {}", message),
+            }
+        }
+    }
+
+    #[test]
+    fn test_err_kind_macro() {
+        err_kind!(TestError, TestErrorKind);
+
+        let err = TestError::from(TestErrorKind::Basic("test".into()));
+        assert!(matches!(err.kind(), TestErrorKind::Basic(_)));
+
+        let complex_err = TestError::from(TestErrorKind::Complex {
+            message: "test".into(),
+        });
+        assert!(matches!(complex_err.kind(), TestErrorKind::Complex { .. }));
+    }
 }

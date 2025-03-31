@@ -874,10 +874,43 @@ mod tests {
 
         let err = TestError::from(TestErrorKind::Basic("test".into()));
         assert!(matches!(err.kind(), TestErrorKind::Basic(_)));
+        // The annotated error should display "(passed error)" even in a chain
+        assert_eq!(format!("{}", err), "Basic error: test");
+        assert_eq!(format!("{:?}", err), "Basic(\"test\")");
 
         let complex_err = TestError::from(TestErrorKind::Complex {
             message: "test".into(),
         });
         assert!(matches!(complex_err.kind(), TestErrorKind::Complex { .. }));
+        // The annotated error should display "(passed error)" even in a chain
+        assert_eq!(format!("{}", complex_err), "Complex error: test");
+        assert_eq!(
+            format!("{:?}", complex_err),
+            "Complex { message: \"test\" }"
+        );
+    }
+    #[test]
+    fn test_annotated_error_display_and_debug() {
+        let annotated = AnnotatedError(());
+
+        // Test Display formatting
+        assert_eq!(format!("{}", annotated), "(passed error)");
+
+        // Test Debug formatting
+        assert_eq!(format!("{:?}", annotated), "(passed error)");
+
+        // Test with error chain
+        let io_error = io::Error::new(io::ErrorKind::NotFound, "file not found");
+        let err = Result::<(), _>::Err(io_error.into())
+            .annotate()
+            .unwrap_err();
+
+        // The annotated error should display "(passed error)" even in a chain
+        assert_eq!(format!("{}", err), "(passed error)");
+        assert!(format!("{:?}", err).contains("(passed error)"));
+
+        // Verify the error chain is preserved
+        assert!(err.source().is_some());
+        assert!(err.source().unwrap().is_chain::<io::Error>());
     }
 }

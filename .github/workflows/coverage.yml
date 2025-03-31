@@ -21,9 +21,11 @@ jobs:
       CARGO_TERM_COLOR: always
     steps:
       - uses: actions/checkout@v4
-      - name: Install Rust
-        run: |
-          rustup update nightly
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          target: x86_64-unknown-linux-gnu
+          toolchain: nightly
+          components: llvm-tools-preview
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
       - name: Generate code coverage

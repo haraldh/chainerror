@@ -689,6 +689,12 @@ macro_rules! str_context {
 ///     do_some_io(filename).map_context(|e| ErrorKind::from(e))?;
 ///     Ok(())
 /// }
+///
+/// # fn main() {
+/// #   if let Err(e) = func1() {
+/// #       eprintln!("Error:\n{:?}", e);
+/// #   }
+/// # }
 /// ```
 #[macro_export]
 macro_rules! err_kind {
